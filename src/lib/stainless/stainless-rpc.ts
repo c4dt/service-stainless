@@ -4,7 +4,6 @@ import { ServerIdentity } from "@c4dt/cothority/network/proto";
 
 import { BytecodeGenRequest, BytecodeGenResponse, VerificationRequest, VerificationResponse } from "./proto";
 
-
 /**
  * RPC to talk with the stainless service of the conodes
  */

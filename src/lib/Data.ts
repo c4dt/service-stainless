@@ -797,7 +797,8 @@ export class TestData extends Data {
         const d = ByzCoinRPC.makeGenesisDarc([admin], r, "genesis darc");
         ["spawn:spawner", "spawn:coin", "spawn:credential", "spawn:longTermSecret", "spawn:calypsoWrite",
             "spawn:calypsoRead",
-            "invoke:coin.mint", "invoke:coin.transfer", "invoke:coin.fetch"].forEach((rule) => {
+            "invoke:coin.mint", "invoke:coin.transfer", "invoke:coin.fetch",
+            "spawn:bevm", "invoke:bevm.transaction"].forEach((rule) => {
             d.rules.appendToRule(rule, admin, "|");
         });
         const bc = await ByzCoinRPC.newByzCoinRPC(r, d, Long.fromNumber(5e8));
