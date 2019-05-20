@@ -1,0 +1,58 @@
+@startuml
+
+==Develop Smart Contract==
+
+Client -> StainlessService ++ : verify(sourceCode)
+return results
+
+Client -> StainlessService ++ : compile(sourceCode)
+return Ethereum bytecode+ABI
+
+==Deploy==
+
+Client -> StainlessService ++ : deploy(bytecode, args)
+StainlessService -> StainlessService: build Ethereum tx
+return txHash
+
+note over Client: sign txHash
+
+Client -> StainlessService ++ : finalizeTx(txSig)
+StainlessService -> StainlessService: marshal tx
+return tx
+
+Client -> BEvmCothority ++ : invoke("transaction", tx)
+note over BEvmCothority: execute in EVM
+BEvmCothority -> BEvmCothority: modify state
+return status
+
+==Execute Transaction==
+
+Client -> StainlessService ++ : transaction(bytecode, method, args)
+StainlessService -> StainlessService: build Ethereum tx
+return txHash
+
+note over Client: sign txHash
+
+Client -> StainlessService ++ : finalizeTx(txSig)
+StainlessService -> StainlessService: marshal tx
+return tx
+
+Client -> BEvmCothority ++ : invoke("transaction", tx)
+note over BEvmCothority: execute in EVM
+BEvmCothority -> BEvmCothority: modify state
+return status
+
+==Execute View Method==
+
+Client -> StainlessService ++ : call(bytecode, method, args)
+note over StainlessService: execute in EVM
+loop
+StainlessService -> StainlessService ++ : access state
+StainlessService -> BEvmCothority ++ : getProof()
+return proof
+return value
+end
+note over StainlessService: decode result
+return result
+
+@enduml
