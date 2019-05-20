@@ -798,7 +798,7 @@ export class TestData extends Data {
         ["spawn:spawner", "spawn:coin", "spawn:credential", "spawn:longTermSecret", "spawn:calypsoWrite",
             "spawn:calypsoRead",
             "invoke:coin.mint", "invoke:coin.transfer", "invoke:coin.fetch",
-            "spawn:bevm", "invoke:bevm.transaction"].forEach((rule) => {
+            "spawn:bevm", "invoke:bevm.credit", "invoke:bevm.transaction"].forEach((rule) => {
             d.rules.appendToRule(rule, admin, "|");
         });
         const bc = await ByzCoinRPC.newByzCoinRPC(r, d, Long.fromNumber(5e8));
