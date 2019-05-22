@@ -2364,6 +2364,110 @@
                             "id": 1
                         }
                     }
+                },
+                "DeployRequest": {
+                    "fields": {
+                        "gasLimit": {
+                            "type": "uint64",
+                            "id": 1
+                        },
+                        "gasPrice": {
+                            "type": "uint64",
+                            "id": 2
+                        },
+                        "amount": {
+                            "type": "uint64",
+                            "id": 3
+                        },
+                        "bytecode": {
+                            "type": "bytes",
+                            "id": 4
+                        },
+                        "abi": {
+                            "type": "string",
+                            "id": 5
+                        },
+                        "args": {
+                            "rule": "repeated",
+                            "type": "string",
+                            "id": 6,
+                            "options": {
+                                "packed": false
+                            }
+                        }
+                    }
+                },
+                "TransactionRequest": {
+                    "fields": {
+                        "gasLimit": {
+                            "type": "uint64",
+                            "id": 1
+                        },
+                        "gasPrice": {
+                            "type": "uint64",
+                            "id": 2
+                        },
+                        "amount": {
+                            "type": "uint64",
+                            "id": 3
+                        },
+                        "contractAddress": {
+                            "type": "bytes",
+                            "id": 4
+                        },
+                        "nonce": {
+                            "type": "uint64",
+                            "id": 5
+                        },
+                        "abi": {
+                            "type": "string",
+                            "id": 6
+                        },
+                        "method": {
+                            "type": "string",
+                            "id": 7
+                        },
+                        "args": {
+                            "rule": "repeated",
+                            "type": "string",
+                            "id": 8,
+                            "options": {
+                                "packed": false
+                            }
+                        }
+                    }
+                },
+                "TransactionHashResponse": {
+                    "fields": {
+                        "transaction": {
+                            "type": "bytes",
+                            "id": 1
+                        },
+                        "transactionHash": {
+                            "type": "bytes",
+                            "id": 2
+                        }
+                    }
+                },
+                "TransactionFinalizationRequest": {
+                    "fields": {
+                        "transaction": {
+                            "type": "bytes",
+                            "id": 1
+                        },
+                        "signature": {
+                            "type": "bytes",
+                            "id": 2
+                        }
+                    }
+                },
+                "TransactionResponse": {
+                    "fields": {
+                        "transaction": {
+                            "type": "bytes",
+                            "id": 1
+                        }
+                    }
                 }
             }
         },

@@ -122,7 +122,66 @@ export class BytecodeGenResponse extends Message<BytecodeGenResponse> {
     }
 }
 
+export class DeployRequest extends Message<DeployRequest> {
+    static register() {
+        registerMessage("stainless.DeployRequest", DeployRequest);
+    }
+
+    readonly gasLimit: number;
+    readonly gasPrice: number;
+    readonly amount: number;
+    readonly bytecode: Buffer;
+    readonly abi: string;
+    readonly args: string[];
+}
+
+export class TransactionRequest extends Message<TransactionRequest> {
+    static register() {
+        registerMessage("stainless.TransactionRequest", TransactionRequest);
+    }
+
+    readonly gasLimit: number;
+    readonly gasPrice: number;
+    readonly amount: number;
+    readonly contractAddress: Buffer;
+    readonly nonce: number;
+    readonly abi: string;
+    readonly method: string;
+    readonly args: string[];
+}
+
+export class TransactionHashResponse extends Message<TransactionHashResponse> {
+    static register() {
+        registerMessage("stainless.TransactionHashResponse", TransactionHashResponse);
+    }
+
+    readonly transaction: Buffer;
+    readonly transactionHash: Buffer;
+}
+
+export class TransactionFinalizationRequest extends Message<TransactionFinalizationRequest> {
+    static register() {
+        registerMessage("stainless.TransactionFinalizationRequest", TransactionFinalizationRequest);
+    }
+
+    readonly transaction: Buffer;
+    readonly signature: Buffer;
+}
+
+export class TransactionResponse extends Message<TransactionResponse> {
+    static register() {
+        registerMessage("stainless.TransactionResponse", TransactionResponse);
+    }
+
+    readonly transaction: Buffer;
+}
+
 VerificationRequest.register();
 VerificationResponse.register();
 BytecodeGenRequest.register();
 BytecodeGenResponse.register();
+DeployRequest.register();
+TransactionRequest.register();
+TransactionHashResponse.register();
+TransactionFinalizationRequest.register();
+TransactionResponse.register();
