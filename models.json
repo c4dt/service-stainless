@@ -2379,18 +2379,22 @@
                             "type": "uint64",
                             "id": 3
                         },
+                        "nonce": {
+                            "type": "uint64",
+                            "id": 4
+                        },
                         "bytecode": {
                             "type": "bytes",
-                            "id": 4
+                            "id": 5
                         },
                         "abi": {
                             "type": "string",
-                            "id": 5
+                            "id": 6
                         },
                         "args": {
                             "rule": "repeated",
                             "type": "string",
-                            "id": 6,
+                            "id": 7,
                             "options": {
                                 "packed": false
                             }

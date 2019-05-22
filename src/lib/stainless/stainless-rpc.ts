@@ -48,14 +48,14 @@ export default class StainlessRPC {
         return this.conn.send(new BytecodeGenRequest({sourceFiles}), BytecodeGenResponse);
     }
 
-    async deployContract(gasLimit: number, gasPrice: number, amount: number, bytecode: Buffer,
+    async deployContract(gasLimit: number, gasPrice: number, amount: number, nonce: number, bytecode: Buffer,
                          abi: string, args: string[]): Promise<TransactionHashResponse> {
         this.conn.setTimeout(this.timeout);
 
         Log.lvl2("Sending Stainless deploy contract request...");
 
         return this.conn.send(new DeployRequest(
-            {gasLimit, gasPrice, amount, bytecode, abi, args}), TransactionHashResponse);
+            {gasLimit, gasPrice, amount, nonce, bytecode, abi, args}), TransactionHashResponse);
     }
 
     async executeTransaction(gasLimit: number, gasPrice: number, amount: number, contractAddress: Buffer, nonce: number,

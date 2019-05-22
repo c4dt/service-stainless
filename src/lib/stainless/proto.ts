@@ -130,6 +130,7 @@ export class DeployRequest extends Message<DeployRequest> {
     readonly gasLimit: number;
     readonly gasPrice: number;
     readonly amount: number;
+    readonly nonce: number;
     readonly bytecode: Buffer;
     readonly abi: string;
     readonly args: string[];
