@@ -205,8 +205,8 @@ export class BevmInstance extends Instance {
         }
     }
 
-    setStainlessRPC(server: ServerIdentity) {
-        this.stainlessRPC = new StainlessRPC(server);
+    setStainlessRPC(rpc: StainlessRPC) {
+        this.stainlessRPC = rpc;
     }
 
     /**

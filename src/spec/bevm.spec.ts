@@ -10,7 +10,7 @@ import StainlessRPC from "../lib/stainless/stainless-rpc";
 
 // jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
 
-describe("BEvm should", async () => {
+fdescribe("BEvm should", async () => {
     let tdAdmin: TestData;
     let stainlessRPC: StainlessRPC;
 
@@ -162,10 +162,10 @@ case class Candy(
         expect(sig).toEqual(expectedSig);
     });
 
-    it("deploy and interact with a contract", async () => {
+    fit("deploy and interact with a contract", async () => {
         Log.lvl2("Create a new BEvm instance");
         const bevm = await BevmInstance.spawn(tdAdmin.bc, tdAdmin.darc.getBaseID(), [tdAdmin.admin]);
-        bevm.setStainlessRPC(Defaults.Roster.list[0]);
+        bevm.setStainlessRPC(stainlessRPC);
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
         const expectedAccountAddress = Buffer.from("627306090abab3a6e1400e9345bc60c78a8bef57", "hex");

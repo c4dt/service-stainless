@@ -5,6 +5,10 @@ import { Log } from "@c4dt/cothority/log";
 import { Defaults } from "../../lib/Defaults";
 import StainlessRPC from "../../lib/stainless/stainless-rpc";
 
+import Long, { fromNumber } from "long";
+import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
+import { Data, TestData } from "src/lib/Data";
+
 @Component({
   selector: "app-stainless",
   styleUrls: ["./stainless.component.css"],
@@ -24,47 +28,6 @@ export class StainlessComponent implements OnInit {
 
     contracts = [
         {
-            abi: JSON.parse(`[
-                {
-                    "constant": true,
-                    "inputs": [],
-                    "name": "getRemainingCandies",
-                    "outputs": [
-                        {
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "constant": false,
-                    "inputs": [
-                        {
-                            "name": "candies",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "eatCandy",
-                    "outputs": [],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                {
-                    "inputs": [
-                        {
-                            "name": "_candies",
-                            "type": "uint256"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "constructor"
-                }
-            ]`),
             files: [
                 {
                     contents: `
@@ -111,97 +74,7 @@ case class Candy(
                 },
             ],
             name: "Candy",
-            verif: [
-                {
-                    method: "constructor",
-                    position: {
-                        end: [16, 22],
-                        file: "Candy.scala",
-                        start: [16, 5],
-                    },
-                    status: "valid",
-                    type: "body assertion",
-                }, {
-                    method: "eatCandy",
-                    position: {
-                        end: [26, 22],
-                        file: "Candy.scala",
-                        start: [26, 5],
-                    },
-                    status: "valid",
-                    type: "body assertion",
-                },
-            ],
         }, {
-            abi: JSON.parse(`[
-                {
-                    "constant": false,
-                    "inputs": [],
-                    "name": "checkTokens",
-                    "outputs": [],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                {
-                    "constant": false,
-                    "inputs": [],
-                    "name": "payback",
-                    "outputs": [],
-                    "payable": true,
-                    "stateMutability": "payable",
-                    "type": "function"
-                },
-                {
-                    "constant": false,
-                    "inputs": [],
-                    "name": "lend",
-                    "outputs": [],
-                    "payable": true,
-                    "stateMutability": "payable",
-                    "type": "function"
-                },
-                {
-                    "constant": false,
-                    "inputs": [],
-                    "name": "requestDefault",
-                    "outputs": [],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                {
-                    "inputs": [
-                        {
-                            "name": "_wantedAmount",
-                            "type": "uint256"
-                        },
-                        {
-                            "name": "_interest",
-                            "type": "uint256"
-                        },
-                        {
-                            "name": "_tokenAmount",
-                            "type": "uint256"
-                        },
-                        {
-                            "name": "_tokenName",
-                            "type": "string"
-                        },
-                        {
-                            "name": "_tokenContractAddress",
-                            "type": "address"
-                        },
-                        {
-                            "name": "_length",
-                            "type": "uint256"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "constructor"
-                }
-            ]`),
             files: [
                 {
                     contents: `
@@ -399,507 +272,69 @@ object LoanContractInvariant {
 
 `.trim(),
                     name: "LoanContractInvariant.scala",
-                },
+                }, {
+                    contents: `
+import stainless.smartcontracts._
+
+import stainless.collection._
+import stainless.proof._
+import stainless.lang._
+import stainless.annotation._
+
+object ERC20Specs {
+    def transferUpdate(a: Address, to: Address, sender: Address, amount: Uint256, thiss: ERC20Token, oldThiss: ERC20Token) = {
+        ((a == to) ==> (thiss.balanceOf(a) == oldThiss.balanceOf(a) + amount)) &&
+        ((a == sender) ==> (thiss.balanceOf(a) == oldThiss.balanceOf(a) - amount)) &&
+        (a != to && a != sender) ==> (thiss.balanceOf(a) == oldThiss.balanceOf(a))
+    }
+
+    def transferSpec(b: Boolean, to: Address, sender: Address, amount: Uint256, thiss: ERC20Token, oldThiss: ERC20Token) = {
+        (!b ==> (thiss == oldThiss)) &&
+        (b ==> forall((a: Address) => transferUpdate(a, to, sender,amount,thiss,oldThiss))) &&
+            (thiss.addr == oldThiss.addr)
+    }
+
+    def snapshot(token: ERC20Token): ERC20Token = {
+        val ERC20Token(s) = token
+        ERC20Token(s)
+    }
+}
+`.trim(),
+                    name: "ERC20Specs.scala",
+                }, {
+                    contents: `
+import stainless.smartcontracts._
+
+import stainless.collection._
+import stainless.proof._
+import stainless.lang._
+import stainless.annotation._
+
+import ERC20Specs._
+
+case class ERC20Token(var s: BigInt) extends ContractInterface {
+    @library
+    def transfer(to: Address, amount: Uint256): Boolean = {
+        require(amount >= Uint256.ZERO)
+        val oldd = snapshot(this)
+        s = s + 1
+
+        val b = choose((b: Boolean) => transferSpec(b, to, Msg.sender, amount, this, oldd))
+        b
+    } ensuring(res => transferSpec(res, to, Msg.sender, amount, this, old(this)))
+
+    @library
+    def balanceOf(from: Address): Uint256 = {
+        choose((b: Uint256) => b >= Uint256.ZERO)
+    } ensuring {
+        res => old(this).addr == this.addr
+    }
+}
+`.trim(),
+                    name: "ERC20Token.scala",
+                }
             ],
             name: "Loan",
-            verif: [
-                {
-                    status: "valid",
-                    position: {
-                        start: [
-                            31,
-                            9
-                        ],
-                        end: [
-                            31,
-                            9
-                        ],
-                        file: "LoanContract.scala"
-                    },
-                    type: "adt invariant",
-                    method: "requestDefault"
-                },
-                {
-                    status: "valid",
-                    position: {
-                        start: [
-                            31,
-                            9
-                        ],
-                        end: [
-                            31,
-                            9
-                        ],
-                        file: "LoanContract.scala"
-                    },
-                    type: "adt invariant",
-                    method: "requestDefault"
-                },
-                {
-                    status: "valid",
-                    position: {
-                        start: [
-                            133,
-                            33
-                        ],
-                        end: [
-                            133,
-                            57
-                        ],
-                        file: "LoanContract.scala"
-                    },
-                    type: "adt invariant",
-                    method: "requestDefault"
-                },
-                {
-                    status: "valid",
-                    position: {
-                        start: [
-                            136,
-                            28
-                        ],
-                        end: [
-                            136,
-                            35
-                        ],
-                        file: "LoanContract.scala"
-                    },
-                    type: "adt invariant",
-                    method: "requestDefault"
-                },
-                {
-                    status: "valid",
-                    position: {
-                        start: [
-                            121,
-                            5
-                        ],
-                        end: [
-                            140,
-                            6
-                        ],
-                        file: "LoanContract.scala"
-                    },
-                    type: "postcondition",
-                    method: "requestDefault"
-                },
-                {
-                    status: "valid",
-                    position: {
-                        start: [
-                            131,
-                            13
-                        ],
-                        end: [
-                            131,
-                            59
-                        ],
-                        file: "LoanContract.scala"
-                    },
-                    type: "precond.",
-                                     method: "requestDefault"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                25,
-                                56
-                            ],
-                            end: [
-                                29,
-                                4
-                            ],
-                            file: "LoanContractInvariant.scala"
-                        },
-                        type: "match exhaustiveness",
-                        method: "isPrefix"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                31,
-                                9
-                            ],
-                            end: [
-                                31,
-                                9
-                            ],
-                            file: "LoanContract.scala"
-                        },
-                        type: "adt invariant",
-                        method: "payback"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                112,
-                                33
-                            ],
-                            end: [
-                                112,
-                                58
-                            ],
-                            file: "LoanContract.scala"
-                        },
-                        type: "adt invariant",
-                        method: "payback"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                115,
-                                28
-                            ],
-                            end: [
-                                115,
-                                36
-                            ],
-                            file: "LoanContract.scala"
-                        },
-                        type: "adt invariant",
-                        method: "payback"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                31,
-                                9
-                            ],
-                            end: [
-                                31,
-                                9
-                            ],
-                            file: "LoanContract.scala"
-                        },
-                        type: "adt invariant",
-                        method: "payback"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                99,
-                                5
-                            ],
-                            end: [
-                                119,
-                                6
-                            ],
-                            file: "LoanContract.scala"
-                        },
-                        type: "postcondition",
-                        method: "payback"
-                    },
-                    {
-                        status: "valid",
-                        position: {
-                            start: [
-                                110,
-                                13
-                            ],
-                            end: [
-                                110,
-                                61
-                            ],
-                            file: "LoanContract.scala"
-                        },
-                        type: "precond.",
-                        method: "payback"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    22,
-                                    13
-                                ],
-                                end: [
-                                    22,
-                                    34
-                                ],
-                                file: "ERC20Specs.scala"
-                            },
-                            type: "match exhaustiveness",
-                            method: "snapshot"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    90,
-                                    32
-                                ],
-                                end: [
-                                    90,
-                                    49
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "lend"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    83,
-                                    26
-                                ],
-                                end: [
-                                    83,
-                                    36
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "lend"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    91,
-                                    25
-                                ],
-                                end: [
-                                    91,
-                                    30
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "lend"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    87,
-                                    37
-                                ],
-                                end: [
-                                    87,
-                                    71
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "lend"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    77,
-                                    5
-                                ],
-                                end: [
-                                    96,
-                                    6
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "postcondition",
-                            method: "lend"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    67,
-                                    37
-                                ],
-                                end: [
-                                    67,
-                                    70
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "checkTokens"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    69,
-                                    32
-                                ],
-                                end: [
-                                    69,
-                                    48
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "checkTokens"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    60,
-                                    5
-                                ],
-                                end: [
-                                    74,
-                                    6
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "postcondition",
-                            method: "checkTokens"
-                        },
-                        {
-                            status: "invalid",
-                            position: {
-                                start: [
-                                    56,
-                                    20
-                                ],
-                                end: [
-                                    56,
-                                    30
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "invalid",
-                            position: {
-                                start: [
-                                    55,
-                                    22
-                                ],
-                                end: [
-                                    55,
-                                    29
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    53,
-                                    21
-                                ],
-                                end: [
-                                    53,
-                                    31
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    51,
-                                    25
-                                ],
-                                end: [
-                                    51,
-                                    34
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    50,
-                                    24
-                                ],
-                                end: [
-                                    50,
-                                    37
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    52,
-                                    23
-                                ],
-                                end: [
-                                    52,
-                                    35
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "invalid",
-                            position: {
-                                start: [
-                                    57,
-                                    24
-                                ],
-                                end: [
-                                    57,
-                                    38
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "invalid",
-                            position: {
-                                start: [
-                                    54,
-                                    32
-                                ],
-                                end: [
-                                    54,
-                                    53
-                                ],
-                                file: "LoanContract.scala"
-                            },
-                            type: "adt invariant",
-                            method: "constructor"
-                        },
-                        {
-                            status: "valid",
-                            position: {
-                                start: [
-                                    41,
-                                    5
-                                ],
-                                end: [
-                                    41,
-                                    23
-                                ],
-                                file: "LoanContractInvariant.scala"
-                            },
-                            type: "precond.",
-                            method: "stateInvariant"
-                        }
-            ],
         },
     ];
 
@@ -911,10 +346,33 @@ object LoanContractInvariant {
     viewMethodSelected: number = undefined;
     viewMethodResult: string = "";
 
+    private stainlessRPC: StainlessRPC;
+    private bevmRPC: BevmInstance;
+    private testData: TestData;
+    private account: EvmAccount; // FIXME: Handle account selection
+    private contract: EvmContract; // FIXME: Handle contract history
+
     constructor(public dialog: MatDialog) { }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.contractSelected = this.contracts[0];
+
+        this.testData = await TestData.init();
+        this.stainlessRPC = new StainlessRPC(Defaults.Roster.list[0]);
+        this.bevmRPC = await BevmInstance.spawn(this.testData.bc,
+                                                this.testData.darc.getBaseID(),
+                                                [this.testData.admin]);
+        this.bevmRPC.setStainlessRPC(this.stainlessRPC);
+
+        const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
+
+        this.account = new EvmAccount(privKey);
+
+        const WEI_PER_ETHER = Long.fromString("1000000000000000000");
+        const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
+
+        Log.lvl2("Credit an account with:", amount);
+        await this.bevmRPC.creditAccount([this.testData.admin], this.account.address, amount);
     }
 
     async testStainlessVerif() {
@@ -994,10 +452,66 @@ object PositiveUint {
         this.viewMethodSelected = index;
     }
 
-    verify() {
-        // Perform verification
+    convertReport(report: any) {
+        const items = report.stainless[0][1][0];
 
-        this.verifResult = this.contractSelected.verif.sort((e1, e2) => {
+        const res = items.map((item) => {
+            const method = item.id.name;
+            const type = item.kind;
+
+            let status;
+            switch (Object.keys(item.status)[0]) {
+                case "Valid":
+                case "ValidFromCache": {
+                    status = "valid";
+                    break;
+                }
+                default:
+                    status = "invalid";
+            }
+
+            let position;
+            if (item.pos.file !== undefined) {
+                const filePath = item.pos.file.split("/");
+                position = {
+                    end: [item.pos.line, item.pos.col],
+                    file: filePath[filePath.length - 1],
+                    start: [item.pos.line, item.pos.col],
+                };
+            } else {
+                const filePath = item.pos.begin.file.split("/");
+                position = {
+                    end: [item.pos.end.line, item.pos.end.col],
+                    file: filePath[filePath.length - 1],
+                    start: [item.pos.begin.line, item.pos.begin.col],
+                };
+            }
+
+            return {
+                method,
+                position,
+                status,
+                type,
+            };
+        });
+
+        return res;
+    }
+
+    async verify() {
+        const sourceFiles = {};
+        this.contractSelected.files.forEach((f) => {
+            sourceFiles[f.name] = f.contents;
+        });
+
+        // Call Stainless service to perform verification
+        const response = await this.stainlessRPC.verify(sourceFiles);
+        // FIXME: Handle exceptions
+        Log.print("Received verification results");
+
+        const verif = this.convertReport(JSON.parse(response.report));
+
+        this.verifResult = verif.sort((e1, e2) => {
             if (e1.method > e2.method) {
                 return 1;
             }
@@ -1020,8 +534,21 @@ object PositiveUint {
         }
     }
 
-    deploy() {
-        // Gen bytecode & ABI
+    async deploy() {
+        const sourceFiles = {};
+        this.contractSelected.files.forEach((f) => {
+            sourceFiles[f.name] = f.contents;
+        });
+
+        // Call Stainless service to generate bytecode and ABI
+        const response = await this.stainlessRPC.genBytecode(sourceFiles);
+        // FIXME: Handle exceptions
+        Log.print("Received bytecode generation results");
+
+        // FIXME: Handle multiple ABI/bytecodes
+        const firstKey = Object.keys(response.bytecodeObjs)[0];
+        this.contractSelected.abi = JSON.parse(response.bytecodeObjs[firstKey].abi);
+        this.contractSelected.bin = Buffer.from(response.bytecodeObjs[firstKey].bin, "hex");
 
         const dialogRef = this.dialog.open(DeployDialog, {
             data: {
@@ -1032,14 +559,28 @@ object PositiveUint {
             width: "30em",
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            const v = JSON.stringify(result);
-            if (v !== undefined) {
-                Log.lvl2(`Deploying contract with constructor args ${v}`);
+        dialogRef.afterClosed().subscribe(async (result) => {
+            if (result !== undefined) {
+                let args = result.map(parseInt); // FIXME: handle non-numeric arguments
+                args = args.map(JSON.stringify);
+
+                Log.lvl2(`Deploying contract with constructor args ${args}`);
                 this.deployable = false;
                 this.executable = true;
 
                 const abi = this.contractSelected.abi;
+                const bin = this.contractSelected.bin;
+
+                this.contract = new EvmContract(bin, JSON.stringify(abi));
+
+                await this.bevmRPC.deploy([this.testData.admin],
+                                          1e7,
+                                          1,
+                                          0,
+                                          this.account,
+                                          this.contract,
+                                          args,
+                                         );
 
                 this.transactions = abi.filter((elem: any) => {
                     return elem.type === "function" &&  elem.stateMutability !== "view";
@@ -1064,10 +605,22 @@ object PositiveUint {
             width: "30em",
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            const v = JSON.stringify(result);
-            if (v !== undefined) {
-                Log.lvl2(`Executing transaction with args ${v}`);
+        dialogRef.afterClosed().subscribe(async (result) => {
+            if (result !== undefined) {
+                let args = result.map(parseInt); // FIXME: handle non-numeric arguments
+                args = args.map(JSON.stringify);
+
+                Log.lvl2(`Executing transaction with args ${args}`);
+
+                await this.bevmRPC.transaction([this.testData.admin],
+                                               1e7,
+                                               1,
+                                               0,
+                                               this.account,
+                                               this.contract,
+                                               methodName,
+                                               args,
+                                              );
             }
         });
     }

@@ -1,8 +1,8 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { StainlessComponent } from './stainless.component';
+import { StainlessComponent } from "./stainless.component";
 
-describe('StainlessComponent', () => {
+describe("StainlessComponent", () => {
   let component: StainlessComponent;
   let fixture: ComponentFixture<StainlessComponent>;
 
@@ -19,7 +19,7 @@ describe('StainlessComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
