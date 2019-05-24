@@ -43,7 +43,8 @@ export class EvmAccount {
     }
 
     sign(hash: Buffer): Buffer {
-        const sig = this.key.sign(hash);
+        /* The "canonical" option is crucial to have the same signature as Ethereum */
+        const sig = this.key.sign(hash, {canonical: true});
 
         const r = Buffer.from(sig.r.toArray("be"));
         const s = Buffer.from(sig.s.toArray("be"));

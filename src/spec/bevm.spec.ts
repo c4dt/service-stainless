@@ -192,15 +192,17 @@ case class Candy(
                                      )).toBeResolved();
         expect(contract.address).toEqual(expectedContractAddress);
 
-        Log.lvl2("Eat candies");
-        await expectAsync(bevm.transaction([tdAdmin.admin],
-                                            1e7,
-                                            1,
-                                            0,
-                                            account,
-                                            contract,
-                                            "eatCandy",
-                                            [JSON.stringify(10)],
-                                           )).toBeResolved();
+        for (let nbCandies = 0; nbCandies < 10; nbCandies++) {
+            Log.lvl2(`Eat ${nbCandies} candies`);
+            await expectAsync(bevm.transaction([tdAdmin.admin],
+                                               1e7,
+                                               1,
+                                               0,
+                                               account,
+                                               contract,
+                                               "eatCandy",
+                                               [JSON.stringify(nbCandies)],
+                                              )).toBeResolved();
+        }
     });
 });
