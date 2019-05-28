@@ -177,6 +177,29 @@ export class TransactionResponse extends Message<TransactionResponse> {
     readonly transaction: Buffer;
 }
 
+export class CallRequest extends Message<CallRequest> {
+    static register() {
+        registerMessage("stainless.CallRequest", CallRequest);
+    }
+
+    readonly blockId: Buffer;
+    readonly serverConfig: string;
+    readonly bevmInstanceId: Buffer;
+    readonly accountAddress: Buffer;
+    readonly contractAddress: Buffer;
+    readonly abi: string;
+    readonly method: string;
+    readonly args: string[];
+}
+
+export class CallResponse extends Message<CallResponse> {
+    static register() {
+        registerMessage("stainless.CallResponse", CallResponse);
+    }
+
+    readonly result: string;
+}
+
 VerificationRequest.register();
 VerificationResponse.register();
 BytecodeGenRequest.register();
@@ -186,3 +209,5 @@ TransactionRequest.register();
 TransactionHashResponse.register();
 TransactionFinalizationRequest.register();
 TransactionResponse.register();
+CallRequest.register();
+CallResponse.register();

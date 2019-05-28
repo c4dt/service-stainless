@@ -6,6 +6,7 @@ import { BytecodeGenRequest, BytecodeGenResponse,
     DeployRequest, TransactionRequest, TransactionHashResponse,
     TransactionFinalizationRequest, TransactionResponse,
     VerificationRequest, VerificationResponse,
+    CallRequest, CallResponse,
 } from "./proto";
 
 /**
@@ -74,5 +75,15 @@ export default class StainlessRPC {
         Log.lvl2("Sending Stainless transaction finalization request...");
 
         return this.conn.send(new TransactionFinalizationRequest({transaction, signature}), TransactionResponse);
+    }
+
+    async call(blockId: Buffer, serverConfig: string, bevmInstanceId: Buffer, accountAddress: Buffer,
+               contractAddress: Buffer, abi: string, method: string, args: string[]): Promise<CallResponse> {
+        this.conn.setTimeout(this.timeout);
+
+        Log.lvl2("Sending Stainless call request...");
+
+        return this.conn.send(new CallRequest(
+            {blockId, serverConfig, bevmInstanceId, accountAddress, contractAddress, abi, method, args}), CallResponse);
     }
 }

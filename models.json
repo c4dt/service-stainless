@@ -2472,6 +2472,54 @@
                             "id": 1
                         }
                     }
+                },
+                "CallRequest": {
+                    "fields": {
+                        "blockId": {
+                            "type": "bytes",
+                            "id": 1
+                        },
+                        "serverConfig": {
+                            "type": "string",
+                            "id": 2
+                        },
+                        "bevmInstanceId": {
+                            "type": "bytes",
+                            "id": 3
+                        },
+                        "accountAddress": {
+                            "type": "bytes",
+                            "id": 4
+                        },
+                        "contractAddress": {
+                            "type": "bytes",
+                            "id": 5
+                        },
+                        "abi": {
+                            "type": "string",
+                            "id": 6
+                        },
+                        "method": {
+                            "type": "string",
+                            "id": 7
+                        },
+                        "args": {
+                            "rule": "repeated",
+                            "type": "string",
+                            "id": 8,
+                            "options": {
+                                "packed": false
+                            }
+                        }
+                    }
+                },
+                "CallResponse": {
+                    "fields": {
+                        "result": {
+                            "type": "string",
+                            "id": 1
+                        }
+                    }
                 }
             }
         },

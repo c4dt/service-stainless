@@ -163,8 +163,12 @@ case class Candy(
     });
 
     fit("deploy and interact with a contract", async () => {
+        Log.print("ByzCoinID:", Defaults.ByzCoinID);
+
         Log.lvl2("Create a new BEvm instance");
         const bevm = await BevmInstance.spawn(tdAdmin.bc, tdAdmin.darc.getBaseID(), [tdAdmin.admin]);
+        Log.print("BEvm instance ID:", bevm.id);
+
         bevm.setStainlessRPC(stainlessRPC);
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
@@ -192,7 +196,7 @@ case class Candy(
                                      )).toBeResolved();
         expect(contract.address).toEqual(expectedContractAddress);
 
-        for (let nbCandies = 0; nbCandies < 10; nbCandies++) {
+        for (let nbCandies = 1; nbCandies <= 10; nbCandies++) {
             Log.lvl2(`Eat ${nbCandies} candies`);
             await expectAsync(bevm.transaction([tdAdmin.admin],
                                                1e7,
@@ -204,5 +208,16 @@ case class Candy(
                                                [JSON.stringify(nbCandies)],
                                               )).toBeResolved();
         }
+
+        Log.lvl2("Retrieve number of remaining candies");
+        const expectedRemainingCoins = 100 - (10 * 11 / 2);
+        await expectAsync(bevm.call(Defaults.ByzCoinID,
+                                    Defaults.RosterTOMLLOCAL,
+                                    bevm.id,
+                                    account,
+                                    contract,
+                                    "getRemainingCandies",
+                                    [],
+                                   )).toBeResolvedTo(expectedRemainingCoins);
     });
 });

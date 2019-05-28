@@ -46,8 +46,8 @@ export class EvmAccount {
         /* The "canonical" option is crucial to have the same signature as Ethereum */
         const sig = this.key.sign(hash, {canonical: true});
 
-        const r = Buffer.from(sig.r.toArray("be"));
-        const s = Buffer.from(sig.s.toArray("be"));
+        const r = Buffer.from(sig.r.toArray("be", 32));
+        const s = Buffer.from(sig.s.toArray("be", 32));
 
         const len = r.length + s.length + 1;
 
@@ -254,6 +254,20 @@ export class BevmInstance extends Instance {
             signers, wait);
 
         account.incNonce();
+    }
+
+    /**
+     * * Execute a BEvm transaction.
+     *
+     * FIXME: document parameters
+     */
+    async call(blockId: Buffer, serverConfig: string, bevmInstanceId: Buffer,
+               account: EvmAccount, contract: EvmContract, method: string, args?: string[]): Promise<any> {
+        const response = await this.stainlessRPC.call(blockId, serverConfig, bevmInstanceId,
+                                                        account.address, contract.address,
+                                                        contract.abi, method, args);
+
+        return JSON.parse(response.result);
     }
 
     async creditAccount(signers: Signer[], address: Buffer, amount: Buffer, wait?: number) {
