@@ -2,6 +2,6 @@
 package main
 
 import (
-	_ "go.dedis.ch/cothority/v3/bevm"
-	_ "go.dedis.ch/cothority/v3/stainless/service"
+	_ "github.com/c4dt/cothority-stainless/bevm"
+	_ "github.com/c4dt/cothority-stainless/stainless/service"
 )
