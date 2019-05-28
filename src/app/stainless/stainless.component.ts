@@ -637,11 +637,26 @@ object PositiveUint {
             width: "30em",
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            const v = JSON.stringify(result);
-            if (v !== undefined) {
-                Log.lvl2(`Executing view method with args ${v}`);
-                this.viewMethodResult = "90";
+        dialogRef.afterClosed().subscribe(async (result) => {
+            if (result !== undefined) {
+                let args = result.map(parseInt); // FIXME: handle non-numeric arguments
+                args = args.map(JSON.stringify);
+
+                Log.lvl2(`Executing view method with args ${args}`);
+
+                const response = await this.bevmRPC.call(
+                        Defaults.ByzCoinID,
+                        Defaults.RosterTOMLLOCAL,
+                        this.bevmRPC.id,
+                        this.account,
+                        this.contract,
+                        methodName,
+                        args,
+                );
+
+                Log.lvl2(`Response = ${response}`);
+
+                this.viewMethodResult = response;
             }
         });
     }
