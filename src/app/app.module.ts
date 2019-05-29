@@ -20,7 +20,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { LoadingComponent } from "./loading/loading.component";
 import { RegisterComponent } from "./register/register.component";
-import { DeployDialog, StainlessComponent } from "./stainless/stainless.component";
+import { ArgDialog, InfoDialog, StainlessComponent } from "./stainless/stainless.component";
 import {
     AddContactComponent,
     ContactsComponent, CreateComponent,
@@ -42,7 +42,8 @@ import { YourselfComponent } from "./user/yourself/yourself.component";
         CreateUserComponent,
         ManageDarcComponent,
         AddContactComponent,
-        DeployDialog,
+        ArgDialog,
+        InfoDialog,
         TransferCoinComponent,
         UserCredComponent,
         CalypsoUploadComponent,
@@ -61,7 +62,8 @@ import { YourselfComponent } from "./user/yourself/yourself.component";
     entryComponents: [
         ManageDarcComponent,
         AddContactComponent,
-        DeployDialog,
+        ArgDialog,
+        InfoDialog,
         CreateUserComponent,
         TransferCoinComponent,
         UserCredComponent,

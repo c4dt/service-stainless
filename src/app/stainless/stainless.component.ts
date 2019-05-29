@@ -355,6 +355,12 @@ case class ERC20Token(var s: BigInt) extends ContractInterface {
     constructor(public dialog: MatDialog) { }
 
     async ngOnInit() {
+        await this.performLongAction(
+        () => this.initialize(),
+            "Initializing");
+    }
+
+    async initialize() {
         this.contractSelected = this.contracts[0];
 
         this.testData = await TestData.init();
@@ -498,6 +504,22 @@ object PositiveUint {
         return res;
     }
 
+    async performLongAction(f, message: string) {
+        const dialogRef = this.dialog.open(InfoDialog, {
+            data: { message },
+            width: "20em",
+        });
+
+        let result: any;
+        try {
+            result = await f();
+        } finally {
+            dialogRef.close();
+        }
+
+        return result;
+    }
+
     async verify() {
         const sourceFiles = {};
         this.contractSelected.files.forEach((f) => {
@@ -505,7 +527,9 @@ object PositiveUint {
         });
 
         // Call Stainless service to perform verification
-        const response = await this.stainlessRPC.verify(sourceFiles);
+        const response = await this.performLongAction(
+            () => this.stainlessRPC.verify(sourceFiles),
+            "Performing verification");
         // FIXME: Handle exceptions
         Log.print("Received verification results");
 
@@ -541,7 +565,9 @@ object PositiveUint {
         });
 
         // Call Stainless service to generate bytecode and ABI
-        const response = await this.stainlessRPC.genBytecode(sourceFiles);
+        const response = await this.performLongAction(
+            () => this.stainlessRPC.genBytecode(sourceFiles),
+            "Generating bytecode");
         // FIXME: Handle exceptions
         Log.print("Received bytecode generation results");
 
@@ -550,7 +576,7 @@ object PositiveUint {
         this.contractSelected.abi = JSON.parse(response.bytecodeObjs[firstKey].abi);
         this.contractSelected.bin = Buffer.from(response.bytecodeObjs[firstKey].bin, "hex");
 
-        const dialogRef = this.dialog.open(DeployDialog, {
+        const dialogRef = this.dialog.open(ArgDialog, {
             data: {
                 abi: this.contractSelected.abi,
                 methodName: undefined,
@@ -573,14 +599,17 @@ object PositiveUint {
 
                 this.contract = new EvmContract(bin, JSON.stringify(abi));
 
-                await this.bevmRPC.deploy([this.testData.admin],
-                                          1e7,
-                                          1,
-                                          0,
-                                          this.account,
-                                          this.contract,
-                                          args,
-                                         );
+                await this.performLongAction(
+                    () => this.bevmRPC.deploy(
+                        [this.testData.admin],
+                        1e7,
+                        1,
+                        0,
+                        this.account,
+                        this.contract,
+                        args,
+                    ),
+                    "Deploying contract");
 
                 this.transactions = abi.filter((elem: any) => {
                     return elem.type === "function" &&  elem.stateMutability !== "view";
@@ -596,7 +625,7 @@ object PositiveUint {
     executeTransaction() {
         const methodName = this.transactions[this.transactionSelected];
 
-        const dialogRef = this.dialog.open(DeployDialog, {
+        const dialogRef = this.dialog.open(ArgDialog, {
             data: {
                 abi: this.contractSelected.abi,
                 methodName,
@@ -612,15 +641,18 @@ object PositiveUint {
 
                 Log.lvl2(`Executing transaction with args ${args}`);
 
-                await this.bevmRPC.transaction([this.testData.admin],
-                                               1e7,
-                                               1,
-                                               0,
-                                               this.account,
-                                               this.contract,
-                                               methodName,
-                                               args,
-                                              );
+                await this.performLongAction(
+                    () => this.bevmRPC.transaction(
+                        [this.testData.admin],
+                        1e7,
+                        1,
+                        0,
+                        this.account,
+                        this.contract,
+                        methodName,
+                        args,
+                    ),
+                    "Executing transaction");
             }
         });
     }
@@ -628,7 +660,7 @@ object PositiveUint {
     executeViewMethod() {
         const methodName = this.viewMethods[this.viewMethodSelected];
 
-        const dialogRef = this.dialog.open(DeployDialog, {
+        const dialogRef = this.dialog.open(ArgDialog, {
             data: {
                 abi: this.contractSelected.abi,
                 methodName,
@@ -644,7 +676,8 @@ object PositiveUint {
 
                 Log.lvl2(`Executing view method with args ${args}`);
 
-                const response = await this.bevmRPC.call(
+                const response = await this.performLongAction(
+                    () => this.bevmRPC.call(
                         Defaults.ByzCoinID,
                         Defaults.RosterTOMLLOCAL,
                         this.bevmRPC.id,
@@ -652,7 +685,8 @@ object PositiveUint {
                         this.contract,
                         methodName,
                         args,
-                );
+                    ),
+                    "Executing view method");
 
                 Log.lvl2(`Response = ${response}`);
 
@@ -662,23 +696,23 @@ object PositiveUint {
     }
 }
 
-export interface IDialogData {
+export interface IArgDialogData {
     title: string;
     abi: any;
     methodName: string;
 }
 
 @Component({
-    selector: "deploy-dialog",
-    templateUrl: "deploy-dialog.html",
+    selector: "arg-dialog",
+    templateUrl: "arg-dialog.html",
 })
-export class DeployDialog {
+export class ArgDialog {
     values: string[];
     method: any;
 
     constructor(
-        public dialogRef: MatDialogRef<DeployDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: IDialogData) {
+        public dialogRef: MatDialogRef<ArgDialog>,
+        @Inject(MAT_DIALOG_DATA) public data: IArgDialogData) {
         this.method = this.data.abi.filter( (elem: any, _index: number, _array: any) => {
             return elem.name === this.data.methodName;
         })[0];
@@ -692,5 +726,20 @@ export class DeployDialog {
 
     onEnter(): void {
         this.dialogRef.close(this.values);
+    }
+}
+
+export interface IInfoDialogData {
+    message: string;
+}
+
+@Component({
+    selector: "info-dialog",
+    templateUrl: "info-dialog.html",
+})
+export class InfoDialog {
+    constructor(
+        public dialogRef: MatDialogRef<InfoDialog>,
+        @Inject(MAT_DIALOG_DATA) public data: IInfoDialogData) {
     }
 }
