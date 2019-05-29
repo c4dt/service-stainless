@@ -560,7 +560,7 @@ object PositiveUint {
         });
 
         dialogRef.afterClosed().subscribe(async (result) => {
-            if (result !== undefined) {
+            if ((result !== undefined) && (result.filter((v: string) => v === undefined).length === 0)) {
                 let args = result.map(parseInt); // FIXME: handle non-numeric arguments
                 args = args.map(JSON.stringify);
 
@@ -606,7 +606,7 @@ object PositiveUint {
         });
 
         dialogRef.afterClosed().subscribe(async (result) => {
-            if (result !== undefined) {
+            if ((result !== undefined) && (result.filter((v: string) => v === undefined).length === 0)) {
                 let args = result.map(parseInt); // FIXME: handle non-numeric arguments
                 args = args.map(JSON.stringify);
 
@@ -638,7 +638,7 @@ object PositiveUint {
         });
 
         dialogRef.afterClosed().subscribe(async (result) => {
-            if (result !== undefined) {
+            if ((result !== undefined) && (result.filter((v: string) => v === undefined).length === 0)) {
                 let args = result.map(parseInt); // FIXME: handle non-numeric arguments
                 args = args.map(JSON.stringify);
 
@@ -690,4 +690,7 @@ export class DeployDialog {
         this.dialogRef.close();
     }
 
+    onEnter(): void {
+        this.dialogRef.close(this.values);
+    }
 }

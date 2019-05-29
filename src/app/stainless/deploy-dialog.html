@@ -4,7 +4,7 @@
         <div *ngFor="let arg of method.inputs; let i = index" [attr.data-index]="i">
             <mat-form-field appearance="outline" fxFlexFill>
                 <mat-label><code>{{ arg.name }}</code></mat-label>
-                <input matInput type="{{ arg.type.substring(1, 4) === 'int' ? 'number' : 'text' }}" [(ngModel)]="values[i]" required>
+                <input matInput type="{{ arg.type.substring(1, 4) === 'int' ? 'number' : 'text' }}" [(ngModel)]="values[i]" (keyup.enter)="onEnter()" required>
                 <mat-hint>type: <code>{{ arg.type }}</code></mat-hint>
             </mat-form-field>
         </div>
