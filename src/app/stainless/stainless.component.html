@@ -48,7 +48,7 @@
                 </mat-form-field>
                 <button mat-raised-button (click)="executeViewMethod()" disabled="{{ viewMethodSelected === undefined }}"
                                                                         fxFlexOffset="10px">Execute</button>
-                <mat-form-field fxFlexOffset="10px">
+                <mat-form-field fxFlexOffset="10px" class="result">
                     <mat-label>Result</mat-label>
                     <input matInput disabled="true" value="{{ viewMethodResult }}">
                 </mat-form-field>

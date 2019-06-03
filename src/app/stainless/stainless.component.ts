@@ -508,6 +508,7 @@ object PositiveUint {
         const dialogRef = this.dialog.open(InfoDialog, {
             data: { message },
             width: "20em",
+            disableClose: true,
         });
 
         let result: any;

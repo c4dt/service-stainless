@@ -27,3 +27,7 @@
 .verif-results th {
     padding: 10px;
 }
+
+mat-form-field.result {
+    font-size: 20px;
+}
