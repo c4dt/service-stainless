@@ -32,38 +32,113 @@ export class StainlessComponent implements OnInit {
                 {
                     contents: `
 import stainless.smartcontracts._
+import stainless.lang._
+import stainless.collection._
+import stainless.annotation._
+
+trait Accounts extends Contract {
+  @solidityPublic
+  def transfer(amount: Uint256): Unit
+}
+
+trait DAO extends Contract {
+  var userBalance: Uint256
+  var contractBalance: Uint256
+  var totalCoins: Uint256
+
+  @addressOfContract("Accounts")
+  val target: Address
+
+  @ghost
+  final def invariant() = userBalance + contractBalance == totalCoins
+
+  @solidityPublic
+  final def withdrawBalance() = {
+    val amount = userBalance
+
+    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)
+
+    totalCoins = totalCoins - amount
+    userBalance = Uint256.ZERO
+  }
+}
+`.trim(),
+                    name: "DAO_bad.scala",
+                },
+            ],
+            name: "DAO bad",
+        }, {
+            files: [
+                {
+                    contents: `
+import stainless.smartcontracts._
+import stainless.lang._
+import stainless.collection._
+import stainless.annotation._
+
+trait Accounts extends Contract {
+  @solidityPublic
+  def transfer(amount: Uint256): Unit
+}
+
+trait DAO extends Contract {
+  var userBalance: Uint256
+  var contractBalance: Uint256
+  var totalCoins: Uint256
+
+  @addressOfContract("Accounts")
+  val target: Address
+
+  @ghost
+  final def invariant() = userBalance + contractBalance == totalCoins
+
+  @solidityPublic
+  final def withdrawBalance() = {
+    val amount = userBalance
+
+    totalCoins = totalCoins - amount
+    userBalance = Uint256.ZERO
+
+    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)
+  }
+}
+`.trim(),
+                    name: "DAO_good.scala",
+                },
+            ],
+            name: "DAO good",
+        }, {
+            files: [
+                {
+                    contents: `
+import stainless.smartcontracts._
 import stainless.lang.StaticChecks._
 import stainless.annotation._
 
-case class Candy(
-  var initialCandies: Uint256,
-  var remainingCandies: Uint256,
+trait Candy extends Contract {
+  var initialCandies: Uint256
+  var remainingCandies: Uint256
   var eatenCandies: Uint256
-) extends Contract {
 
   def constructor(_candies: Uint256) = {
     initialCandies = _candies
     remainingCandies = _candies
     eatenCandies = Uint256.ZERO
-
-    assert(invariant)
   }
 
+  @solidityPublic
   def eatCandy(candies: Uint256) = {
-    require(invariant)
     dynRequire(candies <= remainingCandies)
 
     remainingCandies -= candies
     eatenCandies += candies
-
-    assert(invariant)
   }
 
-  @view
-  def getRemainingCandies(): Uint256 = remainingCandies;
+  @solidityPublic @solidityView
+  def getRemainingCandies() = remainingCandies
 
-  @view
-  private def invariant: Boolean = {
+  @ghost @inline
+  final def invariant(): Boolean = {
     eatenCandies <= initialCandies &&
     remainingCandies <= initialCandies &&
     initialCandies - eatenCandies == remainingCandies
@@ -73,268 +148,7 @@ case class Candy(
                     name: "Candy.scala",
                 },
             ],
-            name: "Candy",
-        }, {
-            files: [
-                {
-                    contents: `
-import stainless.smartcontracts._
-import stainless.annotation._
-import stainless.collection._
-import stainless.lang.StaticChecks._
-import stainless.lang.old
-import stainless.lang.ghost
-import scala.language.postfixOps
-
-import scala.annotation.meta.field
-
-import LoanContractInvariant._
-
-/************************************************
-**  See report for a detail explanation of the
-**  contract
-*************************************************/
-
-sealed trait State
-case object WaitingForData extends State
-case object WaitingForLender extends State
-case object WaitingForPayback extends State
-case object Finished extends State
-case object Default extends State
-
-sealed case class LoanContract (
-    var borrower: Address,      // Amount of ether to borrow
-    var wantedAmount: Uint256,   // Interest in ether
-    var premiumAmount: Uint256,  // The amount of digital token guaranteed
-    var tokenAmount: Uint256,    // Name of the digital token
-    var tokenName: String,      // Reference to the contract that holds the tokens
-    var tokenContractAddress: ERC20Token,
-    var daysToLend: Uint256,
-    var currentState: State,
-    var start: Uint256,
-    var lender: Address,
-
-    @ghost
-    var visitedStates: List[State]
-
-)  extends Contract {
-    require(
-        addr != borrower &&
-        addr != tokenContractAddress.addr
-    )
-
-    override def addr = Address(1)
-
-    def constructor(_wantedAmount: Uint256, _interest: Uint256, _tokenAmount: Uint256,
-      _tokenName: String, _tokenContractAddress: ERC20Token, _length: Uint256) = {
-        wantedAmount = _wantedAmount
-        premiumAmount = _interest
-        tokenAmount = _tokenAmount
-        tokenName = _tokenName
-        tokenContractAddress = _tokenContractAddress
-        daysToLend = _length
-        borrower = Msg.sender
-        currentState = WaitingForData
-    }
-
-    def checkTokens(): Unit = {
-        require(invariant(this))
-
-        if(currentState == WaitingForData) {
-            val balance = tokenContractAddress.balanceOf(addr)
-            if(balance >= tokenAmount) {
-                ghost {
-                    visitedStates = WaitingForLender :: visitedStates
-                }
-                currentState = WaitingForLender
-            }
-        }
-    } ensuring { _ =>
-        invariant(this)
-    }
-
-    @payable
-    def lend(): Unit = {
-        require (invariant(this))
-
-        // Condition to prevent self funding.
-        if(Msg.sender != borrower) {
-            if(currentState == WaitingForLender && Msg.value >= wantedAmount) {
-                lender = Msg.sender
-                // Forward the money to the borrower
-                borrower.transfer(wantedAmount)
-                ghost {
-                    visitedStates = WaitingForPayback :: visitedStates
-                }
-
-                currentState = WaitingForPayback
-                start = now()
-            }
-        }
-    } ensuring { _ =>
-        invariant(this)
-    }
-
-    @payable
-    def payback(): Unit = {
-        require (invariant(this))
-        dynRequire(address(this).balance >= Msg.value)
-        dynRequire(Msg.value >= premiumAmount + wantedAmount)
-        dynRequire(Msg.sender == borrower)
-
-        if(currentState == WaitingForPayback) {
-            // Forward the money to the lender
-            lender.transfer(Msg.value)
-            // Transfer all the guarantee back to the borrower
-            val balance = tokenContractAddress.balanceOf(addr)
-            tokenContractAddress.transfer(borrower, balance)
-            ghost {
-                visitedStates = Finished :: visitedStates
-            }
-
-            currentState = Finished
-        }
-    } ensuring { _ =>
-        invariant(this)
-    }
-
-    def requestDefault(): Unit = {
-        require (invariant(this))
-
-        if(currentState == WaitingForPayback) {
-            dynRequire(now() > (start + daysToLend))
-            dynRequire(Msg.sender == lender)
-
-            // Transfer all the guarantee to the lender
-            var balance = tokenContractAddress.balanceOf(addr)
-
-            tokenContractAddress.transfer(lender, balance)
-            ghost {
-                visitedStates = Default :: visitedStates
-            }
-
-            currentState = Default
-        }
-    } ensuring { _ =>
-        invariant(this)
-    }
-}
-`.trim(),
-                    name: "LoanContract.scala",
-                }, {
-                    contents: `
-import stainless.smartcontracts._
-import stainless.lang._
-import stainless.collection._
-import stainless.annotation._
-
-object LoanContractInvariant {
-  @ghost
-  def invariant(
-    contract: LoanContract
-  ) = {
-    tokenInvariant(address(contract), contract.currentState, contract.tokenAmount, contract.tokenContractAddress) &&
-    stateInvariant(contract.currentState, contract.visitedStates)
-  }
-
-  def tokenInvariant(
-    loanContractAddress: Address,
-    contractState: State,
-    tokenAmount: Uint256,
-    tokenContractAddress: ERC20Token
-  ): Boolean = {
-    (contractState == WaitingForLender ==> (tokenContractAddress.balanceOf(loanContractAddress) >= tokenAmount)) &&
-    (contractState == WaitingForPayback ==> (tokenContractAddress.balanceOf(loanContractAddress) >= tokenAmount))
-  }
-
-  def isPrefix[T](l1: List[T], l2: List[T]): Boolean = (l1,l2) match {
-    case (Nil(), _) => true
-    case (Cons(x, xs), Cons(y, ys)) => x == y && isPrefix(xs, ys)
-    case _ => false
-  }
-
-  @ghost
-  def stateInvariant(
-    currentState: State,
-    visitedStates: List[State]
-  ) = {
-    val expected1: List[State] = List(WaitingForData, WaitingForLender, WaitingForPayback, Finished)
-    val expected2: List[State] = List(WaitingForData, WaitingForLender, WaitingForPayback, Default)
-    val rStates = visitedStates.reverse
-
-    visitedStates.contains(WaitingForData) &&
-    visitedStates.head == currentState && (
-      isPrefix(rStates, expected1) ||
-      isPrefix(rStates, expected2)
-    )
-  }
-}
-
-`.trim(),
-                    name: "LoanContractInvariant.scala",
-                }, {
-                    contents: `
-import stainless.smartcontracts._
-
-import stainless.collection._
-import stainless.proof._
-import stainless.lang._
-import stainless.annotation._
-
-object ERC20Specs {
-    def transferUpdate(a: Address, to: Address, sender: Address, amount: Uint256, thiss: ERC20Token, oldThiss: ERC20Token) = {
-        ((a == to) ==> (thiss.balanceOf(a) == oldThiss.balanceOf(a) + amount)) &&
-        ((a == sender) ==> (thiss.balanceOf(a) == oldThiss.balanceOf(a) - amount)) &&
-        (a != to && a != sender) ==> (thiss.balanceOf(a) == oldThiss.balanceOf(a))
-    }
-
-    def transferSpec(b: Boolean, to: Address, sender: Address, amount: Uint256, thiss: ERC20Token, oldThiss: ERC20Token) = {
-        (!b ==> (thiss == oldThiss)) &&
-        (b ==> forall((a: Address) => transferUpdate(a, to, sender,amount,thiss,oldThiss))) &&
-            (thiss.addr == oldThiss.addr)
-    }
-
-    def snapshot(token: ERC20Token): ERC20Token = {
-        val ERC20Token(s) = token
-        ERC20Token(s)
-    }
-}
-`.trim(),
-                    name: "ERC20Specs.scala",
-                }, {
-                    contents: `
-import stainless.smartcontracts._
-
-import stainless.collection._
-import stainless.proof._
-import stainless.lang._
-import stainless.annotation._
-
-import ERC20Specs._
-
-case class ERC20Token(var s: BigInt) extends ContractInterface {
-    @library
-    def transfer(to: Address, amount: Uint256): Boolean = {
-        require(amount >= Uint256.ZERO)
-        val oldd = snapshot(this)
-        s = s + 1
-
-        val b = choose((b: Boolean) => transferSpec(b, to, Msg.sender, amount, this, oldd))
-        b
-    } ensuring(res => transferSpec(res, to, Msg.sender, amount, this, old(this)))
-
-    @library
-    def balanceOf(from: Address): Uint256 = {
-        choose((b: Uint256) => b >= Uint256.ZERO)
-    } ensuring {
-        res => old(this).addr == this.addr
-    }
-}
-`.trim(),
-                    name: "ERC20Token.scala",
-                }
-            ],
-            name: "Loan",
+            name: "Test interaction",
         },
     ];
 
@@ -465,32 +279,39 @@ object PositiveUint {
             const method = item.id.name;
             const type = item.kind;
 
-            let status;
+            let status = "invalid";
             switch (Object.keys(item.status)[0]) {
                 case "Valid":
                 case "ValidFromCache": {
                     status = "valid";
                     break;
                 }
-                default:
-                    status = "invalid";
             }
 
-            let position;
-            if (item.pos.file !== undefined) {
-                const filePath = item.pos.file.split("/");
-                position = {
-                    end: [item.pos.line, item.pos.col],
-                    file: filePath[filePath.length - 1],
-                    start: [item.pos.line, item.pos.col],
-                };
-            } else {
-                const filePath = item.pos.begin.file.split("/");
-                position = {
-                    end: [item.pos.end.line, item.pos.end.col],
-                    file: filePath[filePath.length - 1],
-                    start: [item.pos.begin.line, item.pos.begin.col],
-                };
+            let position = {
+                end: ["?", "?"],
+                file: "?",
+                start: ["?", "?"],
+            };
+            switch (Object.keys(item.pos.kind)[0]) {
+                case "Offset": {
+                    const filePath = item.pos.file.split("/");
+                    position = {
+                        end: [item.pos.line, item.pos.col],
+                        file: filePath[filePath.length - 1],
+                        start: [item.pos.line, item.pos.col],
+                    };
+                    break;
+                }
+                case "Range": {
+                    const filePath = item.pos.begin.file.split("/");
+                    position = {
+                        end: [item.pos.end.line, item.pos.end.col],
+                        file: filePath[filePath.length - 1],
+                        start: [item.pos.begin.line, item.pos.begin.col],
+                    };
+                    break;
+                }
             }
 
             return {
