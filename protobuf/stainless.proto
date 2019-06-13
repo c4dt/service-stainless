@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package stainless;
+
+// VerificationRequest asks the Stainless service to perform verification of contracts
+message VerificationRequest {
+    map<string, string> SourceFiles = 1;
+}
+
+// VerificationResponse is the result of a Stainless verification
+message VerificationResponse {
+    string Console = 1;
+    string Report = 2;
+}
+
+// BytecodeGenRequest asks the Stainless service to generate Ethereum bytecode
+// of contracts
+message BytecodeGenRequest {
+	map<string, string> SourceFiles = 1;
+}
+
+// BytecodeObj is the combination of the binary code and the ABI
+message BytecodeObj {
+    string Abi = 1;
+    string Bin = 2;
+}
+
+// BytecodeGenResponse is the result of a Stainless bytecode generation
+message BytecodeGenResponse {
+    map<string, BytecodeObj> BytecodeObjs = 1;
+}
+
+message DeployRequest {
+    uint64 GasLimit = 1;
+    uint64 GasPrice = 2;
+    uint64 Amount = 3;
+    uint64 Nonce = 4;
+    bytes Bytecode = 5;
+    string Abi = 6; // JSON-encoded
+    repeated string Args = 7; // JSON-encoded
+
+}
+
+message TransactionRequest {
+    uint64 GasLimit = 1;
+    uint64 GasPrice = 2;
+    uint64 Amount = 3;
+    bytes ContractAddress = 4;
+    uint64 Nonce = 5;
+    string Abi = 6; // JSON-encoded
+    string Method = 7;
+    repeated string Args = 8; // JSON-encoded
+}
+
+message TransactionHashResponse {
+	bytes Transaction = 1;
+	bytes TransactionHash = 2;
+}
+
+message TransactionFinalizationRequest {
+	bytes Transaction = 1;
+	bytes Signature = 2;
+}
+
+message TransactionResponse {
+	bytes Transaction = 1;
+}
+
+message CallRequest {
+	bytes BlockID = 1;
+	string ServerConfig = 2;
+	bytes BEvmInstanceID = 3;
+	bytes AccountAddress = 4;
+	bytes ContractAddress = 5;
+	string Abi = 6; // JSON-encoded
+	string Method = 7;
+	repeated string Args = 8; // JSON-encoded
+}
+
+message CallResponse {
+	string Result = 1; // JSON-encoded
+}
