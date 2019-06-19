@@ -1,0 +1,97 @@
+<div fxLayout="column" fxLayoutAlign="space-between fill" fxLayoutGap="50px">
+
+    <div align="center"><h1>Stainless Smart Contracts</h1></div>
+
+    <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="30px">
+
+        <div fxLayout="column" fxLayoutAlign="top fill" fxFlex="45%">
+            <mat-form-field>
+                <mat-label>Available contracts</mat-label>
+                <mat-select [value]="0" (selectionChange)="selectContract($event.value)">
+                    <mat-option *ngFor="let contract of contracts; let i = index" [attr.data-index]="i" [value]="i">{{ contract.name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-tab-group animationDuration="0ms">
+                <div *ngIf="contractSelected !== undefined">
+                    <mat-tab *ngFor="let file of contractSelected.files" label="{{ file.name }}">
+                        <mat-card>
+                            <mat-card-content class="code-area">
+                                <pre><code [highlight]="file.contents"></code></pre>
+                            </mat-card-content>
+                        </mat-card>
+                    </mat-tab>
+                </div>
+            </mat-tab-group>
+
+            <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="10px">
+                <mat-form-field fxFlexOffset="50px">
+                    <mat-label>Transactions</mat-label>
+                    <mat-select [value]="transactionSelected" (selectionChange)="selectTransaction($event.value)" disabled="{{ !executable }}">
+                        <mat-option *ngFor="let t of transactions; let i = index" [attr.data-index]="i" [value]="i">
+                            <code>{{ t }}</code>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-raised-button (click)="executeTransaction()" disabled="{{ transactionSelected === undefined }}"
+                                                                         fxFlexOffset="10px">Execute</button>
+            </div>
+
+            <div fxLayout="row" fxLayoutAlign="left center">
+                <mat-form-field fxFlexOffset="50px">
+                    <mat-label>View methods</mat-label>
+                    <mat-select [value]="viewMethodSelected" (selectionChange)="selectViewMethod($event.value)" disabled="{{ !executable }}">
+                        <mat-option *ngFor="let m of viewMethods; let i = index" [attr.data-index]="i" [value]="i">
+                            <code>{{ m }}</code>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-raised-button (click)="executeViewMethod()" disabled="{{ viewMethodSelected === undefined }}"
+                                                                        fxFlexOffset="10px">Execute</button>
+                <mat-form-field fxFlexOffset="10px" class="result">
+                    <mat-label>Result</mat-label>
+                    <input matInput disabled="true" value="{{ viewMethodResult }}">
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div fxLayout="column" fxLayoutAlign="top" fxLayoutGap="10px">
+            <button mat-raised-button (click)="verify()" fxFlexOffset="20vh" disabled="{{ contractSelected === undefined }}">Verify</button>
+            <button mat-raised-button (click)="deploy()" disabled="{{ !deployable }}">Deploy</button>
+        </div>
+
+        <div fxLayout="column" fxLayoutAlign="bottom" fxFlex="45%">
+            <cdk-virtual-scroll-viewport itemSize="10" class="verif-viewport" fxFlexFill>
+                <div align="center"><h2>Verification results</h2></div>
+                <mat-divider></mat-divider>
+                <table mat-table [dataSource]="verifResult" *ngIf="verifResult != undefined" width="100%" class="verif-results">
+                    <ng-container matColumnDef="type">
+                        <th mat-header-cell *matHeaderCellDef> Type </th>
+                        <td mat-cell *matCellDef="let item"> {{ item.type }} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="method">
+                        <th mat-header-cell *matHeaderCellDef> Method </th>
+                        <td mat-cell *matCellDef="let item"> {{ item.method }} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="location">
+                        <th mat-header-cell *matHeaderCellDef> Location </th>
+                        <td mat-cell *matCellDef="let item">
+                            <code>{{ item.position.file }}:{{ item.position.start[0] }}:{{ item.position.start[1] }}&rarr;{{ item.position.end[0] }}:{{ item.position.end[1] }}</code>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef> Status </th>
+                        <td mat-cell *matCellDef="let item"><div class="status-{{item.status}}"> {{ item.status }} </div></td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['type', 'method', 'location', 'status']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['type', 'method', 'location', 'status'];"></tr>
+                </table>
+            </cdk-virtual-scroll-viewport>
+        </div>
+
+    </div>
+</div>
