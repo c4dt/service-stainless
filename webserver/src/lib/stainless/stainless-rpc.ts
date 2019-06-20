@@ -1,13 +1,8 @@
 import { Log } from "@c4dt/cothority/log";
-import { IConnection, WebSocketConnection } from "@c4dt/cothority/network/connection";
 import { ServerIdentity } from "@c4dt/cothority/network/proto";
 
-import { BytecodeGenRequest, BytecodeGenResponse,
-    DeployRequest, TransactionRequest, TransactionHashResponse,
-    TransactionFinalizationRequest, TransactionResponse,
-    VerificationRequest, VerificationResponse,
-    CallRequest, CallResponse,
-} from "./proto";
+import { WebSocketConnection } from "src/lib/connections";
+import { stainless as proto } from "src/lib/proto";
 
 /**
  * RPC to talk with the stainless service of the conodes
@@ -15,75 +10,110 @@ import { BytecodeGenRequest, BytecodeGenResponse,
 export default class StainlessRPC {
     static serviceName = "Stainless";
 
-    private conn: IConnection;
-    private timeout: number;
+    private serviceAddress: string;
 
     constructor(srvid: ServerIdentity) {
-        this.timeout = 60 * 1000;
-
-        this.conn = new WebSocketConnection(srvid.getWebSocketAddress(),
-                                            StainlessRPC.serviceName);
+        this.serviceAddress = srvid.getWebSocketAddress() + "/" + StainlessRPC.serviceName;
     }
 
-    /**
-     * Set a new timeout value for the next requests
-     * @param value Timeout in ms
-     */
-    setTimeout(value: number): void {
-        this.timeout = value;
-    }
-
-    async verify(sourceFiles: { [_: string]: string }): Promise<VerificationResponse> {
-        this.conn.setTimeout(this.timeout);
+    async verify(sourceFiles: { [_: string]: string }): Promise<proto.VerificationResponse> {
+        // this.conn.setTimeout(this.timeout);
+        const conn = new WebSocketConnection(this.serviceAddress + "/VerificationRequest");
 
         Log.lvl2("Sending Stainless verification request...");
 
-        return this.conn.send(new VerificationRequest({sourceFiles}), VerificationResponse);
+        const msg = proto.VerificationRequest.encode(
+            new proto.VerificationRequest({SourceFiles: sourceFiles})).finish();
+
+        await conn.sendmsg(msg);
+
+        const resp = await conn.recvmsg();
+
+        return proto.VerificationResponse.decode(resp);
+
+        // return this.conn.send(new proto.VerificationRequest({sourceFiles}), proto.VerificationResponse);
     }
 
-    async genBytecode(sourceFiles: { [_: string]: string }): Promise<BytecodeGenResponse> {
-        this.conn.setTimeout(this.timeout);
+    async genBytecode(sourceFiles: { [_: string]: string }): Promise<proto.BytecodeGenResponse> {
+        const conn = new WebSocketConnection(this.serviceAddress + "/BytecodeGenRequest");
 
         Log.lvl2("Sending Stainless bytecode generation request...");
 
-        return this.conn.send(new BytecodeGenRequest({sourceFiles}), BytecodeGenResponse);
+        const msg = proto.BytecodeGenRequest.encode(
+            new proto.BytecodeGenRequest({SourceFiles: sourceFiles})).finish();
+
+        await conn.sendmsg(msg);
+
+        const resp = await conn.recvmsg();
+
+        return proto.BytecodeGenResponse.decode(resp);
     }
 
     async deployContract(gasLimit: number, gasPrice: number, amount: number, nonce: number, bytecode: Buffer,
-                         abi: string, args: string[]): Promise<TransactionHashResponse> {
-        this.conn.setTimeout(this.timeout);
+                         abi: string, args: string[]): Promise<proto.TransactionHashResponse> {
+        const conn = new WebSocketConnection(this.serviceAddress + "/DeployRequest");
 
         Log.lvl2("Sending Stainless deploy contract request...");
 
-        return this.conn.send(new DeployRequest(
-            {gasLimit, gasPrice, amount, nonce, bytecode, abi, args}), TransactionHashResponse);
+        const msg = proto.DeployRequest.encode(
+            new proto.DeployRequest({GasLimit: gasLimit, GasPrice: gasPrice, Amount: amount,
+                                    Nonce: nonce, Bytecode: bytecode, Abi: abi, Args: args})).finish();
+
+        await conn.sendmsg(msg);
+
+        const resp = await conn.recvmsg();
+
+        return proto.TransactionHashResponse.decode(resp);
     }
 
     async executeTransaction(gasLimit: number, gasPrice: number, amount: number, contractAddress: Buffer, nonce: number,
-                             abi: string, method: string, args: string[]): Promise<TransactionHashResponse> {
-        this.conn.setTimeout(this.timeout);
+                             abi: string, method: string, args: string[]): Promise<proto.TransactionHashResponse> {
+        const conn = new WebSocketConnection(this.serviceAddress + "/TransactionRequest");
 
         Log.lvl2("Sending Stainless transaction execution request...");
 
-        return this.conn.send(new TransactionRequest(
-            {gasLimit, gasPrice, amount, contractAddress, nonce, abi, method, args}), TransactionHashResponse);
+        const msg = proto.TransactionRequest.encode(
+            new proto.TransactionRequest({GasLimit: gasLimit, GasPrice: gasPrice, Amount: amount,
+                                         ContractAddress: contractAddress, Nonce: nonce,
+                                         Abi: abi, Method: method, Args: args})).finish();
+
+        await conn.sendmsg(msg);
+
+        const resp = await conn.recvmsg();
+
+        return proto.TransactionHashResponse.decode(resp);
     }
 
-    async finalizeTransaction(transaction: Buffer, signature: Buffer): Promise<TransactionResponse> {
-        this.conn.setTimeout(this.timeout);
+    async finalizeTransaction(transaction: Buffer, signature: Buffer): Promise<proto.TransactionResponse> {
+        const conn = new WebSocketConnection(this.serviceAddress + "/TransactionFinalizationRequest");
 
         Log.lvl2("Sending Stainless transaction finalization request...");
 
-        return this.conn.send(new TransactionFinalizationRequest({transaction, signature}), TransactionResponse);
+        const msg = proto.TransactionFinalizationRequest.encode(
+            new proto.TransactionFinalizationRequest({Transaction: transaction, Signature: signature})).finish();
+
+        await conn.sendmsg(msg);
+
+        const resp = await conn.recvmsg();
+
+        return proto.TransactionResponse.decode(resp);
     }
 
     async call(blockId: Buffer, serverConfig: string, bevmInstanceId: Buffer, accountAddress: Buffer,
-               contractAddress: Buffer, abi: string, method: string, args: string[]): Promise<CallResponse> {
-        this.conn.setTimeout(this.timeout);
+               contractAddress: Buffer, abi: string, method: string, args: string[]): Promise<proto.CallResponse> {
+        const conn = new WebSocketConnection(this.serviceAddress + "/CallRequest");
 
         Log.lvl2("Sending Stainless call request...");
 
-        return this.conn.send(new CallRequest(
-            {blockId, serverConfig, bevmInstanceId, accountAddress, contractAddress, abi, method, args}), CallResponse);
+        const msg = proto.CallRequest.encode(
+            new proto.CallRequest({BlockID: blockId, ServerConfig: serverConfig, BEvmInstanceID: bevmInstanceId,
+                                  AccountAddress: accountAddress, ContractAddress: contractAddress,
+                                  Abi: abi, Method: method, Args: args})).finish();
+
+        await conn.sendmsg(msg);
+
+        const resp = await conn.recvmsg();
+
+        return proto.CallResponse.decode(resp);
     }
 }

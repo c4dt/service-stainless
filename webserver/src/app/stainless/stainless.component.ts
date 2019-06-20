@@ -9,6 +9,8 @@ import Long, { fromNumber } from "long";
 import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
 import { Data, TestData } from "src/lib/Data";
 
+import { stainless as proto } from "src/lib/proto";
+
 @Component({
   selector: "app-stainless",
   styleUrls: ["./stainless.component.css"],
@@ -216,8 +218,8 @@ object BasicContract1 {
 
         try {
             const response = await rpc.verify(sourceFiles);
-            Log.lvl2(`console:\n${response.console}`);
-            Log.lvl2(`report:\n${response.report}`);
+            Log.lvl2(`console:\n${response.Console}`);
+            Log.lvl2(`report:\n${response.Report}`);
         } catch (err) {
             Log.lvl2(`error:\n${err}`);
         }
@@ -325,14 +327,14 @@ object PositiveUint {
         return res;
     }
 
-    async performLongAction(f, message: string) {
+    async performLongAction<T>(f: () => Promise<T>, message: string): Promise<T> {
         const dialogRef = this.dialog.open(InfoDialog, {
             data: { message },
-            width: "20em",
             disableClose: true,
+            width: "20em",
         });
 
-        let result: any;
+        let result: T;
         try {
             result = await f();
         } finally {
@@ -349,13 +351,13 @@ object PositiveUint {
         });
 
         // Call Stainless service to perform verification
-        const response = await this.performLongAction(
+        const response = await this.performLongAction<proto.VerificationResponse>(
             () => this.stainlessRPC.verify(sourceFiles),
             "Performing verification");
         // FIXME: Handle exceptions
         Log.print("Received verification results");
 
-        const verif = this.convertReport(JSON.parse(response.report));
+        const verif = this.convertReport(JSON.parse(response.Report));
 
         this.verifResult = verif.sort((e1, e2) => {
             if (e1.method > e2.method) {
@@ -387,16 +389,16 @@ object PositiveUint {
         });
 
         // Call Stainless service to generate bytecode and ABI
-        const response = await this.performLongAction(
+        const response = await this.performLongAction<proto.BytecodeGenResponse>(
             () => this.stainlessRPC.genBytecode(sourceFiles),
             "Generating bytecode");
         // FIXME: Handle exceptions
         Log.print("Received bytecode generation results");
 
         // FIXME: Handle multiple ABI/bytecodes
-        const firstKey = Object.keys(response.bytecodeObjs)[0];
-        this.contractSelected.abi = JSON.parse(response.bytecodeObjs[firstKey].abi);
-        this.contractSelected.bin = Buffer.from(response.bytecodeObjs[firstKey].bin, "hex");
+        const firstKey = Object.keys(response.BytecodeObjs)[0];
+        this.contractSelected.abi = JSON.parse(response.BytecodeObjs[firstKey].Abi);
+        this.contractSelected.bin = Buffer.from(response.BytecodeObjs[firstKey].Bin, "hex");
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {

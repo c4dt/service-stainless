@@ -220,12 +220,12 @@ export class BevmInstance extends Instance {
                  wait?: number) {
         const unsignedTx = await this.stainlessRPC.deployContract(gasLimit, gasPrice, amount, account.nonce,
                                                                   contract.bytecode, contract.abi, args);
-        const signature = account.sign(unsignedTx.transactionHash);
-        const signedTx = await this.stainlessRPC.finalizeTransaction(unsignedTx.transaction, signature);
+        const signature = account.sign(Buffer.from(unsignedTx.TransactionHash));
+        const signedTx = await this.stainlessRPC.finalizeTransaction(Buffer.from(unsignedTx.Transaction), signature);
 
         await this.invoke(
             BevmInstance.commandTransaction, [
-                new Argument({name: BevmInstance.argumentTx, value: signedTx.transaction}),
+                new Argument({name: BevmInstance.argumentTx, value: Buffer.from(signedTx.Transaction)}),
             ],
             signers, wait);
 
@@ -244,12 +244,12 @@ export class BevmInstance extends Instance {
         const unsignedTx = await this.stainlessRPC.executeTransaction(gasLimit, gasPrice, amount,
                                                                       contract.address, account.nonce,
                                                                       contract.abi, method, args);
-        const signature = account.sign(unsignedTx.transactionHash);
-        const signedTx = await this.stainlessRPC.finalizeTransaction(unsignedTx.transaction, signature);
+        const signature = account.sign(Buffer.from(unsignedTx.TransactionHash));
+        const signedTx = await this.stainlessRPC.finalizeTransaction(Buffer.from(unsignedTx.Transaction), signature);
 
         await this.invoke(
             BevmInstance.commandTransaction, [
-                new Argument({name: BevmInstance.argumentTx, value: signedTx.transaction}),
+                new Argument({name: BevmInstance.argumentTx, value: Buffer.from(signedTx.Transaction)}),
             ],
             signers, wait);
 
@@ -267,7 +267,7 @@ export class BevmInstance extends Instance {
                                                         account.address, contract.address,
                                                         contract.abi, method, args);
 
-        return JSON.parse(response.result);
+        return JSON.parse(response.Result);
     }
 
     async creditAccount(signers: Signer[], address: Buffer, amount: Buffer, wait?: number) {
