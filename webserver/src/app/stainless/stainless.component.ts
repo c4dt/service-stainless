@@ -78,60 +78,6 @@ export class StainlessComponent implements OnInit {
         await this.bevmRPC.creditAccount([this.testData.admin], this.account.address, amount);
     }
 
-    async testStainlessVerif() {
-        const rpc = new StainlessRPC(Defaults.Roster.list[0]);
-        const sourceFiles: {[_: string]: string} = {
-            "BasicContract1.scala": `
-import stainless.smartcontracts._
-import stainless.annotation._
-
-object BasicContract1 {
-    case class BasicContract1(
-        val other: Address
-    ) extends Contract {
-        @view
-        def foo = {
-            other
-        }
-    }
-}`,
-        };
-
-        try {
-            const response = await rpc.verify(sourceFiles);
-            Log.lvl2(`console:\n${response.Console}`);
-            Log.lvl2(`report:\n${response.Report}`);
-        } catch (err) {
-            Log.lvl2(`error:\n${err}`);
-        }
-    }
-
-    async testStainlessGen() {
-        const rpc = new StainlessRPC(Defaults.Roster.list[0]);
-        const sourceFiles: {[_: string]: string} = {
-            "PositiveUint.scala": `
-import stainless.smartcontracts._
-import stainless.annotation._
-import stainless.lang.StaticChecks._
-
-object PositiveUint {
-    case class PositiveUint() extends Contract {
-            @solidityPure
-         def test(@ghost a: Uint256) = {
-            assert(a >= Uint256.ZERO)
-         }
-    }
-}`,
-        };
-
-        try {
-            const response = await rpc.genBytecode(sourceFiles);
-            Log.lvl2(`generated:\n${response}`);
-        } catch (err) {
-            Log.lvl2(`error:\n${err}`);
-        }
-    }
-
     selectContract(index: number) {
         Log.lvl2(`User selected contract '${index}'`);
         this.contractSelected = this.contracts[index];
