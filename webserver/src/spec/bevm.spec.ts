@@ -1,17 +1,15 @@
-import Long, { fromNumber } from "long";
+import Long from "long";
 
 import { Log } from "@c4dt/cothority/log";
-import { Data, TestData } from "src/lib/Data";
-import { activateTesting, Defaults } from "src/lib/Defaults";
+import { Config } from "src/lib/Data";
+import {  Defaults } from "src/lib/Defaults";
 
 import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
 
 import StainlessRPC from "../lib/stainless/stainless-rpc";
 
-// jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
-
-fdescribe("BEvm should", async () => {
-    let tdAdmin: TestData;
+describe("BEvm should", async () => {
+    let tdAdmin: Config;
     let stainlessRPC: StainlessRPC;
 
     /* tslint:disable:max-line-length */
@@ -20,35 +18,30 @@ import stainless.smartcontracts._
 import stainless.lang.StaticChecks._
 import stainless.annotation._
 
-case class Candy(
-  var initialCandies: Uint256,
-  var remainingCandies: Uint256,
+trait Candy extends Contract {
+  var initialCandies: Uint256
+  var remainingCandies: Uint256
   var eatenCandies: Uint256
-) extends Contract {
 
   def constructor(_candies: Uint256) = {
     initialCandies = _candies
     remainingCandies = _candies
     eatenCandies = Uint256.ZERO
-
-    assert(invariant)
   }
 
+  @solidityPublic
   def eatCandy(candies: Uint256) = {
-    require(invariant)
     dynRequire(candies <= remainingCandies)
 
     remainingCandies -= candies
     eatenCandies += candies
-
-    assert(invariant)
   }
 
-  @view
-  def getRemainingCandies(): Uint256 = remainingCandies;
+  @solidityPublic @solidityView
+  def getRemainingCandies() = remainingCandies
 
-  @view
-  private def invariant: Boolean = {
+  @ghost @inline
+  final def invariant(): Boolean = {
     eatenCandies <= initialCandies &&
     remainingCandies <= initialCandies &&
     initialCandies - eatenCandies == remainingCandies
@@ -66,7 +59,7 @@ case class Candy(
 
     beforeAll(async () => {
         try {
-            tdAdmin = await TestData.init();
+            tdAdmin = await Config.init();
             stainlessRPC = new StainlessRPC(Defaults.Roster.list[0]);
         } catch (e) {
             Log.error("couldn't start byzcoin:", e);
@@ -93,14 +86,14 @@ case class Candy(
         return {valid, invalid};
     }
 
-    xit("should verify a contract", async () => {
+    it("should verify a contract", async () => {
         const response = await stainlessRPC.verify({"Candy.scala": candySource});
 
-        const {valid, invalid} = parseReport(response.report);
+        const {valid, invalid} = parseReport(response.Report);
 
-        expect(valid).toEqual(2);
+        expect(valid).toEqual(40);
         expect(invalid).toEqual(0);
-    });
+    }, 60000); // Extend Jasmine default timeout interval to 1 minute
 
     it("should create a contract deployment transaction", async () => {
         /* tslint:disable:max-line-length */
@@ -113,8 +106,8 @@ case class Candy(
         const response = await stainlessRPC.deployContract(1e7, 1, 0, 0, candyBytecode, candyAbi, args);
 
         Log.print("response = ", response);
-        expect(response.transaction).toEqual(expectedTx);
-        expect(response.transactionHash).toEqual(expectedHash);
+        expect(response.Transaction).toEqual(expectedTx);
+        expect(response.TransactionHash).toEqual(expectedHash);
     });
 
     it("should create a contract execution transaction", async () => {
@@ -131,8 +124,8 @@ case class Candy(
                                                                candyAbi, "eatCandy", args);
 
         Log.print("response = ", response);
-        expect(response.transaction).toEqual(expectedTx);
-        expect(response.transactionHash).toEqual(expectedHash);
+        expect(response.Transaction).toEqual(expectedTx);
+        expect(response.TransactionHash).toEqual(expectedHash);
     });
 
     it("should finalize a transaction", async () => {
@@ -145,7 +138,7 @@ case class Candy(
         const response = await stainlessRPC.finalizeTransaction(transaction, signature);
 
         Log.print("response = ", response);
-        expect(response.transaction).toEqual(expectedTx);
+        expect(response.Transaction).toEqual(expectedTx);
     });
 
     it("should correctly sign a hash", () => {
@@ -162,7 +155,7 @@ case class Candy(
         expect(sig).toEqual(expectedSig);
     });
 
-    fit("deploy and interact with a contract", async () => {
+    it("deploy and interact with a contract", async () => {
         Log.print("ByzCoinID:", Defaults.ByzCoinID);
 
         Log.lvl2("Create a new BEvm instance");
@@ -219,5 +212,5 @@ case class Candy(
                                     "getRemainingCandies",
                                     [],
                                    )).toBeResolvedTo(expectedRemainingCoins);
-    });
+    }, 60000); // Extend Jasmine default timeout interval to 1 minute
 });

@@ -1,12 +1,57 @@
 import { async, TestBed } from "@angular/core/testing";
 import { AppComponent } from "./app.component";
 
+import { AppRoutingModule } from "./app-routing.module";
+
+import { ArgDialog, InfoDialog, StainlessComponent } from "./stainless/stainless.component";
+
+import { ScrollDispatchModule } from "@angular/cdk/scrolling";
+import { FormsModule } from "@angular/forms";
+import {
+    MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatTabsModule,
+} from "@angular/material";
+
+import { BrowserDynamicTestingModule } from "@angular/platform-browser-dynamic/testing";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+
+import { HighlightModule } from "ngx-highlightjs";
 describe("AppComponent", () => {
     beforeEach(async(() => {
         return TestBed.configureTestingModule({
             declarations: [
+                ArgDialog,
+                InfoDialog,
                 AppComponent,
+                StainlessComponent,
             ],
+            imports: [
+                AppRoutingModule,
+                BrowserAnimationsModule,
+                FormsModule,
+                HighlightModule,
+                MatButtonModule,
+                MatCardModule,
+                MatDialogModule,
+                MatDividerModule,
+                MatFormFieldModule,
+                MatInputModule,
+                MatSelectModule,
+                MatTableModule,
+                MatTabsModule,
+                ScrollDispatchModule,
+            ],
+        }).overrideModule(BrowserDynamicTestingModule, {
+            set: {
+                entryComponents: [ ArgDialog, InfoDialog ],
+            },
         }).compileComponents();
     }));
 
@@ -14,18 +59,5 @@ describe("AppComponent", () => {
         const fixture = TestBed.createComponent(AppComponent);
         const app = fixture.debugElement.componentInstance;
         expect(app).toBeTruthy();
-    });
-
-    it(`should have as title 'dynasent3'`, () => {
-        const fixture = TestBed.createComponent(AppComponent);
-        const app = fixture.debugElement.componentInstance;
-        expect(app.title).toEqual("dynasent3");
-    });
-
-    it("should render title in a h1 tag", () => {
-        const fixture = TestBed.createComponent(AppComponent);
-        fixture.detectChanges();
-        const compiled = fixture.debugElement.nativeElement;
-        expect(compiled.querySelector("h1").textContent).toContain("Welcome to dynasent3!");
     });
 });
