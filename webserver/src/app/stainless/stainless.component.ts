@@ -5,9 +5,9 @@ import { Log } from "@c4dt/cothority/log";
 import { Defaults } from "../../lib/Defaults";
 import StainlessRPC from "../../lib/stainless/stainless-rpc";
 
-import Long, { fromNumber } from "long";
+import Long from "long";
 import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
-import { Data, TestData } from "src/lib/Data";
+import { Config } from "src/lib/Data";
 
 import { stainless as proto } from "src/lib/proto";
 
@@ -39,7 +39,7 @@ export class StainlessComponent implements OnInit {
 
     private stainlessRPC: StainlessRPC;
     private bevmRPC: BevmInstance;
-    private testData: TestData;
+    private config: Config;
     private account: EvmAccount; // FIXME: Handle account selection
     private contract: EvmContract; // FIXME: Handle contract history
 
@@ -60,11 +60,11 @@ export class StainlessComponent implements OnInit {
 
         this.contractSelected = this.contracts[0];
 
-        this.testData = await TestData.init();
+        this.config = await Config.init();
         this.stainlessRPC = new StainlessRPC(Defaults.Roster.list[0]);
-        this.bevmRPC = await BevmInstance.spawn(this.testData.bc,
-                                                this.testData.darc.getBaseID(),
-                                                [this.testData.admin]);
+        this.bevmRPC = await BevmInstance.spawn(this.config.bc,
+                                                this.config.darc.getBaseID(),
+                                                [this.config.admin]);
         this.bevmRPC.setStainlessRPC(this.stainlessRPC);
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
@@ -75,7 +75,7 @@ export class StainlessComponent implements OnInit {
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
 
         Log.lvl2("Credit an account with:", amount);
-        await this.bevmRPC.creditAccount([this.testData.admin], this.account.address, amount);
+        await this.bevmRPC.creditAccount([this.config.admin], this.account.address, amount);
     }
 
     selectContract(index: number) {
@@ -252,7 +252,7 @@ export class StainlessComponent implements OnInit {
 
                 await this.performLongAction(
                     () => this.bevmRPC.deploy(
-                        [this.testData.admin],
+                        [this.config.admin],
                         1e7,
                         1,
                         0,
@@ -294,7 +294,7 @@ export class StainlessComponent implements OnInit {
 
                 await this.performLongAction(
                     () => this.bevmRPC.transaction(
-                        [this.testData.admin],
+                        [this.config.admin],
                         1e7,
                         1,
                         0,
@@ -369,6 +369,9 @@ export class ArgDialog {
         })[0];
 
         this.values = this.method.inputs.map((_: any) => undefined);
+        if (this.values.length === 0) {
+            this.onEnter();
+        }
     }
 
     onNoClick(): void {
