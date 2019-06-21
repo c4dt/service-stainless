@@ -28,132 +28,7 @@ export class StainlessComponent implements OnInit {
         "getRemainingCandies",
     ];
 
-    contracts = [
-        {
-            files: [
-                {
-                    contents: `
-import stainless.smartcontracts._
-import stainless.lang._
-import stainless.collection._
-import stainless.annotation._
-
-trait Accounts extends Contract {
-  @solidityPublic
-  def transfer(amount: Uint256): Unit
-}
-
-trait DAO extends Contract {
-  var userBalance: Uint256
-  var contractBalance: Uint256
-  var totalCoins: Uint256
-
-  @addressOfContract("Accounts")
-  val target: Address
-
-  @ghost
-  final def invariant() = userBalance + contractBalance == totalCoins
-
-  @solidityPublic
-  final def withdrawBalance() = {
-    val amount = userBalance
-
-    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)
-
-    totalCoins = totalCoins - amount
-    userBalance = Uint256.ZERO
-  }
-}
-`.trim(),
-                    name: "DAO_bad.scala",
-                },
-            ],
-            name: "DAO bad",
-        }, {
-            files: [
-                {
-                    contents: `
-import stainless.smartcontracts._
-import stainless.lang._
-import stainless.collection._
-import stainless.annotation._
-
-trait Accounts extends Contract {
-  @solidityPublic
-  def transfer(amount: Uint256): Unit
-}
-
-trait DAO extends Contract {
-  var userBalance: Uint256
-  var contractBalance: Uint256
-  var totalCoins: Uint256
-
-  @addressOfContract("Accounts")
-  val target: Address
-
-  @ghost
-  final def invariant() = userBalance + contractBalance == totalCoins
-
-  @solidityPublic
-  final def withdrawBalance() = {
-    val amount = userBalance
-
-    totalCoins = totalCoins - amount
-    userBalance = Uint256.ZERO
-
-    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)
-  }
-}
-`.trim(),
-                    name: "DAO_good.scala",
-                },
-            ],
-            name: "DAO good",
-        }, {
-            files: [
-                {
-                    contents: `
-import stainless.smartcontracts._
-import stainless.lang.StaticChecks._
-import stainless.annotation._
-
-trait Candy extends Contract {
-  var initialCandies: Uint256
-  var remainingCandies: Uint256
-  var eatenCandies: Uint256
-
-  def constructor(_candies: Uint256) = {
-    initialCandies = _candies
-    remainingCandies = _candies
-    eatenCandies = Uint256.ZERO
-  }
-
-  @solidityPublic
-  def eatCandy(candies: Uint256) = {
-    dynRequire(candies <= remainingCandies)
-
-    remainingCandies -= candies
-    eatenCandies += candies
-  }
-
-  @solidityPublic @solidityView
-  def getRemainingCandies() = remainingCandies
-
-  @ghost @inline
-  final def invariant(): Boolean = {
-    eatenCandies <= initialCandies &&
-    remainingCandies <= initialCandies &&
-    initialCandies - eatenCandies == remainingCandies
-  }
-}
-`.trim(),
-                    name: "Candy.scala",
-                },
-            ],
-            name: "Test interaction",
-        },
-    ];
-
+    contracts: any = [];
     verifResult: any = undefined;
     deployable: boolean = false;
     executable: boolean = false;
@@ -177,6 +52,12 @@ trait Candy extends Contract {
     }
 
     async initialize() {
+        const resp = await fetch(window.location.origin + "/assets/contracts.json");
+        if (!resp.ok) {
+            return Promise.reject(new Error(`Load contracts: ${resp.status}`));
+        }
+        this.contracts = JSON.parse(await resp.text());
+
         this.contractSelected = this.contracts[0];
 
         this.testData = await TestData.init();

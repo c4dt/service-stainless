@@ -1,0 +1,29 @@
+[
+  {
+    "files": [
+      {
+        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\ntrait Accounts extends Contract {\n  @solidityPublic\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  @addressOfContract(\"Accounts\")\n  val target: Address\n  \n  @ghost\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n  }\n}\n",
+        "name": "DAO_bad.scala"
+      }
+    ],
+    "name": "DAO bad"
+  },
+  {
+    "files": [
+      {
+        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\ntrait Accounts extends Contract {\n  @solidityPublic\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  @addressOfContract(\"Accounts\")\n  val target: Address\n  \n  @ghost\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n    \n    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)\n  }\n}\n",
+        "name": "DAO_good.scala"
+      }
+    ],
+    "name": "DAO good"
+  },
+  {
+    "files": [
+      {
+        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang.StaticChecks._\nimport stainless.annotation._\n\ntrait Candy extends Contract {\n  var initialCandies: Uint256\n  var remainingCandies: Uint256\n  var eatenCandies: Uint256\n  \n  def constructor(_candies: Uint256) = {\n    initialCandies = _candies\n    remainingCandies = _candies\n    eatenCandies = Uint256.ZERO\n  }\n  \n  @solidityPublic\n  def eatCandy(candies: Uint256) = {\n    dynRequire(candies <= remainingCandies)\n    \n    remainingCandies -= candies\n    eatenCandies += candies\n  }\n  \n  @solidityPublic @solidityView\n  def getRemainingCandies() = remainingCandies\n  \n  @ghost @inline\n  final def invariant(): Boolean = {\n    eatenCandies <= initialCandies &&\n    remainingCandies <= initialCandies &&\n    initialCandies - eatenCandies == remainingCandies\n  }\n}\n",
+        "name": "Candy.scala"
+      }
+    ],
+    "name": "Test interaction"
+  }
+]
