@@ -1,17 +1,34 @@
 import ByzCoinRPC from "@c4dt/cothority/byzcoin/byzcoin-rpc";
+import { InstanceID } from "@c4dt/cothority/byzcoin/instance";
 import Darc from "@c4dt/cothority/darc/darc";
 import Signer from "@c4dt/cothority/darc/signer";
 import SignerEd25519 from "@c4dt/cothority/darc/signer-ed25519";
+import { Roster } from "@c4dt/cothority/network";
+
 import Long from "long";
-import { activateTesting, Defaults } from "./Defaults";
+// import * as serverConfig from "src/config";
+
+import { BevmInstance } from "src/lib/bevm";
+import StainlessRPC from "src/lib/stainless/stainless-rpc";
 
 export class Config {
 
-    static async init(): Promise<Config> {
-        activateTesting();
+    static async getRosterToml(): Promise<string> {
+        const resp = await fetch(window.location.origin + "/assets/conodes.toml");
+        if (!resp.ok) {
+            return Promise.reject(new Error(`Load roster: ${resp.status}`));
+        }
+        const rosterToml = await resp.text();
 
-        const roster = Defaults.Roster;
+        return rosterToml;
+    }
+
+    static async init(): Promise<Config> {
+        const rosterToml = await Config.getRosterToml();
+        const roster = Roster.fromTOML(rosterToml);
+
         const admin = SignerEd25519.random();
+
         const darc = ByzCoinRPC.makeGenesisDarc([admin], roster, "genesis darc");
         [
             "spawn:bevm",
@@ -20,18 +37,30 @@ export class Config {
         ].forEach((rule) => {
             darc.rules.appendToRule(rule, admin, "|");
         });
+
         const bc = await ByzCoinRPC.newByzCoinRPC(roster, darc, Long.fromNumber(5e8));
-        Defaults.ByzCoinID = bc.genesisID;
 
-        const td = new Config();
-        td.bc = bc;
-        td.admin = admin;
-        td.darc = darc;
+        const stainlessRPC = new StainlessRPC(roster.list[0]);
+        const bevmRPC = await BevmInstance.spawn(bc, darc.getBaseID(), [admin]);
+        bevmRPC.setStainlessRPC(stainlessRPC);
 
-        return td;
+        const cfg = new Config();
+        cfg.genesisBlock = bc.genesisID;
+        cfg.admin = admin;
+        cfg.darc = darc;
+        cfg.rosterToml = rosterToml;
+        cfg.roster = roster;
+        cfg.bevmRPC = bevmRPC;
+        cfg.stainlessRPC = stainlessRPC;
+
+        return cfg;
     }
 
-    bc: ByzCoinRPC = null;
+    genesisBlock: InstanceID;
     admin: Signer;
     darc: Darc;
+    rosterToml: string;
+    roster: Roster;
+    bevmRPC: BevmInstance;
+    stainlessRPC: StainlessRPC;
 }

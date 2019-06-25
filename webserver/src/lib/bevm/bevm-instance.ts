@@ -7,7 +7,7 @@ import ByzCoinRPC from "@c4dt/cothority/byzcoin/byzcoin-rpc";
 import ClientTransaction, { Argument, Instruction } from "@c4dt/cothority/byzcoin/client-transaction";
 import Instance, { InstanceID } from "@c4dt/cothority/byzcoin/instance";
 import Signer from "@c4dt/cothority/darc/signer";
-import { Log } from "@c4dt/cothority/log";
+import Log from "@c4dt/cothority/log";
 import { ServerIdentity } from "@c4dt/cothority/network";
 
 import StainlessRPC from "../stainless/stainless-rpc";
@@ -184,7 +184,8 @@ export class BevmInstance extends Instance {
         bevmID: InstanceID,
         darcID: InstanceID,
     ): BevmInstance {
-        return new BevmInstance(bc, Instance.fromFields(bevmID, BevmInstance.contractID, darcID, Buffer.from("")));
+        return new BevmInstance(bc, new Instance({id: bevmID, contractID: BevmInstance.contractID,
+                                                 darcID, data: Buffer.from("")}));
     }
 
     /**
@@ -194,7 +195,7 @@ export class BevmInstance extends Instance {
      * @returns a promise that resolves with the BEvm instance
      */
     static async fromByzCoin(bc: ByzCoinRPC, iid: InstanceID): Promise<BevmInstance> {
-        return new BevmInstance(bc, await Instance.fromByzCoin(bc, iid));
+        return new BevmInstance(bc, await Instance.fromByzcoin(bc, iid));
     }
 
     private stainlessRPC: StainlessRPC;

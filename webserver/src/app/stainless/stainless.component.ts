@@ -1,12 +1,9 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
-import { Log } from "@c4dt/cothority/log";
-
-import { Defaults } from "../../lib/Defaults";
-import StainlessRPC from "../../lib/stainless/stainless-rpc";
+import Log from "@c4dt/cothority/log";
 
 import Long from "long";
-import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
+import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/Data";
 
 import { stainless as proto } from "src/lib/proto";
@@ -37,8 +34,6 @@ export class StainlessComponent implements OnInit {
     viewMethodSelected: number = undefined;
     viewMethodResult: string = "";
 
-    private stainlessRPC: StainlessRPC;
-    private bevmRPC: BevmInstance;
     private config: Config;
     private account: EvmAccount; // FIXME: Handle account selection
     private contract: EvmContract; // FIXME: Handle contract history
@@ -61,21 +56,15 @@ export class StainlessComponent implements OnInit {
         this.contractSelected = this.contracts[0];
 
         this.config = await Config.init();
-        this.stainlessRPC = new StainlessRPC(Defaults.Roster.list[0]);
-        this.bevmRPC = await BevmInstance.spawn(this.config.bc,
-                                                this.config.darc.getBaseID(),
-                                                [this.config.admin]);
-        this.bevmRPC.setStainlessRPC(this.stainlessRPC);
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
-
         this.account = new EvmAccount(privKey);
 
         const WEI_PER_ETHER = Long.fromString("1000000000000000000");
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
+        await this.config.bevmRPC.creditAccount([this.config.admin], this.account.address, amount);
 
-        Log.lvl2("Credit an account with:", amount);
-        await this.bevmRPC.creditAccount([this.config.admin], this.account.address, amount);
+        Log.lvl2("ByzCoinID:", this.config.genesisBlock);
     }
 
     selectContract(index: number) {
@@ -179,7 +168,7 @@ export class StainlessComponent implements OnInit {
 
         // Call Stainless service to perform verification
         const response = await this.performLongAction<proto.VerificationResponse>(
-            () => this.stainlessRPC.verify(sourceFiles),
+            () => this.config.stainlessRPC.verify(sourceFiles),
             "Performing verification");
         // FIXME: Handle exceptions
         Log.print("Received verification results");
@@ -217,7 +206,7 @@ export class StainlessComponent implements OnInit {
 
         // Call Stainless service to generate bytecode and ABI
         const response = await this.performLongAction<proto.BytecodeGenResponse>(
-            () => this.stainlessRPC.genBytecode(sourceFiles),
+            () => this.config.stainlessRPC.genBytecode(sourceFiles),
             "Generating bytecode");
         // FIXME: Handle exceptions
         Log.print("Received bytecode generation results");
@@ -251,7 +240,7 @@ export class StainlessComponent implements OnInit {
                 this.contract = new EvmContract(bin, JSON.stringify(abi));
 
                 await this.performLongAction(
-                    () => this.bevmRPC.deploy(
+                    () => this.config.bevmRPC.deploy(
                         [this.config.admin],
                         1e7,
                         1,
@@ -293,7 +282,7 @@ export class StainlessComponent implements OnInit {
                 Log.lvl2(`Executing transaction with args ${args}`);
 
                 await this.performLongAction(
-                    () => this.bevmRPC.transaction(
+                    () => this.config.bevmRPC.transaction(
                         [this.config.admin],
                         1e7,
                         1,
@@ -328,10 +317,10 @@ export class StainlessComponent implements OnInit {
                 Log.lvl2(`Executing view method with args ${args}`);
 
                 const response = await this.performLongAction(
-                    () => this.bevmRPC.call(
-                        Defaults.ByzCoinID,
-                        Defaults.RosterTOMLLOCAL,
-                        this.bevmRPC.id,
+                    () => this.config.bevmRPC.call(
+                        this.config.genesisBlock,
+                        this.config.rosterToml,
+                        this.config.bevmRPC.id,
                         this.account,
                         this.contract,
                         methodName,

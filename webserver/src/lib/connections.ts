@@ -1,4 +1,4 @@
-import { Log } from "@c4dt/cothority/log";
+import Log from "@c4dt/cothority/log";
 
 /**
  * A connection allows to send a message to one or more distant peer

@@ -1,16 +1,12 @@
 import Long from "long";
 
-import { Log } from "@c4dt/cothority/log";
+import Log from "@c4dt/cothority/log";
 import { Config } from "src/lib/Data";
-import {  Defaults } from "src/lib/Defaults";
 
-import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
-
-import StainlessRPC from "../lib/stainless/stainless-rpc";
+import { EvmAccount, EvmContract } from "src/lib/bevm";
 
 describe("BEvm should", async () => {
-    let tdAdmin: Config;
-    let stainlessRPC: StainlessRPC;
+    let config: Config;
 
     /* tslint:disable:max-line-length */
     const candySource = `
@@ -59,8 +55,7 @@ trait Candy extends Contract {
 
     beforeAll(async () => {
         try {
-            tdAdmin = await Config.init();
-            stainlessRPC = new StainlessRPC(Defaults.Roster.list[0]);
+            config = await Config.init();
         } catch (e) {
             Log.error("couldn't start byzcoin:", e);
         }
@@ -87,7 +82,7 @@ trait Candy extends Contract {
     }
 
     it("should verify a contract", async () => {
-        const response = await stainlessRPC.verify({"Candy.scala": candySource});
+        const response = await config.stainlessRPC.verify({"Candy.scala": candySource});
 
         const {valid, invalid} = parseReport(response.Report);
 
@@ -103,7 +98,7 @@ trait Candy extends Contract {
 
         const args = [JSON.stringify(100)];
 
-        const response = await stainlessRPC.deployContract(1e7, 1, 0, 0, candyBytecode, candyAbi, args);
+        const response = await config.stainlessRPC.deployContract(1e7, 1, 0, 0, candyBytecode, candyAbi, args);
 
         Log.print("response = ", response);
         expect(response.Transaction).toEqual(expectedTx);
@@ -120,7 +115,7 @@ trait Candy extends Contract {
         const nonce = 1;
         const args = [JSON.stringify(10)];
 
-        const response = await stainlessRPC.executeTransaction(1e7, 1, 0, contractAddress, nonce,
+        const response = await config.stainlessRPC.executeTransaction(1e7, 1, 0, contractAddress, nonce,
                                                                candyAbi, "eatCandy", args);
 
         Log.print("response = ", response);
@@ -135,7 +130,7 @@ trait Candy extends Contract {
         const expectedTx = Buffer.from("7b226e6f6e6365223a22307831222c226761735072696365223a22307831222c22676173223a223078393839363830222c22746f223a22307838636461663063643235393838373235386263313361393263306136646139323639383634346330222c2276616c7565223a22307830222c22696e707574223a223078613166663266353230303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303061222c2276223a2230783163222c2272223a22307861613062323433653461643937623663623763326130313635363761613032623265376265643135396332323162373038396236303638383532376636653838222c2273223a22307836373963396466636231636562323437376133363735333634356235363463326131346137626337353766343662396237313463343961346339336561306134222c2268617368223a22307834633966336134343361663030326438373839666235616239393261376631346639396134303762616532613332643464653830313037366365613065353631227d", "hex");
         /* tslint:enable:max-line-length */
 
-        const response = await stainlessRPC.finalizeTransaction(transaction, signature);
+        const response = await config.stainlessRPC.finalizeTransaction(transaction, signature);
 
         Log.print("response = ", response);
         expect(response.Transaction).toEqual(expectedTx);
@@ -156,13 +151,9 @@ trait Candy extends Contract {
     });
 
     it("deploy and interact with a contract", async () => {
-        Log.print("ByzCoinID:", Defaults.ByzCoinID);
+        Log.print("ByzCoinID:", config.genesisBlock);
 
-        Log.lvl2("Create a new BEvm instance");
-        const bevm = await BevmInstance.spawn(tdAdmin.bc, tdAdmin.darc.getBaseID(), [tdAdmin.admin]);
-        Log.print("BEvm instance ID:", bevm.id);
-
-        bevm.setStainlessRPC(stainlessRPC);
+        Log.print("BEvm instance ID:", config.bevmRPC.id);
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
         const expectedAccountAddress = Buffer.from("627306090abab3a6e1400e9345bc60c78a8bef57", "hex");
@@ -176,41 +167,41 @@ trait Candy extends Contract {
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
 
         Log.lvl2("Credit an account with:", amount);
-        await expectAsync(bevm.creditAccount([tdAdmin.admin], account.address, amount)).toBeResolved();
+        await expectAsync(config.bevmRPC.creditAccount([config.admin], account.address, amount)).toBeResolved();
 
         Log.lvl2("Deploy a Candy contract");
-        await expectAsync(bevm.deploy([tdAdmin.admin],
-                                      1e7,
-                                      1,
-                                      0,
-                                      account,
-                                      contract,
-                                      [JSON.stringify(100)],
-                                     )).toBeResolved();
+        await expectAsync(config.bevmRPC.deploy([config.admin],
+                                                1e7,
+                                                1,
+                                                0,
+                                                account,
+                                                contract,
+                                                [JSON.stringify(100)],
+                                               )).toBeResolved();
         expect(contract.address).toEqual(expectedContractAddress);
 
         for (let nbCandies = 1; nbCandies <= 10; nbCandies++) {
             Log.lvl2(`Eat ${nbCandies} candies`);
-            await expectAsync(bevm.transaction([tdAdmin.admin],
-                                               1e7,
-                                               1,
-                                               0,
-                                               account,
-                                               contract,
-                                               "eatCandy",
-                                               [JSON.stringify(nbCandies)],
-                                              )).toBeResolved();
+            await expectAsync(config.bevmRPC.transaction([config.admin],
+                                                         1e7,
+                                                         1,
+                                                         0,
+                                                         account,
+                                                         contract,
+                                                         "eatCandy",
+                                                         [JSON.stringify(nbCandies)],
+                                                        )).toBeResolved();
         }
 
         Log.lvl2("Retrieve number of remaining candies");
         const expectedRemainingCoins = 100 - (10 * 11 / 2);
-        await expectAsync(bevm.call(Defaults.ByzCoinID,
-                                    Defaults.RosterTOMLLOCAL,
-                                    bevm.id,
-                                    account,
-                                    contract,
-                                    "getRemainingCandies",
-                                    [],
-                                   )).toBeResolvedTo(expectedRemainingCoins);
+        await expectAsync(config.bevmRPC.call(config.genesisBlock,
+                                              config.rosterToml,
+                                              config.bevmRPC.id,
+                                              account,
+                                              contract,
+                                              "getRemainingCandies",
+                                              [],
+                                             )).toBeResolvedTo(expectedRemainingCoins);
     }, 60000); // Extend Jasmine default timeout interval to 1 minute
 });

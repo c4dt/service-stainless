@@ -1,4 +1,4 @@
-import { Log } from "@c4dt/cothority/log";
+import Log from "@c4dt/cothority/log";
 import { ServerIdentity } from "@c4dt/cothority/network/proto";
 
 import { WebSocketConnection } from "src/lib/connections";
