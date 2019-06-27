@@ -1,12 +1,12 @@
 import Long from "long";
 
 import Log from "@c4dt/cothority/log";
-import { Config } from "src/lib/Data";
+import { TestConfig } from "src/lib/Data";
 
 import { EvmAccount, EvmContract } from "src/lib/bevm";
 
 describe("BEvm should", async () => {
-    let config: Config;
+    let config: TestConfig;
 
     /* tslint:disable:max-line-length */
     const candySource = `
@@ -55,7 +55,7 @@ trait Candy extends Contract {
 
     beforeAll(async () => {
         try {
-            config = await Config.init();
+            config = await TestConfig.init();
         } catch (e) {
             Log.error("couldn't start byzcoin:", e);
         }

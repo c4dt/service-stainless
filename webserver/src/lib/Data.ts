@@ -11,7 +11,7 @@ import Long from "long";
 import { BevmInstance } from "src/lib/bevm";
 import StainlessRPC from "src/lib/stainless/stainless-rpc";
 
-export class Config {
+export class TestConfig {
 
     static async getRosterToml(): Promise<string> {
         const resp = await fetch(window.location.origin + "/assets/conodes.toml");
@@ -23,8 +23,8 @@ export class Config {
         return rosterToml;
     }
 
-    static async init(): Promise<Config> {
-        const rosterToml = await Config.getRosterToml();
+    static async init(): Promise<TestConfig> {
+        const rosterToml = await TestConfig.getRosterToml();
         const roster = Roster.fromTOML(rosterToml);
 
         const admin = SignerEd25519.random();
@@ -44,7 +44,7 @@ export class Config {
         const bevmRPC = await BevmInstance.spawn(bc, darc.getBaseID(), [admin]);
         bevmRPC.setStainlessRPC(stainlessRPC);
 
-        const cfg = new Config();
+        const cfg = new TestConfig();
         cfg.genesisBlock = bc.genesisID;
         cfg.admin = admin;
         cfg.darc = darc;

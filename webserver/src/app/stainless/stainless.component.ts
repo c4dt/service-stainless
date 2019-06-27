@@ -4,7 +4,7 @@ import Log from "@c4dt/cothority/log";
 
 import Long from "long";
 import { EvmAccount, EvmContract } from "src/lib/bevm";
-import { Config } from "src/lib/Data";
+import { TestConfig } from "src/lib/Data";
 
 import { stainless as proto } from "src/lib/proto";
 
@@ -34,7 +34,7 @@ export class StainlessComponent implements OnInit {
     viewMethodSelected: number = undefined;
     viewMethodResult: string = "";
 
-    private config: Config;
+    private config: TestConfig;
     private account: EvmAccount; // FIXME: Handle account selection
     private contract: EvmContract; // FIXME: Handle contract history
 
@@ -55,7 +55,7 @@ export class StainlessComponent implements OnInit {
 
         this.contractSelected = this.contracts[0];
 
-        this.config = await Config.init();
+        this.config = await TestConfig.init();
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
         this.account = new EvmAccount(privKey);
