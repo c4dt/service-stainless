@@ -1,12 +1,14 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
-import Log from "@c4dt/cothority/log";
+import Log from "@dedis/cothority/log";
 
 import Long from "long";
 import { EvmAccount, EvmContract } from "src/lib/bevm";
-import { TestConfig } from "src/lib/Data";
+import { Config } from "src/lib/Data";
 
 import { stainless as proto } from "src/lib/proto";
+
+import { gData } from "@c4dt/dynacred/Data";
 
 @Component({
   selector: "app-stainless",
@@ -34,7 +36,7 @@ export class StainlessComponent implements OnInit {
     viewMethodSelected: number = undefined;
     viewMethodResult: string = "";
 
-    private config: TestConfig;
+    private config: Config;
     private account: EvmAccount; // FIXME: Handle account selection
     private contract: EvmContract; // FIXME: Handle contract history
 
@@ -55,16 +57,27 @@ export class StainlessComponent implements OnInit {
 
         this.contractSelected = this.contracts[0];
 
-        this.config = await TestConfig.init();
+        this.config = await Config.init();
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
         this.account = new EvmAccount(privKey);
 
         const WEI_PER_ETHER = Long.fromString("1000000000000000000");
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
-        await this.config.bevmRPC.creditAccount([this.config.admin], this.account.address, amount);
+        await this.config.bevmRPC.creditAccount([this.config.bevmUser], this.account.address, amount);
 
         Log.lvl2("ByzCoinID:", this.config.genesisBlock);
+
+        const data = await gData.load();
+
+        if (data.contact.isRegistered) {
+            Log.lvl2("User is registered");
+            // FIXME: Create and credit an EVM account if the user does not yet have one
+        } else {
+            Log.lvl2("User is not registered");
+            // FIXME: Display dialog indicating user does not have access and
+            // invite to register
+        }
     }
 
     selectContract(index: number) {
@@ -153,6 +166,9 @@ export class StainlessComponent implements OnInit {
         let result: T;
         try {
             result = await f();
+        } catch (e) {
+            // FIXME: Display dialog with error
+            Log.lvl2("Exception in performLongAction(): ", e.message);
         } finally {
             dialogRef.close();
         }
@@ -241,7 +257,7 @@ export class StainlessComponent implements OnInit {
 
                 await this.performLongAction(
                     () => this.config.bevmRPC.deploy(
-                        [this.config.admin],
+                        [this.config.bevmUser],
                         1e7,
                         1,
                         0,
@@ -283,7 +299,7 @@ export class StainlessComponent implements OnInit {
 
                 await this.performLongAction(
                     () => this.config.bevmRPC.transaction(
-                        [this.config.admin],
+                        [this.config.bevmUser],
                         1e7,
                         1,
                         0,

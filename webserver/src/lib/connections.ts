@@ -1,4 +1,4 @@
-import Log from "@c4dt/cothority/log";
+import Log from "@dedis/cothority/log";
 
 /**
  * A connection allows to send a message to one or more distant peer
@@ -42,7 +42,7 @@ export class WebSocketConnection implements IConnection {
     }
 
     async recvmsg(): Promise<Uint8Array> {
-        while (this.received.size == 0) {
+        while (this.received.size === 0) {
             // TODO sync by hand, ugly, find a library having async collections
             await new Promise((resolve, reject) => setTimeout(resolve, 30))
         }

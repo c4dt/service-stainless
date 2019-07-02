@@ -3,12 +3,12 @@ import EC from "elliptic/lib/elliptic/ec";
 import Keccak from "keccak";
 import Long from "long";
 
-import ByzCoinRPC from "@c4dt/cothority/byzcoin/byzcoin-rpc";
-import ClientTransaction, { Argument, Instruction } from "@c4dt/cothority/byzcoin/client-transaction";
-import Instance, { InstanceID } from "@c4dt/cothority/byzcoin/instance";
-import Signer from "@c4dt/cothority/darc/signer";
-import Log from "@c4dt/cothority/log";
-import { ServerIdentity } from "@c4dt/cothority/network";
+import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
+import ClientTransaction, { Argument, Instruction } from "@dedis/cothority/byzcoin/client-transaction";
+import Instance, { InstanceID } from "@dedis/cothority/byzcoin/instance";
+import Signer from "@dedis/cothority/darc/signer";
+import Log from "@dedis/cothority/log";
+import { ServerIdentity } from "@dedis/cothority/network";
 
 import StainlessRPC from "../stainless/stainless-rpc";
 
@@ -154,11 +154,7 @@ export class BevmInstance extends Instance {
      * @param signers   The list of signers for the transaction
      * @returns a promise that resolves with the new instance
      */
-    static async spawn(
-        bc: ByzCoinRPC,
-        darcID: InstanceID,
-        signers: Signer[],
-    ): Promise<BevmInstance> {
+    static async spawn(bc: ByzCoinRPC, darcID: InstanceID, signers: Signer[]): Promise<BevmInstance> {
         const inst = Instruction.createSpawn(
             darcID,
             BevmInstance.contractID,
@@ -170,7 +166,7 @@ export class BevmInstance extends Instance {
 
         await bc.sendTransactionAndWait(ctx);
 
-        return BevmInstance.fromByzCoin(bc, inst.deriveId());
+        return BevmInstance.fromByzcoin(bc, inst.deriveId());
     }
 
     /**
@@ -179,11 +175,7 @@ export class BevmInstance extends Instance {
      * @param bevmID
      * @param darcID
      */
-    static create(
-        bc: ByzCoinRPC,
-        bevmID: InstanceID,
-        darcID: InstanceID,
-    ): BevmInstance {
+    static create(bc: ByzCoinRPC, bevmID: InstanceID, darcID: InstanceID): BevmInstance {
         return new BevmInstance(bc, new Instance({id: bevmID, contractID: BevmInstance.contractID,
                                                  darcID, data: Buffer.from("")}));
     }
@@ -194,7 +186,7 @@ export class BevmInstance extends Instance {
      * @param iid   The instance ID
      * @returns a promise that resolves with the BEvm instance
      */
-    static async fromByzCoin(bc: ByzCoinRPC, iid: InstanceID): Promise<BevmInstance> {
+    static async fromByzcoin(bc: ByzCoinRPC, iid: InstanceID): Promise<BevmInstance> {
         return new BevmInstance(bc, await Instance.fromByzcoin(bc, iid));
     }
 
@@ -265,8 +257,8 @@ export class BevmInstance extends Instance {
     async call(blockId: Buffer, serverConfig: string, bevmInstanceId: Buffer,
                account: EvmAccount, contract: EvmContract, method: string, args?: string[]): Promise<any> {
         const response = await this.stainlessRPC.call(blockId, serverConfig, bevmInstanceId,
-                                                        account.address, contract.address,
-                                                        contract.abi, method, args);
+                                                      account.address, contract.address,
+                                                      contract.abi, method, args);
 
         return JSON.parse(response.Result);
     }

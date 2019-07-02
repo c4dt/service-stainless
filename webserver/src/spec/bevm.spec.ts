@@ -1,6 +1,6 @@
 import Long from "long";
 
-import Log from "@c4dt/cothority/log";
+import Log from "@dedis/cothority/log";
 import { TestConfig } from "src/lib/Data";
 
 import { EvmAccount, EvmContract } from "src/lib/bevm";
@@ -167,10 +167,10 @@ trait Candy extends Contract {
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
 
         Log.lvl2("Credit an account with:", amount);
-        await expectAsync(config.bevmRPC.creditAccount([config.admin], account.address, amount)).toBeResolved();
+        await expectAsync(config.bevmRPC.creditAccount([config.bevmUser], account.address, amount)).toBeResolved();
 
         Log.lvl2("Deploy a Candy contract");
-        await expectAsync(config.bevmRPC.deploy([config.admin],
+        await expectAsync(config.bevmRPC.deploy([config.bevmUser],
                                                 1e7,
                                                 1,
                                                 0,
@@ -182,7 +182,7 @@ trait Candy extends Contract {
 
         for (let nbCandies = 1; nbCandies <= 10; nbCandies++) {
             Log.lvl2(`Eat ${nbCandies} candies`);
-            await expectAsync(config.bevmRPC.transaction([config.admin],
+            await expectAsync(config.bevmRPC.transaction([config.bevmUser],
                                                          1e7,
                                                          1,
                                                          0,
