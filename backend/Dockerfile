@@ -1,5 +1,4 @@
 FROM debian:stretch-slim
-WORKDIR /root/
 
 # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863199
 RUN mkdir -p /usr/share/man/man1
@@ -18,8 +17,12 @@ RUN apt-get update; \
     ; apt-get clean
 RUN npm install --global solc@0.5.8
 
-COPY build/conode.Linux.x86_64 /root/conode
-COPY build/stainless.jar /root/
-COPY stainless-smart build/z3 build/cvc4 /usr/local/bin/
+COPY build/conode.Linux.x86_64 /usr/local/bin/conode
+COPY build/z3 build/cvc4 /usr/local/bin/
 
-ENTRYPOINT ["/root/conode"]
+# Use /tmp so as to be accessible by any user
+COPY build/stainless.jar /tmp/
+RUN echo '#!/bin/sh\n\njava -jar /tmp/stainless.jar $*' > /usr/local/bin/stainless-smart
+RUN chmod +x /usr/local/bin/stainless-smart
+
+ENTRYPOINT ["/usr/local/bin/conode"]
