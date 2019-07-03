@@ -1,14 +1,14 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
+import { gData } from "@c4dt/dynacred/Data";
 import Log from "@dedis/cothority/log";
 
+import { randomBytes } from "crypto";
 import Long from "long";
+
 import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/Data";
-
 import { stainless as proto } from "src/lib/proto";
-
-import { gData } from "@c4dt/dynacred/Data";
 
 @Component({
   selector: "app-stainless",
@@ -57,27 +57,32 @@ export class StainlessComponent implements OnInit {
 
         this.contractSelected = this.contracts[0];
 
+        // Initialize DynaCred
+        try {
+            const data = await gData.load();
+            if (data.contact.isRegistered) {
+                Log.lvl2("User is registered");
+                // FIXME: Check if user is authorized to access; if not, indicate so and abort
+                // FIXME: Create and credit an EVM account if the user does not yet have one
+            } else {
+                Log.lvl2("User is not registered");
+                // FIXME: Display dialog indicating user is not registered --> invite to register
+            }
+        } catch (e) {
+            Log.lvl2("Failed to load data");
+            // FIXME: Display dialog indicating user is not registered --> invite to register
+        }
+
+        // Initialize BEvm cothority
         this.config = await Config.init();
 
-        const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
+        // FIXME: Retrieve account key from user's local storage
+        const privKey = randomBytes(32);
         this.account = new EvmAccount(privKey);
 
         const WEI_PER_ETHER = Long.fromString("1000000000000000000");
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
         await this.config.bevmRPC.creditAccount([this.config.bevmUser], this.account.address, amount);
-
-        Log.lvl2("ByzCoinID:", this.config.genesisBlock);
-
-        const data = await gData.load();
-
-        if (data.contact.isRegistered) {
-            Log.lvl2("User is registered");
-            // FIXME: Create and credit an EVM account if the user does not yet have one
-        } else {
-            Log.lvl2("User is not registered");
-            // FIXME: Display dialog indicating user does not have access and
-            // invite to register
-        }
     }
 
     selectContract(index: number) {

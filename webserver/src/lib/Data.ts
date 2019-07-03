@@ -6,7 +6,8 @@ import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
 import { Roster } from "@dedis/cothority/network";
 
 import Long from "long";
-// import * as serverConfig from "src/config";
+import * as serverConfig from "src/config";
+import * as serverBevmConfig from "src/config_bevm";
 
 import { BevmInstance } from "src/lib/bevm";
 import StainlessRPC from "src/lib/stainless/stainless-rpc";
@@ -28,19 +29,9 @@ export class Config {
         const roster = Roster.fromTOML(rosterToml);
         const stainlessConode = roster.list[0];
 
-        // const bevmAdmin = SignerEd25519.fromBytes(
-        //     Buffer.from("df9cf2868119860ed5c195e8937f8be8d5529c16d0dcdd0252f26414e2957c03", "hex"));
-        const bevmUser = SignerEd25519.fromBytes(
-            Buffer.from("7cc0629feeb9cb433b8dd7beb536da23896a8fb8218bc992dfea2181c935110f", "hex"));
-        // const bevmDarcID = Buffer.from("21711bdd44125b5a617f665c40f1fe1d19279df261866887e61a32ad46c5d05c", "hex");
-
-        const byzcoinID = Buffer.from("5ba70e7dd82ce12caa3d9f59be674d66a8651e21e1581cada59abe659f335926", "hex");
-        const bc = await ByzCoinRPC.fromByzcoin(roster, byzcoinID);
-
-        // const bevmRPC = await BevmInstance.spawn(bc, bevmDarcID, [bevmAdmin]);
-        const bevmInstanceID = Buffer.from("3269132fa39a98196716fef313f713c991edfdc4b19c5d0ff142f74d0b552caa", "hex");
-
-        const bevmRPC = await BevmInstance.fromByzcoin(bc, bevmInstanceID);
+        const bc = await ByzCoinRPC.fromByzcoin(roster, serverConfig.ByzCoinID);
+        const bevmRPC = await BevmInstance.fromByzcoin(bc, serverBevmConfig.bevmInstanceID);
+        const bevmUser = SignerEd25519.fromBytes(serverBevmConfig.bevmUserID);
 
         const stainlessRPC = new StainlessRPC(stainlessConode);
         bevmRPC.setStainlessRPC(stainlessRPC);

@@ -99,11 +99,10 @@ func spawn(c *cli.Context) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(c.App.Writer, "Created BEvm instance with ID %s\n", bevmInstID)
+	_, err = fmt.Fprintf(c.App.Writer, "Created BEvm instance with ID: %s\n", bevmInstID)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
-
