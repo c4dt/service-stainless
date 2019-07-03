@@ -5,6 +5,8 @@ services:
 services/%: | services
 	@: nothing
 
+toml_filename = conodes_bevm.toml
+
 include services/mk/service.mk
 
 .PHONY: $Sexternal-deps

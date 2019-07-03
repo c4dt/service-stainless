@@ -15,7 +15,7 @@ import StainlessRPC from "src/lib/stainless/stainless-rpc";
 export class Config {
 
     static async getRosterToml(): Promise<string> {
-        const resp = await fetch(window.location.origin + "/assets/conodes.toml");
+        const resp = await fetch(window.location.origin + "/assets/conodes_bevm.toml");
         if (!resp.ok) {
             return Promise.reject(new Error(`Load roster: ${resp.status}`));
         }
