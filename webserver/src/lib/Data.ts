@@ -1,6 +1,5 @@
 import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
 import { InstanceID } from "@dedis/cothority/byzcoin/instance";
-import Darc from "@dedis/cothority/darc/darc";
 import Signer from "@dedis/cothority/darc/signer";
 import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
 import { Roster } from "@dedis/cothority/network";
@@ -15,7 +14,7 @@ import StainlessRPC from "src/lib/stainless/stainless-rpc";
 export class Config {
 
     static async getRosterToml(): Promise<string> {
-        const resp = await fetch(window.location.origin + "/assets/conodes_bevm.toml");
+        const resp = await fetch(window.location.href + "/assets/conodes_bevm.toml");
         if (!resp.ok) {
             return Promise.reject(new Error(`Load roster: ${resp.status}`));
         }
@@ -25,7 +24,7 @@ export class Config {
     }
 
     static async init(): Promise<Config> {
-        const rosterToml = await TestConfig.getRosterToml();
+        const rosterToml = await Config.getRosterToml();
         const roster = Roster.fromTOML(rosterToml);
         const stainlessConode = roster.list[0];
 

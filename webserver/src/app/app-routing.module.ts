@@ -4,8 +4,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { StainlessComponent } from "./stainless/stainless.component";
 
 const routes: Routes = [
-  {path: "", redirectTo: "/stainless", pathMatch: "full"},
-  {path: "stainless", component: StainlessComponent},
+  {path: "", component: StainlessComponent},
 ];
 
 @NgModule({

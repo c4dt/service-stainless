@@ -8,7 +8,6 @@ import ClientTransaction, { Argument, Instruction } from "@dedis/cothority/byzco
 import Instance, { InstanceID } from "@dedis/cothority/byzcoin/instance";
 import Signer from "@dedis/cothority/darc/signer";
 import Log from "@dedis/cothority/log";
-import { ServerIdentity } from "@dedis/cothority/network";
 
 import StainlessRPC from "../stainless/stainless-rpc";
 

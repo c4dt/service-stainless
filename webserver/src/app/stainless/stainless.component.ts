@@ -49,7 +49,7 @@ export class StainlessComponent implements OnInit {
     }
 
     async initialize() {
-        const resp = await fetch(window.location.origin + "/assets/contracts.json");
+        const resp = await fetch(window.location.href + "/assets/contracts.json");
         if (!resp.ok) {
             return Promise.reject(new Error(`Load contracts: ${resp.status}`));
         }
