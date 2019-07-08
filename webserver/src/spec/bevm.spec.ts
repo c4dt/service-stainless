@@ -1,9 +1,52 @@
 import Long from "long";
 
 import Log from "@dedis/cothority/log";
-import { TestConfig } from "src/lib/Data";
 
-import { EvmAccount, EvmContract } from "src/lib/bevm";
+import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
+import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
+import { Roster } from "@dedis/cothority/network";
+
+import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
+import { Config } from "src/lib/Data";
+import StainlessRPC from "src/lib/stainless/stainless-rpc";
+
+class TestConfig extends Config {
+
+    static async init(): Promise<Config> {
+        const rosterToml = await TestConfig.getRosterToml(window.location.origin);
+        const roster = Roster.fromTOML(rosterToml);
+        const stainlessConode = roster.list[0];
+
+        const admin = SignerEd25519.random();
+
+        const darc = ByzCoinRPC.makeGenesisDarc([admin], roster, "genesis darc");
+        [
+            "spawn:bevm",
+            "invoke:bevm.credit",
+            "invoke:bevm.transaction",
+        ].forEach((rule) => {
+            darc.rules.appendToRule(rule, admin, "|");
+        });
+
+        const bc = await ByzCoinRPC.newByzCoinRPC(roster, darc, Long.fromNumber(5e8));
+
+        const bevmRPC = await BevmInstance.spawn(bc, darc.getBaseID(), [admin]);
+
+        const stainlessRPC = new StainlessRPC(stainlessConode);
+        bevmRPC.setStainlessRPC(stainlessRPC);
+
+        const cfg = new TestConfig();
+
+        cfg.genesisBlock = bc.genesisID;
+        cfg.rosterToml = rosterToml;
+        cfg.roster = roster;
+        cfg.bevmRPC = bevmRPC;
+        cfg.stainlessRPC = stainlessRPC;
+        cfg.bevmUser = admin;
+
+        return cfg;
+    }
+}
 
 describe("BEvm should", async () => {
     let config: TestConfig;
