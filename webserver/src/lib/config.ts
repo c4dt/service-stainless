@@ -8,7 +8,7 @@ import * as serverConfig from "src/config";
 import * as serverBevmConfig from "src/config_bevm";
 
 import { BevmInstance } from "src/lib/bevm";
-import StainlessRPC from "src/lib/stainless/stainless-rpc";
+import { StainlessRPC } from "src/lib/stainless";
 
 export class Config {
 

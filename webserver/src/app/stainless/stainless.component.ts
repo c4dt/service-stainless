@@ -7,7 +7,7 @@ import { randomBytes } from "crypto";
 import Long from "long";
 
 import { EvmAccount, EvmContract } from "src/lib/bevm";
-import { Config } from "src/lib/Data";
+import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
 
 @Component({

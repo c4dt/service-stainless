@@ -7,8 +7,8 @@ import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
 import { Roster } from "@dedis/cothority/network";
 
 import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
-import { Config } from "src/lib/Data";
-import StainlessRPC from "src/lib/stainless/stainless-rpc";
+import { Config } from "src/lib/config";
+import { StainlessRPC } from "src/lib/stainless";
 
 class TestConfig extends Config {
 

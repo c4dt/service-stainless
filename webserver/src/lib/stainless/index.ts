@@ -1,4 +1,4 @@
-import StainlessRPC from "./stainless-rpc";
+import { StainlessRPC } from "./stainless-rpc";
 
 export {
     StainlessRPC,

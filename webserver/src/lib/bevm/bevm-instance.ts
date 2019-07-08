@@ -1,7 +1,6 @@
 import { createHash } from "crypto";
 import EC from "elliptic/lib/elliptic/ec";
 import Keccak from "keccak";
-import Long from "long";
 
 import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
 import ClientTransaction, { Argument, Instruction } from "@dedis/cothority/byzcoin/client-transaction";
@@ -9,7 +8,7 @@ import Instance, { InstanceID } from "@dedis/cothority/byzcoin/instance";
 import Signer from "@dedis/cothority/darc/signer";
 import Log from "@dedis/cothority/log";
 
-import StainlessRPC from "../stainless/stainless-rpc";
+import { StainlessRPC } from "src/lib/stainless";
 
 export class EvmAccount {
     static ec = new EC("secp256k1");

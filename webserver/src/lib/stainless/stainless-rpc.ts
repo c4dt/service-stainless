@@ -7,7 +7,7 @@ import { stainless as proto } from "src/lib/proto";
 /**
  * RPC to talk with the stainless service of the conodes
  */
-export default class StainlessRPC {
+export class StainlessRPC {
     static serviceName = "Stainless";
 
     private serviceAddress: string;
