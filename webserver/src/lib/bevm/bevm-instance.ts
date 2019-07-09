@@ -9,9 +9,15 @@ import Signer from "@dedis/cothority/darc/signer";
 import Log from "@dedis/cothority/log";
 
 import { StainlessRPC } from "src/lib/stainless";
+import { UserEvmInfo } from "src/lib/storage";
 
-export class EvmAccount {
+export class EvmAccount extends UserEvmInfo {
     static ec = new EC("secp256k1");
+    static storageKey = "evm_account";
+
+    static deserialize(obj: any): EvmAccount {
+        return new EvmAccount(obj.privateKey, obj.nonce);
+    }
 
     private static computeAddress(key) {
         // Marshal public key to binary
@@ -21,23 +27,28 @@ export class EvmAccount {
         h.update(pubBytes.slice(1));
 
         const address = h.digest().slice(12);
-        Log.llvl2("Computed account address", address);
+        Log.llvl2("Computed account address", address.toString("hex"));
 
         return address;
     }
 
     readonly address: Buffer;
-    private _nonce: number = 0;
+    private _nonce: number;
     private key;
 
     get nonce() {
         return this._nonce;
     }
 
-    constructor(privKey: Buffer) {
-        this.key = EvmAccount.ec.keyFromPrivate(privKey.toString("hex"));
+    constructor(privKey: Buffer, nonce: number = 0) {
+        super();
+
+        this.key = EvmAccount.ec.keyFromPrivate(privKey.toString("hex"), "hex");
 
         this.address = EvmAccount.computeAddress(this.key);
+        this._nonce = nonce;
+
+        this.save();
     }
 
     sign(hash: Buffer): Buffer {
@@ -57,7 +68,21 @@ export class EvmAccount {
 
     incNonce() {
         this._nonce += 1;
+
+        this.save();
     }
+
+    serialize(): object {
+        return {
+            nonce: this.nonce,
+            privateKey: this.key.getPrivate("hex"),
+        };
+    }
+
+    protected getStorageKey(): string {
+        return EvmAccount.storageKey;
+    }
+
 }
 
 export class EvmContract {
@@ -68,7 +93,7 @@ export class EvmContract {
         h.update(buf);
 
         const address = h.digest().slice(12);
-        Log.llvl2("Computed contract address", address);
+        Log.llvl2("Computed contract address", address.toString("hex"));
 
         return address;
     }

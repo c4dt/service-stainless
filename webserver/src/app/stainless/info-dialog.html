@@ -1,6 +1,9 @@
 <div fxLayout="column" fxLayoutAlign="space-between fill" fxLayoutGap="50px">
-    <h1 mat-dialog-title align="center">Please wait...</h1>
+    <h1 mat-dialog-title align="center">{{ data.title || "Please wait..." }}</h1>
     <div mat-dialog-content align="center">
         <h2>{{ data.message }}</h2>
+    </div>
+    <div *ngIf="data.requireAck" mat-dialog-actions align="center">
+        <button mat-raised-button [mat-dialog-close]>Ok</button>
     </div>
 </div>

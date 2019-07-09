@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
+
 import { gData } from "@c4dt/dynacred/Data";
 import Log from "@dedis/cothority/log";
 
@@ -9,6 +10,9 @@ import Long from "long";
 import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
+
+const REGISTER_URL = "https://demo.c4dt.org/omniledger";
+const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 
 @Component({
   selector: "app-stainless",
@@ -37,7 +41,7 @@ export class StainlessComponent implements OnInit {
     viewMethodResult: string = "";
 
     private config: Config;
-    private account: EvmAccount; // FIXME: Handle account selection
+    private account: EvmAccount;
     private contract: EvmContract; // FIXME: Handle contract history
 
     constructor(public dialog: MatDialog) { }
@@ -59,30 +63,70 @@ export class StainlessComponent implements OnInit {
 
         // Initialize DynaCred
         try {
-            const data = await gData.load();
-            if (data.contact.isRegistered) {
+            const credData = await gData.load();
+            if (credData.contact && credData.contact.isRegistered() && credData.coinInstance) {
                 Log.lvl2("User is registered");
                 // FIXME: Check if user is authorized to access; if not, indicate so and abort
-                // FIXME: Create and credit an EVM account if the user does not yet have one
             } else {
                 Log.lvl2("User is not registered");
-                // FIXME: Display dialog indicating user is not registered --> invite to register
+                this.handleNotRegistered();
+                return;
             }
         } catch (e) {
             Log.lvl2("Failed to load data");
-            // FIXME: Display dialog indicating user is not registered --> invite to register
+            this.handleNotRegistered();
+            return;
         }
 
         // Initialize BEvm cothority
         this.config = await Config.init();
+        Log.lvl2("BEvm initialized");
 
-        // FIXME: Retrieve account key from user's local storage
-        const privKey = randomBytes(32);
-        this.account = new EvmAccount(privKey);
+        const accountNewlyCreated = this.loadUserData();
 
-        const WEI_PER_ETHER = Long.fromString("1000000000000000000");
-        const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
-        await this.config.bevmRPC.creditAccount([this.config.bevmUser], this.account.address, amount);
+        if (accountNewlyCreated) {
+            // Credit account to allow for transactions
+            Log.lvl2("Crediting newly created EVM account...");
+            const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
+            await this.config.bevmRPC.creditAccount([this.config.bevmUser],
+                                                    this.account.address,
+                                                    amount);
+        }
+    }
+
+    loadUserData(): boolean {
+        let accountNewlyCreated = false;
+        let account = EvmAccount.load() as EvmAccount;
+
+        if (account === null) {
+            Log.lvl2("EVM account does not exist -- creating");
+            const privKey = randomBytes(32);
+            account = new EvmAccount(privKey);
+
+            accountNewlyCreated = true;
+        } else {
+            Log.lvl2("Retrieved EVM account, address:", account.address.toString("hex"));
+        }
+
+        this.account = account;
+
+        return accountNewlyCreated;
+    }
+
+    handleNotRegistered() {
+        const dialogRef = this.dialog.open(InfoDialog, {
+            data: {
+                message: "It appears you are not yet registered. \
+                You will now be redirected to the registration process.",
+                requireAck: true,
+                title: "User not registered",
+            },
+            width: "30em",
+        });
+
+        dialogRef.afterClosed().subscribe(async (_) => {
+            window.location.href = REGISTER_URL;
+        });
     }
 
     selectContract(index: number) {
@@ -173,7 +217,21 @@ export class StainlessComponent implements OnInit {
             result = await f();
         } catch (e) {
             // FIXME: Display dialog with error
-            Log.lvl2("Exception in performLongAction(): ", e.message);
+            Log.lvl2("Exception in performLongAction(): ", e);
+
+            const infoRef = this.dialog.open(InfoDialog, {
+                data: {
+                    message: `An unexpected error occurred: ${e}
+                    Please contact the developers at C4DT`,
+                    requireAck: true,
+                    title: "Error",
+                },
+                width: "30em",
+            });
+
+            infoRef.afterClosed().subscribe(async (_) => {
+                window.location.reload();
+            });
         } finally {
             dialogRef.close();
         }
@@ -191,7 +249,6 @@ export class StainlessComponent implements OnInit {
         const response = await this.performLongAction<proto.VerificationResponse>(
             () => this.config.stainlessRPC.verify(sourceFiles),
             "Performing verification");
-        // FIXME: Handle exceptions
         Log.print("Received verification results");
 
         const verif = this.convertReport(JSON.parse(response.Report));
@@ -229,7 +286,6 @@ export class StainlessComponent implements OnInit {
         const response = await this.performLongAction<proto.BytecodeGenResponse>(
             () => this.config.stainlessRPC.genBytecode(sourceFiles),
             "Generating bytecode");
-        // FIXME: Handle exceptions
         Log.print("Received bytecode generation results");
 
         // FIXME: Handle multiple ABI/bytecodes
@@ -395,6 +451,8 @@ export class ArgDialog {
 
 export interface IInfoDialogData {
     message: string;
+    title: string;
+    requireAck: boolean;
 }
 
 @Component({
