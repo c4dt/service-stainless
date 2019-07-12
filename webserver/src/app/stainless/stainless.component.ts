@@ -11,7 +11,7 @@ import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
 
-const REGISTER_URL = "https://demo.c4dt.org/omniledger";
+const NEW_USER_URL = "https://demo.c4dt.org/omniledger/c4dt/newuser";
 const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 
 @Component({
@@ -22,23 +22,17 @@ const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 export class StainlessComponent implements OnInit {
 
     transactions: string[] = [];
-    transactionsCandy = [
-        "eatCandy",
-    ];
+    transactionSelected: number = undefined;
 
     viewMethods: string[] = [];
-    viewMethodsCandy = [
-        "getRemainingCandies",
-    ];
+    viewMethodSelected: number = undefined;
+    viewMethodResult: string = "";
 
     contracts: any = [];
+    contractSelected: any = undefined;
     verifResult: any = undefined;
     deployable: boolean = false;
     executable: boolean = false;
-    contractSelected: any = undefined;
-    transactionSelected: number = undefined;
-    viewMethodSelected: number = undefined;
-    viewMethodResult: string = "";
 
     private config: Config;
     private account: EvmAccount;
@@ -53,13 +47,7 @@ export class StainlessComponent implements OnInit {
     }
 
     async initialize() {
-        const resp = await fetch(window.location.href + "/assets/contracts.json");
-        if (!resp.ok) {
-            return Promise.reject(new Error(`Load contracts: ${resp.status}`));
-        }
-        this.contracts = JSON.parse(await resp.text());
-
-        this.contractSelected = this.contracts[0];
+        await this.initContracts();
 
         // Initialize DynaCred
         try {
@@ -94,6 +82,17 @@ export class StainlessComponent implements OnInit {
         }
     }
 
+    async initContracts() {
+        const resp = await fetch(window.location.href + "/assets/contracts.json");
+        if (!resp.ok) {
+            return Promise.reject(new Error(`Load contracts: ${resp.status}`));
+        }
+        this.contracts = JSON.parse(await resp.text());
+        Log.lvl2("Loaded list of contracts");
+
+        this.contractSelected = this.contracts[0];
+    }
+
     loadUserData(): boolean {
         let accountNewlyCreated = false;
         let account = EvmAccount.load() as EvmAccount;
@@ -116,8 +115,9 @@ export class StainlessComponent implements OnInit {
     handleNotRegistered() {
         const dialogRef = this.dialog.open(InfoDialog, {
             data: {
-                message: "It appears you are not yet registered. \
-                You will now be redirected to the registration process.",
+                message: "Access to the Stainless demonstrator requires  a registration by the C4DT.\
+                You will now be redirected to the registration process.\
+                Please contact Christian Grigis <christian.grigis@epfl.ch> for any question.",
                 requireAck: true,
                 title: "User not registered",
             },
@@ -125,7 +125,7 @@ export class StainlessComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(async (_) => {
-            window.location.href = REGISTER_URL;
+            window.location.href = NEW_USER_URL;
         });
     }
 
