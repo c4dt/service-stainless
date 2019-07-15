@@ -6,12 +6,10 @@ import (
 	"go.dedis.ch/onet/v3/log"
 )
 
-// This service is only used because we need to register our contracts to
-// the ByzCoin service. So we create this stub and add contracts to it
-// from the `contracts` directory.
-
 func init() {
-	_, err := onet.RegisterNewService("BEvm_Contract", newService)
+	_, err := onet.RegisterNewService(ContractBEvmID, newServiceBEvm)
+	log.ErrFatal(err)
+	_, err = onet.RegisterNewService(ContractBEvmValueID, newServiceBEvmValue)
 	log.ErrFatal(err)
 }
 
@@ -22,12 +20,26 @@ type Service struct {
 	*onet.ServiceProcessor
 }
 
-func newService(c *onet.Context) (onet.Service, error) {
+func newServiceBEvm(c *onet.Context) (onet.Service, error) {
 	s := &Service{
 		ServiceProcessor: onet.NewServiceProcessor(c),
 	}
 
 	err := byzcoin.RegisterContract(c, ContractBEvmID, contractBEvmFromBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+func newServiceBEvmValue(c *onet.Context) (onet.Service, error) {
+	s := &Service{
+		ServiceProcessor: onet.NewServiceProcessor(c),
+	}
+
+	// BEvmValue does not support explicit creation, so we can pass nil
+	err := byzcoin.RegisterContract(c, ContractBEvmValueID, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -29,7 +29,13 @@ type contractBEvm struct {
 	State
 }
 
-// Deserialize a BEVM contract state
+// ByzCoin contract state for BEvm values
+// This contract is only a byproduct of BEvm state changes; it does not support Spawn or Invoke
+type contractBEvmValue struct {
+	byzcoin.BasicContract
+}
+
+// Deserialize a BEvm contract state
 func contractBEvmFromBytes(in []byte) (byzcoin.Contract, error) {
 	contract := &contractBEvm{}
 
