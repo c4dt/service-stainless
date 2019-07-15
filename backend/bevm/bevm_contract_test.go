@@ -36,13 +36,13 @@ func init() {
 
 // Spawn a BEvm
 func Test_Spawn(t *testing.T) {
-	log.LLvl1("BEVM instantiation")
+	log.LLvl1("BEvm instantiation")
 
 	// Create a new ledger and prepare for proper closing
 	bct := newBCTest(t)
 	defer bct.Close()
 
-	// Spawn a new BEVM instance
+	// Spawn a new BEvm instance
 	_, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
 	require.Nil(t, err)
 }
@@ -55,11 +55,11 @@ func Test_InvokeCreditAccounts(t *testing.T) {
 	bct := newBCTest(t)
 	defer bct.Close()
 
-	// Spawn a new BEVM instance
+	// Spawn a new BEvm instance
 	instanceID, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
 	require.Nil(t, err)
 
-	// Create a new BEVM client
+	// Create a new BEvm client
 	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
 	require.Nil(t, err)
 
@@ -92,11 +92,11 @@ func Test_InvokeCandyContract(t *testing.T) {
 	bct := newBCTest(t)
 	defer bct.Close()
 
-	// Spawn a new BEVM instance
+	// Spawn a new BEvm instance
 	instanceID, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
 	require.Nil(t, err)
 
-	// Create a new BEVM client
+	// Create a new BEvm client
 	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
 	require.Nil(t, err)
 
@@ -139,11 +139,11 @@ func Test_InvokeTokenContract(t *testing.T) {
 	bct := newBCTest(t)
 	defer bct.Close()
 
-	// Spawn a new BEVM instance
+	// Spawn a new BEvm instance
 	instanceID, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
 	require.Nil(t, err)
 
-	// Create a new BEVM client
+	// Create a new BEvm client
 	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
 	require.Nil(t, err)
 
@@ -218,11 +218,11 @@ func Test_InvokeLoanContract(t *testing.T) {
 	bct := newBCTest(t)
 	defer bct.Close()
 
-	// Spawn a new BEVM instance
+	// Spawn a new BEvm instance
 	instanceID, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
 	require.Nil(t, err)
 
-	// Create a new BEVM client
+	// Create a new BEvm client
 	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
 	require.Nil(t, err)
 

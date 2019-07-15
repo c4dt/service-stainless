@@ -18,12 +18,12 @@ import (
 // ContractBEvmID identifies the ByzCoin contract that handles Ethereum contracts
 var ContractBEvmID = "bevm"
 
-// ContractBEvmValueID identifies the ByzCoin contracct that handles EVM state database values
+// ContractBEvmValueID identifies the ByzCoin contract that handles EVM state database values
 var ContractBEvmValueID = "bevm_value"
 
 var nilAddress = common.HexToAddress("0x0000000000000000000000000000000000000000")
 
-// ByzCoin contract state for BEVM
+// ByzCoin contract state for BEvm
 type contractBEvm struct {
 	byzcoin.BasicContract
 	State
@@ -41,7 +41,7 @@ func contractBEvmFromBytes(in []byte) (byzcoin.Contract, error) {
 	return contract, nil
 }
 
-// State is the BEVM main contract persisted information, able to handle the EVM state database
+// State is the BEvm main contract persisted information, able to handle the EVM state database
 type State struct {
 	RootHash common.Hash // Hash of the last commit in the EVM state database
 	KeyList  []string    // List of keys contained in the EVM state database
@@ -88,7 +88,7 @@ func NewContractState(stateDb *state.StateDB) (*State, []byzcoin.StateChange, er
 	return &State{RootHash: root, KeyList: keyList}, stateChanges, nil
 }
 
-// Spawn creates a new BEVM contract
+// Spawn creates a new BEvm contract
 func (c *contractBEvm) Spawn(rst byzcoin.ReadOnlyStateTrie, inst byzcoin.Instruction, coins []byzcoin.Coin) (sc []byzcoin.StateChange, cout []byzcoin.Coin, err error) {
 	cout = coins
 
@@ -128,7 +128,7 @@ func checkArguments(inst byzcoin.Instruction, names ...string) error {
 	return nil
 }
 
-// Invoke calls a method on an existing BEVM contract
+// Invoke calls a method on an existing BEvm contract
 func (c *contractBEvm) Invoke(rst byzcoin.ReadOnlyStateTrie, inst byzcoin.Instruction, coins []byzcoin.Coin) (sc []byzcoin.StateChange, cout []byzcoin.Coin, err error) {
 	cout = coins
 	var darcID darc.ID
