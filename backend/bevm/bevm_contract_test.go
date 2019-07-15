@@ -29,13 +29,17 @@ var testPrivateKeys = []string{
 	"f78572bd69fbd3118ab756e3544d23821a2002b137c9037a3b8fd5b09169a73c",
 }
 
-// Spawn a BEVM
+func init() {
+	// Ethereum starts goroutines for caching transactions, and never terminates them
+	log.AddUserUninterestingGoroutine("go-ethereum/core.(*txSenderCacher).cache")
+}
+
+// Spawn a BEvm
 func Test_Spawn(t *testing.T) {
 	log.LLvl1("BEVM instantiation")
 
 	// Create a new ledger and prepare for proper closing
 	bct := newBCTest(t)
-	bct.local.Check = onet.CheckNone
 	defer bct.Close()
 
 	// Spawn a new BEVM instance
@@ -49,7 +53,6 @@ func Test_InvokeCreditAccounts(t *testing.T) {
 
 	// Create a new ledger and prepare for proper closing
 	bct := newBCTest(t)
-	bct.local.Check = onet.CheckNone
 	defer bct.Close()
 
 	// Spawn a new BEVM instance
@@ -87,7 +90,6 @@ func Test_InvokeCandyContract(t *testing.T) {
 
 	// Create a new ledger and prepare for proper closing
 	bct := newBCTest(t)
-	bct.local.Check = onet.CheckNone
 	defer bct.Close()
 
 	// Spawn a new BEVM instance
@@ -135,7 +137,6 @@ func Test_InvokeTokenContract(t *testing.T) {
 
 	// Create a new ledger and prepare for proper closing
 	bct := newBCTest(t)
-	bct.local.Check = onet.CheckNone
 	defer bct.Close()
 
 	// Spawn a new BEVM instance
@@ -215,7 +216,6 @@ func Test_InvokeLoanContract(t *testing.T) {
 	log.LLvl1("LoanContract")
 	//Preparing ledger
 	bct := newBCTest(t)
-	bct.local.Check = onet.CheckNone
 	defer bct.Close()
 
 	// Spawn a new BEVM instance
