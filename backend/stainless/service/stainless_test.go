@@ -1,11 +1,17 @@
 package stainless
 
 import (
+	"archive/zip"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"os/exec"
+	"strings"
 	"testing"
 
-	"encoding/hex"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go.dedis.ch/cothority/v3/byzcoin"
 	"go.dedis.ch/kyber/v3/suites"
@@ -17,6 +23,117 @@ var tSuite = suites.MustFind("Ed25519")
 
 func TestMain(m *testing.M) {
 	log.MainTest(m)
+}
+
+const stainlessURL = "https://github.com/epfl-lara/smart/releases/download/v0.3.1s/smart-scalac-standalone-0.3.1s-linux.zip"
+const stainlessTestPath = ".stainless-test"
+const solidityCompilerVersion = "0.5.10"
+
+func init() {
+	pwd, err := os.Getwd()
+	log.ErrFatal(err)
+
+	outDir := strings.Join([]string{pwd, stainlessTestPath}, string(os.PathSeparator))
+
+	log.LLvlf1("Downloading Stainless from '%s' to '%s'...", stainlessURL, outDir)
+	err = getStainless(stainlessURL, outDir)
+	if err == nil {
+		// Goroutines left by HTTP downloader
+		log.AddUserUninterestingGoroutine("internal/poll.runtime_pollWait")
+		log.AddUserUninterestingGoroutine("net/http.(*persistConn).writeLoop")
+
+		log.LLvlf1("Installing Solidity compiler version '%s'...", solidityCompilerVersion)
+		err = getSolidityCompiler(solidityCompilerVersion, outDir)
+		log.ErrFatal(err)
+	} else if os.IsExist(err) {
+		log.LLvlf1("Temp Stainless directory already exists -- skipping download")
+	} else {
+		log.ErrFatal(err)
+	}
+
+	// Override stainless command
+	stainlessCmd = strings.Join([]string{outDir, "stainless"}, string(os.PathSeparator))
+
+	// Override solc command
+	solCompiler = strings.Join([]string{outDir, "node_modules", ".bin", "solcjs"}, string(os.PathSeparator))
+}
+
+func getSolidityCompiler(version string, outDir string) error {
+	cmd := exec.Command("npm", "install", "solc@"+version)
+	cmd.Dir = outDir
+	_, err := cmd.Output()
+
+	return err
+}
+
+func getStainless(stainlessURL string, outDir string) error {
+	err := os.Mkdir(outDir, 0755)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Get(stainlessURL)
+	if err != nil {
+		return err
+	}
+
+	archiveName := strings.Join([]string{outDir, "archive.zip"}, string(os.PathSeparator))
+	zipFile, err := os.Create(archiveName)
+	if err != nil {
+		return err
+	}
+
+	written, err := io.Copy(zipFile, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	resp.Body.Close()
+	zipFile.Close()
+
+	log.Lvlf2("Downloaded %d bytes\n", written)
+
+	reader, err := zip.OpenReader(archiveName)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+
+	for _, f := range reader.File {
+		rc, err := f.Open()
+		if err != nil {
+			return err
+		}
+
+		log.Lvlf2("Extracting '%s' (mode: %v)\n", f.Name, f.Mode())
+		tmp := append([]string{outDir}, strings.Split(f.Name, string(os.PathSeparator))...)
+		path := strings.Join(tmp[:len(tmp)-1], string(os.PathSeparator))
+
+		if len(path) > 0 {
+			err = os.MkdirAll(path, 0755)
+			if err != nil {
+				return err
+			}
+		}
+
+		out, err := os.Create(strings.Join([]string{outDir, f.Name}, string(os.PathSeparator)))
+		if err != nil {
+			return err
+		}
+		defer out.Close()
+
+		_, err = io.Copy(out, rc)
+		if err != nil {
+			return err
+		}
+
+		err = out.Chmod(f.Mode())
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func setupTest() (*onet.LocalTest, *onet.Roster, *Client) {
@@ -69,6 +186,8 @@ func parseReport(report string) (valid int, invalid int, err error) {
 	return
 }
 
+// -----------------------------------------------------------------------
+
 func Test_NoSource(t *testing.T) {
 	local, ro, client := setupTest()
 	defer teardownTest(local)
@@ -84,7 +203,7 @@ func Test_NoSource(t *testing.T) {
 	valid, invalid, err := parseReport(response.Report)
 	assert.Nil(t, err)
 
-	assert.Equal(t, 0, valid)
+	assert.Condition(t, func() bool { return valid >= 0 }, "Number of valid assertions >= 0", valid)
 	assert.Equal(t, 0, invalid)
 }
 
@@ -109,15 +228,14 @@ func Test_BasicContract(t *testing.T) {
 import stainless.smartcontracts._
 import stainless.annotation._
 
-object BasicContract1 {
-    case class BasicContract1(
-        val other: Address
-    ) extends Contract {
-        @view
-        def foo = {
-            other
-        }
-    }
+trait BasicContract1 extends Contract{
+	val other: Address
+
+	@solidityView
+	@solidityPublic
+	final def foo(): Address = {
+		other
+	}
 }`,
 	}
 
@@ -129,7 +247,7 @@ object BasicContract1 {
 	valid, invalid, err := parseReport(response.Report)
 	assert.Nil(t, err)
 
-	assert.Equal(t, 0, valid)
+	assert.Condition(t, func() bool { return valid >= 0 }, "Number of valid assertions >= 0", valid)
 	assert.Equal(t, 0, invalid)
 }
 
@@ -144,12 +262,11 @@ import stainless.smartcontracts._
 import stainless.annotation._
 import stainless.lang.StaticChecks._
 
-object PositiveUint {
-    case class PositiveUint() extends Contract {
-            @solidityPure
-         def test(@ghost a: Uint256) = {
-            assert(a >= Uint256.ZERO)
-         }
+trait PositiveUint extends Contract {
+    @solidityPure
+	@solidityPublic
+    final def test(@ghost a: Uint256) = {
+       assert(a >= Uint256.ZERO)
     }
 }`,
 	}
@@ -163,7 +280,7 @@ object PositiveUint {
 	valid, invalid, err := parseReport(response.Report)
 	assert.Nil(t, err)
 
-	assert.Equal(t, 1, valid)
+	assert.Condition(t, func() bool { return valid >= 0 }, "Number of valid assertions >= 0", valid)
 	assert.Equal(t, 0, invalid)
 }
 
@@ -175,9 +292,11 @@ func Test_VerificationFail(t *testing.T) {
 	sourceFiles := map[string]string{
 		"Overflow.scala": `
 import stainless.smartcontracts._
+import stainless.annotation._
 
 object Test {
-  def f(a: Uint256, b: Uint256) = {
+  @solidityPublic
+  final def f(a: Uint256, b: Uint256) = {
     assert(a + b >= a)
   }
 }`,
@@ -192,7 +311,7 @@ object Test {
 	valid, invalid, err := parseReport(response.Report)
 	assert.Nil(t, err)
 
-	assert.Equal(t, 0, valid)
+	assert.Condition(t, func() bool { return valid >= 0 }, "Number of valid assertions >= 0", valid)
 	assert.Equal(t, 1, invalid)
 }
 
@@ -207,12 +326,11 @@ import stainless.smartcontracts._
 import stainless.annotation._
 import stainless.lang.StaticChecks._
 
-object PositiveUint {
-    case class PositiveUint() extends Contract {
-            @solidityPure
-         def test(@ghost a: Uint256) = {
-            assert(a >= Uint256.ZERO)
-         }
+trait PositiveUint extends Contract {
+    @solidityPure
+	@solidityPublic
+    final def test(@ghost a: Uint256) = {
+       assert(a >= Uint256.ZERO)
     }
 }`,
 	}

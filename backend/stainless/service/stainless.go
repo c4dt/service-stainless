@@ -36,21 +36,19 @@ import (
 )
 
 const (
-	stainlessCmd = "stainless-smart"
-	solCompiler  = "solcjs"
-	reportName   = "report.json"
-	cacheDir     = "/tmp/stainless-cache-dir"
-	timeout      = 120 * time.Second
+	reportName = "report.json"
+	cacheDir   = "/tmp/stainless-cache-dir"
+	timeout    = 120 * time.Second
 )
+
+var stainlessCmd = "stainless"
+var solCompiler = "solcjs"
 
 // ServiceName is the name to refer to the Stainless service.
 const ServiceName = "Stainless"
 
 func init() {
 	onet.RegisterNewService(ServiceName, newStainlessService)
-
-	network.RegisterMessage(&proto.VerificationRequest{})
-	network.RegisterMessage(&proto.VerificationResponse{})
 }
 
 // Stainless is the service that performs stainless operations.
@@ -94,7 +92,7 @@ func verify(sourceFiles map[string]string) (string, string, error) {
 
 	// Build stainless arguments
 	args := append([]string{
-		fmt.Sprintf("--solvers=%s", strings.Join([]string{"smt-cvc4", "smt-z3"}, ",")),
+		fmt.Sprintf("--solvers=%s", strings.Join([]string{"smt-z3"}, ",")),
 		"--smart-contracts",
 		"--json",
 		fmt.Sprintf("--cache-dir=%s", cacheDir),
