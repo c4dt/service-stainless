@@ -92,7 +92,7 @@ func verify(sourceFiles map[string]string) (string, string, error) {
 
 	// Build stainless arguments
 	args := append([]string{
-		fmt.Sprintf("--solvers=%s", strings.Join([]string{"smt-z3"}, ",")),
+		fmt.Sprintf("--solvers=%s", strings.Join([]string{"smt-cvc4", "smt-z3"}, ",")),
 		"--smart-contracts",
 		"--json",
 		fmt.Sprintf("--cache-dir=%s", cacheDir),

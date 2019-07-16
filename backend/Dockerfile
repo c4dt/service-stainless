@@ -8,6 +8,7 @@ RUN apt-get update; \
     procps \
     openjdk-8-jre-headless \
     libgomp1 \
+    unzip \
     ; apt-get clean
 # Backports needed for 'npm'...
 RUN echo 'deb http://deb.debian.org/debian stretch-backports main' >> /etc/apt/sources.list
@@ -15,14 +16,14 @@ RUN apt-get update; \
     apt-get install --target-release stretch-backports --no-install-recommends --yes \
     npm \
     ; apt-get clean
-RUN npm install --global solc@0.5.8
+RUN npm install --global solc@0.5.10
 
 COPY build/conode.Linux.x86_64 /usr/local/bin/conode
-COPY build/z3 build/cvc4 /usr/local/bin/
+COPY build/cvc4 /usr/local/bin/
 
-# Use /tmp so as to be accessible by any user
-COPY build/stainless.jar /tmp/
-RUN echo '#!/bin/sh\n\njava -jar /tmp/stainless.jar $*' > /usr/local/bin/stainless-smart
-RUN chmod +x /usr/local/bin/stainless-smart
+COPY build/stainless.zip /tmp/
+RUN unzip -d /usr/local/bin /tmp/stainless.zip && rm -f /tmp/stainless.zip
+# see https://github.com/epfl-lara/smart/issues/12
+RUN chmod o+r /usr/local/bin/lib/scalaz3-unix-64-2.12.jar
 
 ENTRYPOINT ["/usr/local/bin/conode"]

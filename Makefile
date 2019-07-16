@@ -11,18 +11,21 @@ include services/mk/service.mk
 
 .PHONY: $Sexternal-deps
 $Sexternal-deps: \
-	$Dbackend/build/stainless.jar \
-	$Dbackend/build/z3 \
+	$Dbackend/build/stainless.zip \
 	$Dbackend/build/cvc4
 
-$Dbackend/build/stainless.jar: | $Dbackend/build
-	wget --quiet --output-document $@ https://github.com/epfl-lara/smart/releases/download/v0.1s/stainless-0.1s-5a2b680.jar
-
-$Dbackend/build/z3: | $Dbackend/build
-	wget --quiet --output-document /tmp/z3.zip https://github.com/Z3Prover/z3/releases/download/z3-4.7.1/z3-4.7.1-x64-debian-8.10.zip && unzip -xp /tmp/z3.zip z3-4.7.1-x64-debian-8.10/bin/z3 > $@ && chmod +x $@ && rm /tmp/z3.zip
+$Dbackend/build/stainless.zip: | $Dbackend/build
+	wget \
+		--quiet \
+		--output-document $@ \
+		https://github.com/epfl-lara/smart/releases/download/v0.3.1s/smart-scalac-standalone-0.3.1s-linux.zip
 
 $Dbackend/build/cvc4: | $Dbackend/build
-	wget --quiet --output-document $@ http://cvc4.cs.stanford.edu/downloads/builds/x86_64-linux-opt/cvc4-1.6-x86_64-linux-opt && chmod +x $@
+	wget \
+		--quiet \
+		--output-document $@ \
+		http://cvc4.cs.stanford.edu/downloads/builds/x86_64-linux-opt/cvc4-1.6-x86_64-linux-opt \
+		&& chmod +x $@
 
 $Sbackend-docker-build: | $Sexternal-deps
 
