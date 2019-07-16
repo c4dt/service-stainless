@@ -49,14 +49,14 @@ $Dbackend/build/ident_bevm: $Dbackend/build/bcadmin $Dbackend/build/conodes.toml
 		  echo "bevm_darc:             $$bevm_darc" ; \
 		  echo "bevm_instance_id:      $$bevm_instance_id" ) > $@)
 
-$Dwebserver/src/config_bevm.ts: $Dbackend/build/ident_bevm
+$Dwebapp/src/config_bevm.ts: $Dbackend/build/ident_bevm
 	awk '	function mkvar(key,value) { \
 			print "export const " key " = Buffer.from(\"" value "\", \"hex\");" \
 		} \
 		/^bevm_user_private_key:/  {mkvar("bevmUserID", $$2)} \
 		/^bevm_instance_id:/       {mkvar("bevmInstanceID", $$2)}' $^ > $@
 
-$Swebserver-build $Swebserver-test $Swebserver-serve: $Dwebserver/src/config_bevm.ts
+$Swebapp-build $Swebapp-test $Swebapp-serve: $Dwebapp/src/config_bevm.ts
 
 $Dsrc/Implementation/%_pb2.py: $Dprotobuf/%.proto
 	cd $Dprotobuf && protoc --python_out=../$(@D) $(^F)
