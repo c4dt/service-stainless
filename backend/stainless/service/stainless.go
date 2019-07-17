@@ -151,37 +151,28 @@ func compileToSolidity(dir string, sourceFilenames []string) ([]string, error) {
 	}
 
 	// Find produced Solidity files
-	files, err := ioutil.ReadDir(dir)
+	solidityFilePaths, err := filepath.Glob(filepath.Join(dir, "*.sol"))
 	if err != nil {
 		return nil, err
 	}
 
-	var solidityFilenames []string
-	for _, file := range files {
-		if !file.IsDir() && strings.HasSuffix(file.Name(), ".sol") {
-			solidityFilenames = append(solidityFilenames, file.Name())
-		}
+	var solidityFileNames []string
+	for _, f := range solidityFilePaths {
+		solidityFileNames = append(solidityFileNames, filepath.Base(f))
 	}
 
-	return solidityFilenames, nil
+	return solidityFileNames, nil
 }
 
 func compileToBytecode(dir string, sourceFilenames []string, destDir string) error {
 	// % solcjs --bin --abi --output-dir OUT_DIR [SOLIDITY_FILE...]
-
-	// Each SOLIDITY_FILE needs to be given with full path due to
-	// https://github.com/ethereum/solc-js/issues/114
-	var sourceFilepaths []string
-	for _, f := range sourceFilenames {
-		sourceFilepaths = append(sourceFilepaths, filepath.Join(dir, f))
-	}
 
 	// Build Solidity compiler arguments
 	args := append([]string{
 		"--bin",
 		"--abi",
 		"--output-dir", destDir,
-	}, sourceFilepaths...)
+	}, sourceFilenames...)
 
 	// Build command
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -199,23 +190,47 @@ func compileToBytecode(dir string, sourceFilenames []string, destDir string) err
 	return nil
 }
 
-func findGeneratedFile(dir string, solFile string, suffix string) (string, error) {
-	pattern := fmt.Sprintf(`*%s_sol*.%s`, solFile[:len(solFile)-4], suffix)
-
-	genFiles, err := filepath.Glob(filepath.Join(dir, pattern))
+func buildContractMap(dir string) (map[string]*proto.BytecodeObj, error) {
+	// Look for all ABI files
+	abis, err := filepath.Glob(filepath.Join(dir, "*.abi"))
 	if err != nil {
-		return "", err
-	}
-	if len(genFiles) != 1 {
-		return "", fmt.Errorf("Expected 1 generated '%s' file, got %v", suffix, genFiles)
+		return nil, err
 	}
 
-	contents, err := ioutil.ReadFile(genFiles[0])
-	if err != nil {
-		return "", err
+	foundContracts := make(map[string]*proto.BytecodeObj)
+
+	for _, abi := range abis {
+		// Extract contract name, to be used as map key
+		parts := strings.Split(abi, "_sol_")
+		if len(parts) < 2 {
+			return nil, fmt.Errorf("Unexpected filename for ABI file: '%s'", abi)
+		}
+
+		nameWithExt := parts[len(parts)-1]
+		name := nameWithExt[:len(nameWithExt)-4]
+
+		// Read ABI contents
+		abiContents, err := ioutil.ReadFile(abi)
+		if err != nil {
+			return nil, err
+		}
+
+		// Read bytecode contents
+		bin := abi[:len(abi)-4] + ".bin"
+		binContents, err := ioutil.ReadFile(bin)
+		if err != nil {
+			return nil, err
+		}
+
+		// Check for duplicates
+		if _, ok := foundContracts[name]; ok {
+			return nil, fmt.Errorf("Duplicate contract: '%s'", name)
+		}
+
+		foundContracts[name] = &proto.BytecodeObj{Abi: string(abiContents), Bin: string(binContents)}
 	}
 
-	return string(contents), nil
+	return foundContracts, nil
 }
 
 func genBytecode(sourceFiles map[string]string) (map[string]*proto.BytecodeObj, error) {
@@ -243,21 +258,9 @@ func genBytecode(sourceFiles map[string]string) (map[string]*proto.BytecodeObj, 
 		return nil, err
 	}
 
-	// Build bytecode map
-	bc := make(map[string]*proto.BytecodeObj)
-
-	for _, solFile := range solFilenames {
-		abiFile, err := findGeneratedFile(bytecodeDir, solFile, "abi")
-		if err != nil {
-			return nil, err
-		}
-
-		binFile, err := findGeneratedFile(bytecodeDir, solFile, "bin")
-		if err != nil {
-			return nil, err
-		}
-
-		bc[solFile] = &proto.BytecodeObj{Abi: string(abiFile), Bin: string(binFile)}
+	bc, err := buildContractMap(bytecodeDir)
+	if err != nil {
+		return nil, err
 	}
 
 	return bc, nil

@@ -338,20 +338,21 @@ trait PositiveUint extends Contract {
 	}
 
 	expectedAbi := `[{"constant":true,"inputs":[],"name":"test","outputs":[],"payable":false,"stateMutability":"pure","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]`
+	expectedBin := "6080604052348015600f57600080fd5b50606c80601d6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063f8a8fd6d14602d575b600080fd5b60336035565b005b56fea265627a7a723058206db56149152d8450b1b2d096ba08f832b8fc47cfab57f38ce56a26d07084575564736f6c634300050a0032"
 
 	response, err := client.GenBytecode(ro.List[0], sourceFiles)
 	assert.Nil(t, err)
 
 	log.Lvl1("Response:\n", response)
 
-	assert.Contains(t, response.BytecodeObjs, "PositiveUint.sol")
+	assert.Contains(t, response.BytecodeObjs, "PositiveUint")
 
-	generated := response.BytecodeObjs["PositiveUint.sol"]
+	generated := response.BytecodeObjs["PositiveUint"]
 
 	assert.Equal(t, expectedAbi, generated.Abi)
 
-	// The contents of the bin file does not seem deterministic (last 68 bytes changing?)
-	assert.NotEmpty(t, generated.Bin)
+	// The contents of the bin file does not seem deterministic (last 86 bytes changing?)
+	assert.Equal(t, expectedBin[:len(expectedBin)-86], generated.Bin[:len(generated.Bin)-86])
 }
 
 func Test_Deploy(t *testing.T) {
