@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -30,10 +31,8 @@ const stainlessTestPath = ".stainless-test"
 const solidityCompilerVersion = "0.5.10"
 
 func init() {
-	pwd, err := os.Getwd()
+	outDir, err := filepath.Abs(stainlessTestPath)
 	log.ErrFatal(err)
-
-	outDir := strings.Join([]string{pwd, stainlessTestPath}, string(os.PathSeparator))
 
 	log.LLvlf1("Downloading Stainless from '%s' to '%s'...", stainlessURL, outDir)
 	err = getStainless(stainlessURL, outDir)
@@ -52,10 +51,10 @@ func init() {
 	}
 
 	// Override stainless command
-	stainlessCmd = strings.Join([]string{outDir, "stainless"}, string(os.PathSeparator))
+	stainlessCmd = filepath.Join(outDir, "stainless")
 
 	// Override solc command
-	solCompiler = strings.Join([]string{outDir, "node_modules", ".bin", "solcjs"}, string(os.PathSeparator))
+	solCompiler = filepath.Join(outDir, "node_modules", ".bin", "solcjs")
 }
 
 func getSolidityCompiler(version string, outDir string) error {
@@ -76,21 +75,19 @@ func getStainless(stainlessURL string, outDir string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
-	archiveName := strings.Join([]string{outDir, "archive.zip"}, string(os.PathSeparator))
+	archiveName := filepath.Join(outDir, "archive.zip")
 	zipFile, err := os.Create(archiveName)
 	if err != nil {
 		return err
 	}
+	defer zipFile.Close()
 
 	written, err := io.Copy(zipFile, resp.Body)
 	if err != nil {
 		return err
 	}
-
-	resp.Body.Close()
-	zipFile.Close()
-
 	log.Lvlf2("Downloaded %d bytes\n", written)
 
 	reader, err := zip.OpenReader(archiveName)
@@ -105,29 +102,34 @@ func getStainless(stainlessURL string, outDir string) error {
 			return err
 		}
 
+		if f.FileInfo().IsDir() {
+			continue
+		}
+
+		outPath := filepath.Join(outDir, f.Name)
+		// Check for Zip-Slip (https://snyk.io/research/zip-slip-vulnerability#go)
+		if !strings.HasPrefix(outPath, outDir+string(os.PathSeparator)) {
+			return fmt.Errorf("Invalid path: '%s'", f.Name)
+		}
+
 		log.Lvlf2("Extracting '%s' (mode: %v)\n", f.Name, f.Mode())
-		tmp := append([]string{outDir}, strings.Split(f.Name, string(os.PathSeparator))...)
-		path := strings.Join(tmp[:len(tmp)-1], string(os.PathSeparator))
-
-		if len(path) > 0 {
-			err = os.MkdirAll(path, 0755)
-			if err != nil {
-				return err
-			}
-		}
-
-		out, err := os.Create(strings.Join([]string{outDir, f.Name}, string(os.PathSeparator)))
-		if err != nil {
-			return err
-		}
-		defer out.Close()
-
-		_, err = io.Copy(out, rc)
+		err = os.MkdirAll(filepath.Dir(outPath), 0755)
 		if err != nil {
 			return err
 		}
 
-		err = out.Chmod(f.Mode())
+		outFile, err := os.Create(outPath)
+		if err != nil {
+			return err
+		}
+		defer outFile.Close()
+
+		_, err = io.Copy(outFile, rc)
+		if err != nil {
+			return err
+		}
+
+		err = outFile.Chmod(f.Mode())
 		if err != nil {
 			return err
 		}
