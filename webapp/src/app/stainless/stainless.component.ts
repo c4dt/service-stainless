@@ -1,15 +1,15 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 
-import { gData } from "@c4dt/dynacred/Data";
+import { Data } from "@c4dt/dynacred";
 import Log from "@dedis/cothority/log";
 
-import { randomBytes } from "crypto";
 import Long from "long";
 
 import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
+import { Project, SourceFile, UserState } from "src/lib/user-state";
 
 const NEW_USER_URL = "https://demo.c4dt.org/omniledger/c4dt/newuser";
 const WEI_PER_ETHER = Long.fromString("1000000000000000000");
@@ -21,38 +21,26 @@ const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 })
 export class StainlessComponent implements OnInit {
 
-    transactions: string[] = [];
-    transactionSelected: number = undefined;
-
-    viewMethods: string[] = [];
-    viewMethodSelected: number = undefined;
     viewMethodResult: string = "";
-
-    contracts: any = [];
-    contractSelected: any = undefined;
-    verifResult: any = undefined;
-    deployable: boolean = false;
-    executable: boolean = false;
-
+    private userState: UserState;
     private config: Config;
-    private account: EvmAccount;
-    private contract: EvmContract; // FIXME: Handle contract history
 
     constructor(public dialog: MatDialog) { }
 
     async ngOnInit() {
+        this.userState = new UserState();
+
         await this.performLongAction(
-        () => this.initialize(),
-            "Initializing");
+            () => this.initialize(),
+                "Initializing");
     }
 
     async initialize() {
-        await this.initContracts();
-
         // Initialize DynaCred
         try {
-            const credData = await gData.load();
-            if (credData.contact && credData.contact.isRegistered() && credData.coinInstance) {
+            // const credData = await new Data().load();
+            // if (credData.contact && credData.contact.isRegistered() && credData.coinInstance) {
+            if (true) {
                 Log.lvl2("User is registered");
                 // FIXME: Check if user is authorized to access; if not, indicate so and abort
             } else {
@@ -61,55 +49,67 @@ export class StainlessComponent implements OnInit {
                 return;
             }
         } catch (e) {
-            Log.lvl2("Failed to load data");
+            Log.lvl2("Failed to load data:", e);
             this.handleNotRegistered();
             return;
         }
 
         // Initialize BEvm cothority
         this.config = await Config.init();
+
+        this.loadUserData();
+        await this.initProjects();
+
         Log.lvl2("BEvm initialized");
-
-        const accountNewlyCreated = this.loadUserData();
-
-        if (accountNewlyCreated) {
-            // Credit account to allow for transactions
-            Log.lvl2("Crediting newly created EVM account...");
-            const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
-            await this.config.bevmRPC.creditAccount([this.config.bevmUser],
-                                                    this.account.address,
-                                                    amount);
-        }
     }
 
-    async initContracts() {
+    async initProjects() {
         const resp = await fetch(window.location.href + "/assets/contracts.json");
         if (!resp.ok) {
-            return Promise.reject(new Error(`Load contracts: ${resp.status}`));
+            return Promise.reject(new Error(`Load projects: ${resp.status}`));
         }
-        this.contracts = JSON.parse(await resp.text());
-        Log.lvl2("Loaded list of contracts");
+        const projectData = JSON.parse(await resp.text());
+        Log.lvl2("Loaded list of projects");
 
-        this.contractSelected = this.contracts[0];
+        const projects = projectData.map((project) => {
+            return new Project(project.name,
+                               project.files.map((file) => {
+                                   return new SourceFile(file.name, file.contents);
+                               }),
+                              project.version ? project.version : 0);
+        });
+
+        this.userState.updateProjects(projects);
     }
 
-    loadUserData(): boolean {
-        let accountNewlyCreated = false;
-        let account = EvmAccount.load() as EvmAccount;
-
-        if (account === null) {
-            Log.lvl2("EVM account does not exist -- creating");
-            const privKey = randomBytes(32);
-            account = new EvmAccount(privKey);
-
-            accountNewlyCreated = true;
-        } else {
-            Log.lvl2("Retrieved EVM account, address:", account.address.toString("hex"));
+    loadUserData() {
+        let userState = UserState.load() as UserState;
+        if (userState === null) {
+            userState = new UserState();
         }
 
-        this.account = account;
+        this.userState = userState;
+    }
 
-        return accountNewlyCreated;
+    async createAccount(name: string) {
+        const account = this.userState.createAccount(name);
+
+        await this.performLongAction(
+            () => this.creditAccount(account, 5),
+                "Creating account");
+
+        // Select newly created account
+        this.selectAccount(this.accounts.length - 1);
+    }
+
+    async creditAccount(account: EvmAccount, amount: number) {
+        const bufferAmount = Buffer.from(WEI_PER_ETHER.mul(amount).toBytesBE());
+
+        // Credit account to allow for transactions
+        Log.lvl2("Crediting newly created EVM account...");
+        await this.config.bevmRPC.creditAccount([this.config.bevmUser],
+                                                account.address,
+                                                bufferAmount);
     }
 
     handleNotRegistered() {
@@ -129,27 +129,103 @@ export class StainlessComponent implements OnInit {
         });
     }
 
+    get projects(): Project[] {
+        return this.userState.projects;
+    }
+
+    get projectSelectedIndex(): number {
+        return this.userState.projectSelectedIndex;
+    }
+
+    get accounts(): EvmAccount[] {
+        return this.userState.accounts;
+    }
+
+    get accountSelectedIndex(): number {
+        return this.userState.accountSelectedIndex;
+    }
+
+    get contracts(): EvmContract[] {
+        return this.userState.contracts;
+    }
+
+    get contractSelectedIndex(): number {
+        return this.userState.contractSelectedIndex;
+    }
+
+    get instances(): Buffer[] {
+        return this.userState.instances;
+    }
+
+    get instanceSelectedIndex(): number {
+        return this.userState.instanceSelectedIndex;
+    }
+
+    get transactions(): string[] {
+        return this.userState.transactions;
+    }
+
+    get transactionSelectedIndex(): number {
+        return this.userState.transactionSelectedIndex;
+    }
+
+    get viewMethods(): string[] {
+        return this.userState.viewMethods;
+    }
+
+    get viewMethodSelectedIndex(): number {
+        return this.userState.viewMethodSelectedIndex;
+    }
+
+    get projectCompiled(): boolean {
+        return this.userState.projectCompiled;
+    }
+
+    get projectVerified(): boolean {
+        return this.userState.projectVerified;
+    }
+
+    get verificationResults(): any {
+        return this.userState.verificationResults;
+    }
+
+    get verificationSuccessful(): boolean {
+        return this.userState.verificationSuccessful;
+    }
+
+    selectProject(index: number) {
+        Log.lvl2(`User selected project '${index}'`);
+        this.userState.selectProject(index);
+        this.viewMethodResult = "";
+    }
+
+    get projectSourceFiles(): SourceFile[] {
+        return this.userState.projectSourceFiles;
+    }
+
+    selectAccount(index: number) {
+        Log.lvl2(`User selected account '${index}'`);
+        this.userState.selectAccount(index);
+    }
+
     selectContract(index: number) {
         Log.lvl2(`User selected contract '${index}'`);
-        this.contractSelected = this.contracts[index];
-        this.deployable = false;
-        this.executable = false;
-        this.transactions = [];
-        this.transactionSelected = undefined;
-        this.viewMethods = [];
-        this.viewMethodSelected = undefined;
-        this.viewMethodResult = "";
-        this.verifResult = undefined;
+        this.userState.selectContract(index);
+    }
+
+    selectInstance(index: number) {
+        Log.lvl2(`User selected instance '${index}'`);
+        this.userState.selectInstance(index);
     }
 
     selectTransaction(index: number) {
         Log.lvl2(`User selected transaction '${index}'`);
-        this.transactionSelected = index;
+        this.userState.selectTransaction(index);
     }
 
     selectViewMethod(index: number) {
         Log.lvl2(`User selected view method '${index}'`);
-        this.viewMethodSelected = index;
+        this.userState.selectViewMethod(index);
     }
 
     convertReport(report: any) {
@@ -194,6 +270,11 @@ export class StainlessComponent implements OnInit {
                 }
             }
 
+            // Ensure file names are not too long
+            if (position.file.length > 15) {
+                position.file = position.file.substr(0, 15) + "*";
+            }
+
             return {
                 method,
                 position,
@@ -216,7 +297,6 @@ export class StainlessComponent implements OnInit {
         try {
             result = await f();
         } catch (e) {
-            // FIXME: Display dialog with error
             Log.lvl2("Exception in performLongAction(): ", e);
 
             const infoRef = this.dialog.open(InfoDialog, {
@@ -241,9 +321,9 @@ export class StainlessComponent implements OnInit {
 
     async verify() {
         const sourceFiles = {};
-        this.contractSelected.files.forEach((f) => {
+        for (const f of this.userState.projectSelected.sourceFiles.elements) {
             sourceFiles[f.name] = f.contents;
-        });
+        }
 
         // Call Stainless service to perform verification
         const response = await this.performLongAction<proto.VerificationResponse>(
@@ -253,7 +333,7 @@ export class StainlessComponent implements OnInit {
 
         const verif = this.convertReport(JSON.parse(response.Report));
 
-        this.verifResult = verif.sort((e1, e2) => {
+        this.userState.verificationResults = verif.sort((e1, e2) => {
             if (e1.method > e2.method) {
                 return 1;
             }
@@ -262,25 +342,13 @@ export class StainlessComponent implements OnInit {
             }
             return e1.position.start[0] - e2.position.start[0];
         });
-
-        const success = this.verifResult.filter((elem: any) => elem.status !== "valid").length === 0;
-
-        if (success) {
-            this.deployable = true;
-            this.executable = false;
-            this.transactions = [];
-            this.transactionSelected = undefined;
-            this.viewMethods = [];
-            this.viewMethodSelected = undefined;
-            this.viewMethodResult = "";
-        }
     }
 
-    async deploy() {
+    async compile() {
         const sourceFiles = {};
-        this.contractSelected.files.forEach((f) => {
+        for (const f of this.userState.projectSelected.sourceFiles.elements) {
             sourceFiles[f.name] = f.contents;
-        });
+        }
 
         // Call Stainless service to generate bytecode and ABI
         const response = await this.performLongAction<proto.BytecodeGenResponse>(
@@ -288,16 +356,26 @@ export class StainlessComponent implements OnInit {
             "Generating bytecode");
         Log.print("Received bytecode generation results");
 
-        // FIXME: Handle multiple ABI/bytecodes
-        const firstKey = Object.keys(response.BytecodeObjs)[0];
-        this.contractSelected.abi = JSON.parse(response.BytecodeObjs[firstKey].Abi);
-        this.contractSelected.bin = Buffer.from(response.BytecodeObjs[firstKey].Bin, "hex");
+        const contracts = Object.keys(response.BytecodeObjs).map((name) => {
+            const bytecode = Buffer.from(response.BytecodeObjs[name].Bin, "hex");
+            const abi = response.BytecodeObjs[name].Abi;
+
+            Log.print(`creating contract "${name}"`);
+            return new EvmContract(name, bytecode, abi);
+        });
+
+        this.userState.contracts = contracts;
+    }
+
+    async deploy() {
+        const contract = this.userState.contractSelected;
+        const account = this.userState.accountSelected;
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
-                abi: this.contractSelected.abi,
+                abi: JSON.parse(contract.abi),
                 methodName: undefined,
-                title: `Deploying contract '${this.contractSelected.name}'`,
+                title: `Deploying contract '${contract.name}'`,
             },
             width: "30em",
         });
@@ -308,13 +386,6 @@ export class StainlessComponent implements OnInit {
                 args = args.map(JSON.stringify);
 
                 Log.lvl2(`Deploying contract with constructor args ${args}`);
-                this.deployable = false;
-                this.executable = true;
-
-                const abi = this.contractSelected.abi;
-                const bin = this.contractSelected.bin;
-
-                this.contract = new EvmContract(bin, JSON.stringify(abi));
 
                 await this.performLongAction(
                     () => this.config.bevmRPC.deploy(
@@ -322,29 +393,28 @@ export class StainlessComponent implements OnInit {
                         1e7,
                         1,
                         0,
-                        this.account,
-                        this.contract,
+                        account,
+                        contract,
                         args,
                     ),
                     "Deploying contract");
 
-                this.transactions = abi.filter((elem: any) => {
-                    return elem.type === "function" &&  elem.stateMutability !== "view";
-                }).map((elem: any) => elem.name);
+                // Select newly deployed instance
+                this.selectInstance(this.instances.length - 1);
 
-                this.viewMethods = abi.filter((elem: any) => {
-                    return elem.type === "function" &&  elem.stateMutability === "view";
-                }).map((elem: any) => elem.name);
+                this.userState.save();
             }
         });
     }
 
     executeTransaction() {
-        const methodName = this.transactions[this.transactionSelected];
+        const methodName = this.userState.transactionSelected;
+        const contract = this.userState.contractSelected;
+        const account = this.userState.accountSelected;
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
-                abi: this.contractSelected.abi,
+                abi: JSON.parse(contract.abi),
                 methodName,
                 title: `Executing transaction '${methodName}'`,
             },
@@ -364,22 +434,26 @@ export class StainlessComponent implements OnInit {
                         1e7,
                         1,
                         0,
-                        this.account,
-                        this.contract,
+                        account,
+                        contract,
                         methodName,
                         args,
                     ),
                     "Executing transaction");
+
+                this.userState.save();
             }
         });
     }
 
     executeViewMethod() {
-        const methodName = this.viewMethods[this.viewMethodSelected];
+        const methodName = this.userState.viewMethodSelected;
+        const contract = this.userState.contractSelected;
+        const account = this.userState.accountSelected;
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
-                abi: this.contractSelected.abi,
+                abi: JSON.parse(contract.abi),
                 methodName,
                 title: `Executing view method '${methodName}'`,
             },
@@ -398,8 +472,8 @@ export class StainlessComponent implements OnInit {
                         this.config.genesisBlock,
                         this.config.rosterToml,
                         this.config.bevmRPC.id,
-                        this.account,
-                        this.contract,
+                        account,
+                        contract,
                         methodName,
                         args,
                     ),

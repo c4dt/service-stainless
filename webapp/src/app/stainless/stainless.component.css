@@ -10,6 +10,14 @@
     border: 1px solid black;
 }
 
+.success-true {
+    background-color: lightgreen;
+}
+
+.success-false {
+    background-color: salmon;
+}
+
 .status-valid {
     color: green;
     font-weight: bold;

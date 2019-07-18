@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import EC from "elliptic/lib/elliptic/ec";
 import Keccak from "keccak";
 
@@ -9,14 +9,14 @@ import Signer from "@dedis/cothority/darc/signer";
 import Log from "@dedis/cothority/log";
 
 import { StainlessRPC } from "src/lib/stainless";
-import { UserEvmInfo } from "src/lib/storage";
+import { SelectableColl, UserEvmInfo } from "src/lib/storage";
 
 export class EvmAccount extends UserEvmInfo {
     static ec = new EC("secp256k1");
     static storageKey = "evm_account";
 
     static deserialize(obj: any): EvmAccount {
-        return new EvmAccount(obj.privateKey, obj.nonce);
+        return new EvmAccount(obj.name, obj.privateKey, obj.nonce);
     }
 
     private static computeAddress(key) {
@@ -33,6 +33,7 @@ export class EvmAccount extends UserEvmInfo {
     }
 
     readonly address: Buffer;
+    readonly name: string;
     private _nonce: number;
     private key;
 
@@ -40,15 +41,18 @@ export class EvmAccount extends UserEvmInfo {
         return this._nonce;
     }
 
-    constructor(privKey: Buffer, nonce: number = 0) {
+    constructor(name: string, privKey?: Buffer, nonce: number = 0) {
         super();
 
+        this.name = name;
+
+        if (privKey === undefined) {
+            privKey = randomBytes(32);
+        }
         this.key = EvmAccount.ec.keyFromPrivate(privKey.toString("hex"), "hex");
 
         this.address = EvmAccount.computeAddress(this.key);
         this._nonce = nonce;
-
-        this.save();
     }
 
     sign(hash: Buffer): Buffer {
@@ -68,12 +72,11 @@ export class EvmAccount extends UserEvmInfo {
 
     incNonce() {
         this._nonce += 1;
-
-        this.save();
     }
 
     serialize(): object {
         return {
+            name: this.name,
             nonce: this.nonce,
             privateKey: this.key.getPrivate("hex"),
         };
@@ -85,7 +88,19 @@ export class EvmAccount extends UserEvmInfo {
 
 }
 
-export class EvmContract {
+export class EvmContract extends UserEvmInfo {
+    static deserialize(obj: any): EvmContract {
+        const addresses = obj.addresses.map( (elem: string) => {
+            return Buffer.from(elem, "hex");
+        });
+        const bytecode = Buffer.from(obj.bytecode, "hex");
+
+        const contract = new EvmContract(obj.name, bytecode, obj.abi);
+        contract._addresses = new SelectableColl<Buffer>(addresses);
+
+        return contract;
+    }
+
     private static computeAddress(data: Buffer, nonce: number): Buffer {
         const buf = EvmContract.erlEncode(data, nonce);
 
@@ -128,21 +143,48 @@ export class EvmContract {
         return buf;
     }
 
+    readonly name: string;
     readonly bytecode: Buffer;
     readonly abi: string;
-    private _address: Buffer = undefined;
+    readonly transactions: SelectableColl<string>;
+    readonly viewMethods: SelectableColl<string>;
+    private _addresses: SelectableColl<Buffer> = new SelectableColl<Buffer>([]);
 
-    get address(): Buffer {
-        return this._address;
-    }
+    constructor(name: string, bytecode: Buffer, abi: string) {
+        super();
 
-    constructor(bytecode: Buffer, abi: string) {
+        this.name = name;
         this.bytecode = bytecode;
         this.abi = abi;
+
+        const abiObj = JSON.parse(abi);
+        const transactions = abiObj.filter((elem: any) => {
+            return elem.type === "function" &&  elem.stateMutability !== "view";
+        }).map((elem: any) => elem.name);
+        this.transactions = new SelectableColl<string>(transactions);
+
+        const viewMethods = abiObj.filter((elem: any) => {
+            return elem.type === "function" &&  elem.stateMutability === "view";
+        }).map((elem: any) => elem.name);
+        this.viewMethods = new SelectableColl<string>(viewMethods);
     }
 
-    setAddress(account: EvmAccount) {
-        this._address = EvmContract.computeAddress(account.address, account.nonce);
+    get addresses(): SelectableColl<Buffer> {
+        return this._addresses;
+    }
+
+    createNewAddress(account: EvmAccount) {
+        const newAddress = EvmContract.computeAddress(account.address, account.nonce);
+        this.addresses.add(newAddress);
+    }
+
+    serialize(): object {
+        return {
+            abi: this.abi,
+            addresses: this.addresses.elements.map((address) => address.toString("hex")),
+            bytecode: this.bytecode.toString("hex"),
+            name: this.name,
+        };
     }
 }
 
@@ -245,7 +287,7 @@ export class BevmInstance extends Instance {
             ],
             signers, wait);
 
-        contract.setAddress(account);
+        contract.createNewAddress(account);
         account.incNonce();
     }
 
@@ -257,8 +299,9 @@ export class BevmInstance extends Instance {
     async transaction(signers: Signer[], gasLimit: number, gasPrice: number, amount: number,
                       account: EvmAccount, contract: EvmContract, method: string, args?: string[],
                       wait?: number) {
+        const contractAddress = contract.addresses.selected;
         const unsignedTx = await this.stainlessRPC.executeTransaction(gasLimit, gasPrice, amount,
-                                                                      contract.address, account.nonce,
+                                                                      contractAddress, account.nonce,
                                                                       contract.abi, method, args);
         const signature = account.sign(Buffer.from(unsignedTx.TransactionHash));
         const signedTx = await this.stainlessRPC.finalizeTransaction(Buffer.from(unsignedTx.Transaction), signature);
@@ -278,9 +321,11 @@ export class BevmInstance extends Instance {
      * FIXME: document parameters
      */
     async call(blockId: Buffer, serverConfig: string, bevmInstanceId: Buffer,
-               account: EvmAccount, contract: EvmContract, method: string, args?: string[]): Promise<any> {
+               account: EvmAccount, contract: EvmContract, method: string, args?: string[]):
+                   Promise<any> {
+        const contractAddress = contract.addresses.selected;
         const response = await this.stainlessRPC.call(blockId, serverConfig, bevmInstanceId,
-                                                      account.address, contract.address,
+                                                      account.address, contractAddress,
                                                       contract.abi, method, args);
 
         return JSON.parse(response.Result);
