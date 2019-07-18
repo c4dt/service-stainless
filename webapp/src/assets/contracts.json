@@ -2,7 +2,7 @@
   {
     "files": [
       {
-        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\ntrait Accounts extends Contract {\n  @solidityPublic\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  @addressOfContract(\"Accounts\")\n  val target: Address\n  \n  @ghost\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n  }\n}\n",
+        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\nimport Environment._\n\ntrait Accounts extends ContractInterface {\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  val target: Accounts\n  \n  @ghost @inline\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def constructor(_totalCoins: Uint256) = {\n    totalCoins = _totalCoins\n    contractBalance = _totalCoins\n    userBalance = Uint256.ZERO\n  }\n\n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    target.transfer(amount)\n\n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n  }\n}\n",
         "name": "DAO_bad.scala"
       }
     ],
@@ -11,7 +11,7 @@
   {
     "files": [
       {
-        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\ntrait Accounts extends Contract {\n  @solidityPublic\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  @addressOfContract(\"Accounts\")\n  val target: Address\n  \n  @ghost\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n    \n    Environment.contractAt(target).asInstanceOf[Accounts].transfer(amount)\n  }\n}\n",
+        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\nimport Environment._\n\ntrait Accounts extends ContractInterface {\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  val target: Accounts\n  \n  @ghost @inline\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def constructor(_totalCoins: Uint256) = {\n    totalCoins = _totalCoins\n    contractBalance = _totalCoins\n    userBalance = Uint256.ZERO\n  }\n\n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n    \n    target.transfer(amount)\n  }\n}\n",
         "name": "DAO_good.scala"
       }
     ],
