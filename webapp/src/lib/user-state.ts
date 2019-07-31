@@ -22,15 +22,11 @@ export class SourceFile extends UserEvmInfo {
 
 export class Project extends UserEvmInfo {
     static deserialize(obj: any): Project {
-        const sourceFiles = obj.sourceFiles.map( (elem) => {
-            return SourceFile.deserialize(elem);
-        });
-        const contracts = obj.contracts.map( (elem) => {
-            return EvmContract.deserialize(elem);
-        });
+        const sourceFiles = SelectableColl.deserializeColl<SourceFile>(obj.sourceFiles, SourceFile);
+        const contracts = SelectableColl.deserializeColl<EvmContract>(obj.contracts, EvmContract);
 
         const project = new Project(obj.name, sourceFiles, obj.version);
-        project.contracts = new SelectableColl<EvmContract>(contracts);
+        project.contracts = contracts;
         project.verificationResults = obj.verificationResults;
 
         return project;
@@ -40,11 +36,11 @@ export class Project extends UserEvmInfo {
     contracts: SelectableColl<EvmContract>;
     verificationResults: any = undefined;
 
-    constructor(readonly name: string, sourceFiles: SourceFile[], readonly version: number = 0) {
+    constructor(readonly name: string, sourceFiles: SelectableColl<SourceFile>, readonly version: number = 0) {
         super();
 
         this.contracts = new SelectableColl<EvmContract>();
-        this.sourceFiles = new SelectableColl<SourceFile>(sourceFiles);
+        this.sourceFiles = sourceFiles;
     }
 
     get verified(): boolean {
@@ -81,16 +77,12 @@ export class UserState extends UserEvmInfo {
     static storageKey = "bevm_info";
 
     static deserialize(obj: any): UserState {
-        const accounts = obj.accounts.map( (elem) => {
-            return EvmAccount.deserialize(elem);
-        });
-        const projects = obj.projects.map( (elem) => {
-            return Project.deserialize(elem);
-        });
+        const accounts = SelectableColl.deserializeColl<EvmAccount>(obj.accounts, EvmAccount);
+        const projects = SelectableColl.deserializeColl<Project>(obj.projects, Project);
 
         const userState = new UserState();
-        userState._accounts = new SelectableColl<EvmAccount>(accounts);
-        userState._projects = new SelectableColl<Project>(projects);
+        userState._accounts = accounts;
+        userState._projects = projects;
 
         return userState;
     }
@@ -133,9 +125,14 @@ export class UserState extends UserEvmInfo {
         return this._projects.elements;
     }
 
-    updateProjects(projects: Project[]) {
-        for (const newP of projects) {
+    updateProjects(projectData: any[]) {
+        for (const pData of projectData) {
             let found = false;
+
+            const sourceFiles = pData.files.map((file: any) => new SourceFile(file.name, file.contents));
+            const newP = new Project(pData.name,
+                                     new SelectableColl<SourceFile>(sourceFiles),
+                                     pData.version ? pData.version : 0);
 
             for (const [i, p] of this._projects.elements.entries()) {
                 if (p.name === newP.name) {

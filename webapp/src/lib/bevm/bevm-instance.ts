@@ -90,9 +90,7 @@ export class EvmAccount extends UserEvmInfo {
 
 export class EvmContract extends UserEvmInfo {
     static deserialize(obj: any): EvmContract {
-        const addresses = obj.addresses.map( (elem: string) => {
-            return Buffer.from(elem, "hex");
-        });
+        const addresses = obj.addresses.map((elem: string) => Buffer.from(elem, "hex"));
         const bytecode = Buffer.from(obj.bytecode, "hex");
 
         const contract = new EvmContract(obj.name, bytecode, obj.abi);

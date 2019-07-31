@@ -32,6 +32,12 @@ export abstract class UserEvmInfo {
 }
 
 export class SelectableColl<T> extends UserEvmInfo {
+    static deserializeColl<T>(obj: any, cl: any): SelectableColl<T> {
+        const coll = obj.map((elem: any) => cl.deserialize(elem) as T);
+
+        return new SelectableColl<T>(coll);
+    }
+
     private _selectedIndex: number = undefined;
 
     get selectedIndex() {

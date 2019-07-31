@@ -71,15 +71,7 @@ export class StainlessComponent implements OnInit {
         const projectData = JSON.parse(await resp.text());
         Log.lvl2("Loaded list of projects");
 
-        const projects = projectData.map((project) => {
-            return new Project(project.name,
-                               project.files.map((file) => {
-                                   return new SourceFile(file.name, file.contents);
-                               }),
-                              project.version ? project.version : 0);
-        });
-
-        this.userState.updateProjects(projects);
+        this.userState.updateProjects(projectData);
     }
 
     loadUserData() {
