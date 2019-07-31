@@ -62,14 +62,15 @@ trait Candy extends Contract {
   var remainingCandies: Uint256
   var eatenCandies: Uint256
 
-  def constructor(_candies: Uint256) = {
+  @solidityPublic
+  final def constructor(_candies: Uint256) = {
     initialCandies = _candies
     remainingCandies = _candies
     eatenCandies = Uint256.ZERO
   }
 
   @solidityPublic
-  def eatCandy(candies: Uint256) = {
+  final def eatCandy(candies: Uint256) = {
     dynRequire(candies <= remainingCandies)
 
     remainingCandies -= candies
@@ -77,7 +78,7 @@ trait Candy extends Contract {
   }
 
   @solidityPublic @solidityView
-  def getRemainingCandies() = remainingCandies
+  final def getRemainingCandies() = remainingCandies
 
   @ghost @inline
   final def invariant(): Boolean = {
@@ -111,7 +112,7 @@ trait Candy extends Contract {
         let valid: number = 0 ;
         let invalid: number = 0 ;
 
-        verif.forEach((elem) => {
+        verif.forEach((elem: any) => {
             for (const key in elem.status) {
                 if (key === "Valid" || key === "ValidFromCache") {
                     valid++;
@@ -129,7 +130,7 @@ trait Candy extends Contract {
 
         const {valid, invalid} = parseReport(response.Report);
 
-        expect(valid).toEqual(40);
+        expect(valid).toBeGreaterThan(0);
         expect(invalid).toEqual(0);
     }, 60000); // Extend Jasmine default timeout interval to 1 minute
 
@@ -186,7 +187,7 @@ trait Candy extends Contract {
         /* tslint:enable:max-line-length */
 
         const privKey = Buffer.from("c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3", "hex");
-        const account = new EvmAccount(privKey);
+        const account = new EvmAccount("test", privKey);
 
         const sig = account.sign(hash);
 
@@ -202,10 +203,10 @@ trait Candy extends Contract {
         const expectedAccountAddress = Buffer.from("627306090abab3a6e1400e9345bc60c78a8bef57", "hex");
         const expectedContractAddress = Buffer.from("8cdaf0cd259887258bc13a92c0a6da92698644c0", "hex");
 
-        const account = new EvmAccount(privKey);
+        const account = new EvmAccount("test", privKey);
         expect(account.address).toEqual(expectedAccountAddress);
 
-        const contract = new EvmContract(candyBytecode, candyAbi);
+        const contract = new EvmContract("Candy", candyBytecode, candyAbi);
 
         const amount = Buffer.from(WEI_PER_ETHER.mul(5).toBytesBE());
 
@@ -221,7 +222,8 @@ trait Candy extends Contract {
                                                 contract,
                                                 [JSON.stringify(100)],
                                                )).toBeResolved();
-        expect(contract.address).toEqual(expectedContractAddress);
+        contract.addresses.select(0);
+        expect(contract.addresses.selected).toEqual(expectedContractAddress);
 
         for (let nbCandies = 1; nbCandies <= 10; nbCandies++) {
             Log.lvl2(`Eat ${nbCandies} candies`);
