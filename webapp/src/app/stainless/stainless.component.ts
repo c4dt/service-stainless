@@ -91,15 +91,26 @@ export class StainlessComponent implements OnInit {
         this.userState = userState;
     }
 
-    async createAccount(name: string) {
-        const account = this.userState.createAccount(name);
+    async createAccount() {
+        const dialogRef = this.dialog.open(AccountDialog, {
+            data: {
+                title: "Creating new account",
+            },
+            width: "30em",
+        });
 
-        await this.performLongAction(
-            () => this.creditAccount(account, 5),
-                "Creating account");
+        dialogRef.afterClosed().subscribe(async (name: string) => {
+            if (name !== undefined) {
+                const account = this.userState.createAccount(name);
 
-        // Select newly created account
-        this.selectAccount(this.accounts.length - 1);
+                await this.performLongAction(
+                    () => this.creditAccount(account, 5),
+                        "Creating account");
+
+                // Select newly created account
+                this.selectAccount(this.accounts.length - 1);
+            }
+        });
     }
 
     async creditAccount(account: EvmAccount, amount: number) {
@@ -537,5 +548,31 @@ export class InfoDialog {
     constructor(
         public dialogRef: MatDialogRef<InfoDialog>,
         @Inject(MAT_DIALOG_DATA) public data: IInfoDialogData) {
+    }
+}
+
+export interface IAccountDialogData {
+    title: string;
+}
+
+@Component({
+    selector: "account-dialog",
+    templateUrl: "account-dialog.html",
+})
+export class AccountDialog {
+    name: string;
+
+    constructor(
+        public dialogRef: MatDialogRef<AccountDialog>,
+        @Inject(MAT_DIALOG_DATA) public data: IAccountDialogData) {
+        this.name = undefined;
+    }
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
+
+    onEnter(): void {
+        this.dialogRef.close(this.name);
     }
 }

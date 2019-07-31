@@ -1,0 +1,13 @@
+<div fxLayout="column" fxLayoutAlign="space-between fill" fxLayoutGap="50px">
+    <h1 mat-dialog-title align="center">{{ data.title }}</h1>
+    <div mat-dialog-content>
+       <mat-form-field appearance="outline" fxFlexFill>
+           <mat-label>Account name</mat-label>
+           <input matInput type="text" [(ngModel)]="name" (keyup.enter)="onEnter()" required>
+       </mat-form-field>
+    </div>
+    <div mat-dialog-actions align="center">
+        <button mat-raised-button [mat-dialog-close]="name">Ok</button>
+        <button mat-raised-button (click)="onNoClick()">Cancel</button>
+    </div>
+</div>

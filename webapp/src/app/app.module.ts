@@ -17,7 +17,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { DemoMaterialModule } from "../material-module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { ArgDialog, InfoDialog, StainlessComponent } from "./stainless/stainless.component";
+import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent } from "./stainless/stainless.component";
 
 @NgModule({
     bootstrap: [AppComponent],
@@ -25,11 +25,13 @@ import { ArgDialog, InfoDialog, StainlessComponent } from "./stainless/stainless
         AppComponent,
         ArgDialog,
         InfoDialog,
+        AccountDialog,
         StainlessComponent,
     ],
     entryComponents: [
         ArgDialog,
         InfoDialog,
+        AccountDialog,
     ],
     imports: [
         BrowserModule,
