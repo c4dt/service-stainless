@@ -132,6 +132,43 @@ func Test_InvokeCandyContract(t *testing.T) {
 	require.Equal(t, expectedCandyBalance, candyBalance)
 }
 
+func Test_Time(t *testing.T) {
+	log.LLvl1("TimeTest")
+
+	// Create a new ledger and prepare for proper closing
+	bct := newBCTest(t)
+	defer bct.Close()
+
+	// Spawn a new BEvm instance
+	instanceID, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
+	require.Nil(t, err)
+
+	// Create a new BEvm client
+	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
+	require.Nil(t, err)
+
+	// Initialize an accounts
+	a, err := NewEvmAccount(testPrivateKeys[0])
+	require.Nil(t, err)
+
+	// Credit the account
+	err = bevmClient.CreditAccount(big.NewInt(5*WeiPerEther), a.Address)
+	require.Nil(t, err)
+
+	// Deploy a TimeTest contract
+	contract, err := NewEvmContract(getContractPath(t, "TimeTest"))
+	require.Nil(t, err)
+	err = bevmClient.Deploy(txParams.GasLimit, txParams.GasPrice, 0, a, contract)
+	require.Nil(t, err)
+
+	// Get current block time
+    expectedTime := big.NewInt(12345) // Currently hardcoded in getContext()
+	time := big.NewInt(0)
+	err = bevmClient.Call(a, &time, contract, "getTime")
+	require.Nil(t, err)
+	require.Equal(t, expectedTime, time)
+}
+
 func Test_InvokeTokenContract(t *testing.T) {
 	log.LLvl1("ERC20Token")
 

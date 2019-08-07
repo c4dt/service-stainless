@@ -65,7 +65,7 @@ func getContext() vm.Context {
 		Coinbase:    placeHolder,
 		GasLimit:    10000000000,
 		BlockNumber: big.NewInt(0),
-		Time:        big.NewInt(1),
+		Time:        big.NewInt(12345),
 		Difficulty:  big.NewInt(1),
 	}
 
