@@ -239,8 +239,12 @@ export class BevmInstance extends Instance {
      * @param darcID
      */
     static create(bc: ByzCoinRPC, bevmID: InstanceID, darcID: InstanceID): BevmInstance {
-        return new BevmInstance(bc, new Instance({id: bevmID, contractID: BevmInstance.contractID,
-                                                 darcID, data: Buffer.from("")}));
+        return new BevmInstance(bc, new Instance({
+            contractID: BevmInstance.contractID,
+            darcID,
+            data: Buffer.from(""),
+            id: bevmID,
+        }));
     }
 
     /**
