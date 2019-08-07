@@ -167,13 +167,13 @@ func (db *ServerByzDatabase) Dump() ([]byzcoin.StateChange, []string, error) {
 	// We can tehrefore sort them as we please, as long as the sort order is deterministic to make ByzCoin happy.
 
 	// We check the hypothesis of unique keys before going further though...
-	keyMap := make(map[string]bool)
+	keyMap := make(map[string]string)
 	for _, s := range db.stateChanges {
 		k := string(s.Key())
-		if _, ok := keyMap[k]; ok {
+		if val, ok := keyMap[k]; ok && val != string(s.Value) {
 			return nil, nil, errors.New("Internal error: the set of changes produced by the EVM is not unique on keys")
 		}
-		keyMap[k] = true
+		keyMap[k] = string(s.Value)
 	}
 
 	// All good, let's sort by keys
