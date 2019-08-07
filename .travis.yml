@@ -1,0 +1,26 @@
+addons:
+    ssh_known_hosts: c4dtsrv1.epfl.ch
+
+stages:
+    - lint
+    - build
+    - name: deploy
+      if: branch = master
+
+jobs:
+    include:
+        - stage: lint
+          name: webapp
+          language: node_js
+          node_js: 10
+          install: cd webapp && npm ci
+          script: ng lint
+
+        - stage: build
+          name: webapp
+          language: node_js
+          node_js: 10
+          script: make webapp-build
+
+notifications:
+    email: false
