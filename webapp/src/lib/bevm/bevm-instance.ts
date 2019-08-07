@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "crypto";
-import EC from "elliptic/lib/elliptic/ec";
+import { ec } from "elliptic";
 import Keccak from "keccak";
 
 import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
@@ -12,14 +12,13 @@ import { StainlessRPC } from "src/lib/stainless";
 import { SelectableColl, UserEvmInfo } from "src/lib/storage";
 
 export class EvmAccount extends UserEvmInfo {
-    static ec = new EC("secp256k1");
-    static storageKey = "evm_account";
+    static EC = new ec("secp256k1");
 
     static deserialize(obj: any): EvmAccount {
         return new EvmAccount(obj.name, obj.privateKey, obj.nonce);
     }
 
-    private static computeAddress(key) {
+    private static computeAddress(key: ec.KeyPair) {
         // Marshal public key to binary
         const pubBytes = Buffer.from(key.getPublic("hex"), "hex");
 
@@ -35,7 +34,7 @@ export class EvmAccount extends UserEvmInfo {
     readonly address: Buffer;
     readonly name: string;
     private _nonce: number;
-    private key;
+    private key: ec.KeyPair;
 
     get nonce() {
         return this._nonce;
@@ -49,7 +48,7 @@ export class EvmAccount extends UserEvmInfo {
         if (privKey === undefined) {
             privKey = randomBytes(32);
         }
-        this.key = EvmAccount.ec.keyFromPrivate(privKey.toString("hex"), "hex");
+        this.key = EvmAccount.EC.keyFromPrivate(privKey);
 
         this.address = EvmAccount.computeAddress(this.key);
         this._nonce = nonce;
@@ -81,11 +80,6 @@ export class EvmAccount extends UserEvmInfo {
             privateKey: this.key.getPrivate("hex"),
         };
     }
-
-    protected getStorageKey(): string {
-        return EvmAccount.storageKey;
-    }
-
 }
 
 export class EvmContract extends UserEvmInfo {

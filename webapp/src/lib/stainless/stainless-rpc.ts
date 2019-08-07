@@ -17,7 +17,6 @@ export class StainlessRPC {
     }
 
     async verify(sourceFiles: { [_: string]: string }): Promise<proto.VerificationResponse> {
-        // this.conn.setTimeout(this.timeout);
         const conn = new WebSocketConnection(this.serviceAddress + "/VerificationRequest");
 
         Log.lvl2("Sending Stainless verification request...");
@@ -32,8 +31,6 @@ export class StainlessRPC {
         const resp = await conn.recvmsg();
 
         return proto.VerificationResponse.decode(resp);
-
-        // return this.conn.send(new proto.VerificationRequest({sourceFiles}), proto.VerificationResponse);
     }
 
     async genBytecode(sourceFiles: { [_: string]: string }): Promise<proto.BytecodeGenResponse> {

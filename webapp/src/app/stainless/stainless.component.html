@@ -26,14 +26,14 @@
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
                 <mat-form-field fxFlexOffset="50px">
-                    <mat-label>Identities (accounts)</mat-label>
+                    <mat-label>Accounts</mat-label>
                     <mat-select [value]="accountSelectedIndex" (selectionChange)="selectAccount($event.value)">
                         <mat-option *ngFor="let account of accounts; let i = index" [attr.data-index]="i" [value]="i">
                             <code>{{ account.name }} ({{ account.address.toString("hex").substr(0, 8) }})</code>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-raised-button (click)="createAccount()" fxFlexOffset="10px">Create new</button>
+                <button mat-raised-button (click)="createAccount()" fxFlexOffset="10px">Create new account</button>
             </div>
 
             <mat-divider></mat-divider>
@@ -58,7 +58,7 @@
                     </mat-select>
                 </mat-form-field>
                 <button mat-raised-button (click)="deploy()" disabled="{{ accountSelectedIndex === undefined || contractSelectedIndex === undefined }}"
-                                                             fxFlexOffset="10px">Deploy new</button>
+                                                             fxFlexOffset="10px">Deploy new instance</button>
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="10px">

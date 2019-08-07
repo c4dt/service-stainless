@@ -234,7 +234,7 @@ export class StainlessComponent implements OnInit {
     convertReport(report: any) {
         const items = report.stainless[0][1][0];
 
-        const res = items.map((item) => {
+        const res = items.map((item: any) => {
             const method = item.id.name;
             const type = item.kind;
 
@@ -336,7 +336,7 @@ export class StainlessComponent implements OnInit {
 
         const verif = this.convertReport(JSON.parse(response.Report));
 
-        this.userState.verificationResults = verif.sort((e1, e2) => {
+        this.userState.verificationResults = verif.sort((e1: any, e2: any) => {
             if (e1.method > e2.method) {
                 return 1;
             }
@@ -378,7 +378,7 @@ export class StainlessComponent implements OnInit {
             data: {
                 abi: JSON.parse(contract.abi),
                 methodName: undefined,
-                title: `Deploying contract '${contract.name}'`,
+                title: `Deploy new instance of contract '${contract.name}'`,
             },
             width: "30em",
         });

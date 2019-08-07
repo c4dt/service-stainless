@@ -1,9 +1,7 @@
-import Log from "@dedis/cothority/log";
-
 export abstract class UserEvmInfo {
     static storageKey: string;
 
-    static deserialize(obj: any): UserEvmInfo {
+    static deserialize(_: any): UserEvmInfo {
         throw new Error("Needs to be overridden");
     }
 
