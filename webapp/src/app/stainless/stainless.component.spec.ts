@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent } from "./stainless.component";
+import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent, VerifDialog } from "./stainless.component";
 
 import { ScrollDispatchModule } from "@angular/cdk/scrolling";
 import { FormsModule } from "@angular/forms";
@@ -26,7 +26,7 @@ describe("StainlessComponent", () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ArgDialog, InfoDialog, AccountDialog, StainlessComponent ],
+      declarations: [ ArgDialog, InfoDialog, AccountDialog, StainlessComponent, VerifDialog ],
       imports: [
           BrowserAnimationsModule,
           FormsModule,
@@ -44,7 +44,7 @@ describe("StainlessComponent", () => {
       ],
     }).overrideModule(BrowserDynamicTestingModule, {
         set: {
-            entryComponents: [ ArgDialog, InfoDialog, AccountDialog ],
+            entryComponents: [ ArgDialog, InfoDialog, AccountDialog, VerifDialog ],
         },
     }).compileComponents();
   }));

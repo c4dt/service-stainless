@@ -3,7 +3,7 @@ import { AppComponent } from "./app.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 
-import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent } from "./stainless/stainless.component";
+import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent, VerifDialog } from "./stainless/stainless.component";
 
 import { ScrollDispatchModule } from "@angular/cdk/scrolling";
 import { FormsModule } from "@angular/forms";
@@ -30,6 +30,7 @@ describe("AppComponent", () => {
                 ArgDialog,
                 InfoDialog,
                 AccountDialog,
+                VerifDialog,
                 AppComponent,
                 StainlessComponent,
             ],
@@ -51,7 +52,7 @@ describe("AppComponent", () => {
             ],
         }).overrideModule(BrowserDynamicTestingModule, {
             set: {
-                entryComponents: [ ArgDialog, InfoDialog, AccountDialog ],
+                entryComponents: [ ArgDialog, InfoDialog, AccountDialog, VerifDialog ],
             },
         }).compileComponents();
     }));

@@ -11,7 +11,7 @@ import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
 import { Project, SourceFile, UserState } from "src/lib/user-state";
 
-const NEW_USER_URL = "https://demo.c4dt.org/omniledger/c4dt/newuser";
+const USER_REGISTRATION_URL = "https://demo.c4dt.org/omniledger/c4dt/newuser";
 const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 
 @Component({
@@ -64,12 +64,13 @@ export class StainlessComponent implements OnInit {
     }
 
     async initProjects() {
-        const resp = await fetch(window.location.href + "/assets/contracts.json");
+        const resp = await fetch(window.location.href + "/assets/projects.json");
         if (!resp.ok) {
             return Promise.reject(new Error(`Load projects: ${resp.status}`));
         }
         const projectData = JSON.parse(await resp.text());
-        Log.lvl2("Loaded list of projects");
+        Log.lvl2("Loaded list of projects:",
+                 projectData.map((p: any) => p.name).join(", "));
 
         this.userState.updateProjects(projectData);
     }
@@ -151,7 +152,7 @@ export class StainlessComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(async (_) => {
-            window.location.href = NEW_USER_URL;
+            window.location.href = USER_REGISTRATION_URL;
         });
     }
 
@@ -346,27 +347,37 @@ export class StainlessComponent implements OnInit {
     }
 
     async verify() {
-        const sourceFiles = {};
-        for (const f of this.userState.projectSelected.sourceFiles.elements) {
-            sourceFiles[f.name] = f.contents;
+        if (!this.projectVerified) {
+            const sourceFiles = {};
+            for (const f of this.userState.projectSelected.sourceFiles.elements) {
+                sourceFiles[f.name] = f.contents;
+            }
+
+            // Call Stainless service to perform verification
+            const response = await this.performLongAction<proto.VerificationResponse>(
+                () => this.config.stainlessRPC.verify(sourceFiles),
+                    "Performing verification");
+            Log.print("Received verification results");
+
+            const verif = this.convertReport(JSON.parse(response.Report));
+
+            this.userState.verificationResults = verif.sort((e1: any, e2: any) => {
+                if (e1.method > e2.method) {
+                    return 1;
+                }
+                if (e1.method < e2.method) {
+                    return -1;
+                }
+                return e1.position.start[0] - e2.position.start[0];
+            });
         }
 
-        // Call Stainless service to perform verification
-        const response = await this.performLongAction<proto.VerificationResponse>(
-            () => this.config.stainlessRPC.verify(sourceFiles),
-            "Performing verification");
-        Log.print("Received verification results");
-
-        const verif = this.convertReport(JSON.parse(response.Report));
-
-        this.userState.verificationResults = verif.sort((e1: any, e2: any) => {
-            if (e1.method > e2.method) {
-                return 1;
-            }
-            if (e1.method < e2.method) {
-                return -1;
-            }
-            return e1.position.start[0] - e2.position.start[0];
+        this.dialog.open(VerifDialog, {
+            data: {
+                verificationResults: this.verificationResults,
+                verificationSuccessful: this.verificationSuccessful,
+            },
+            width: "100em",
         });
     }
 
@@ -589,5 +600,30 @@ export class AccountDialog {
 
     onEnter(): void {
         this.dialogRef.close(this.name);
+    }
+}
+
+export interface IVerifDialogData {
+    verificationSuccessful: boolean;
+    verificationResults: any;
+}
+
+@Component({
+    selector: "verif-dialog",
+    styleUrls: ["./stainless.component.css"],
+    templateUrl: "verif-dialog.html",
+})
+export class VerifDialog {
+    constructor(
+        public dialogRef: MatDialogRef<VerifDialog>,
+        @Inject(MAT_DIALOG_DATA) public data: IVerifDialogData) {
+    }
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
+
+    onEnter(): void {
+        this.dialogRef.close();
     }
 }
