@@ -57,7 +57,7 @@ export class StainlessComponent implements OnInit {
         // Initialize BEvm cothority
         this.config = await Config.init();
 
-        this.loadUserData();
+        this.loadUserState();
         await this.initProjects();
 
         Log.lvl2("BEvm initialized");
@@ -74,13 +74,36 @@ export class StainlessComponent implements OnInit {
         this.userState.updateProjects(projectData);
     }
 
-    loadUserData() {
-        let userState = UserState.load() as UserState;
-        if (userState === null) {
-            userState = new UserState();
+    loadUserState() {
+        let userState: UserState = null;
+
+        try {
+            userState = UserState.load() as UserState;
+
+            if (userState === null) {
+                this.dialog.open(InfoDialog, {
+                    data: {
+                        message: "Welcome to the Stainless demonstrator!",
+                        requireAck: true,
+                        title: "Welcome",
+                    },
+                    width: "30em",
+                });
+            }
+        } catch (e) {
+            this.dialog.open(InfoDialog, {
+                data: {
+                    message: "User data could not be read and has been reinitialized",
+                    requireAck: true,
+                    title: "User data cleared",
+                },
+                width: "30em",
+            });
         }
 
-        this.userState = userState;
+        if (userState !== null) {
+            this.userState = userState;
+        }
     }
 
     async createAccount() {
