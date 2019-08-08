@@ -1,7 +1,8 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 
-import { Data } from "@c4dt/dynacred";
+import { Config as DynaCredConfig, Data } from "@c4dt/dynacred";
+import { ByzCoinRPC } from "@dedis/cothority/byzcoin";
 import Log from "@dedis/cothority/log";
 
 import Long from "long";
@@ -36,31 +37,84 @@ export class StainlessComponent implements OnInit {
     }
 
     async initialize() {
-        // Initialize DynaCred
-        try {
-            // const credData = await new Data().load();
-            // if (credData.contact && credData.contact.isRegistered() && credData.coinInstance) {
-            if (true) {
-                Log.lvl2("User is registered");
-                // FIXME: Check if user is authorized to access; if not, indicate so and abort
-            } else {
-                Log.lvl2("User is not registered");
-                this.handleNotRegistered();
-                return;
-            }
-        } catch (e) {
-            Log.lvl2("Failed to load data:", e);
-            this.handleNotRegistered();
-            return;
-        }
+        // Check user is registered and authorized to access
+        await this.checkRegistration();
 
         // Initialize BEvm cothority
         this.config = await Config.init();
 
-        this.loadUserState();
+        // Load user state from local data
+        this.userState = await this.loadUserState();
+
+        // Initialize projects
         await this.initProjects();
 
-        Log.lvl2("BEvm initialized");
+        Log.lvl2("Initialization complete");
+    }
+
+    async checkRegistration() {
+        return; // FIXME: dev bypass
+        try {
+            const res = await fetch("assets/conodes.toml");
+            if (!res.ok) {
+                return Promise.reject(`Error while fetching conodes config: ${res.status}`);
+            }
+            const config = DynaCredConfig.fromTOML(await res.text());
+            const bc = await ByzCoinRPC.fromByzcoin(config.roster, config.byzCoinID);
+
+            const userData: Data = new Data(bc);
+            await userData.load();
+
+            if (userData.contact && userData.contact.isRegistered()) {
+                Log.lvl2("User is registered");
+                // FIXME: Check if user is authorized to access; if not, indicate so and abort
+            } else {
+                Log.lvl2("User is not registered");
+                await this.handleNotRegistered();
+            }
+        } catch (e) {
+            Log.lvl2("Failed to check registration:", e);
+            await this.handleNotRegistered();
+        }
+    }
+
+    loadUserState(): Promise<UserState> {
+        return new Promise<UserState>((resolve) => {
+            try {
+                const userState = UserState.load() as UserState;
+
+                if (userState === null) {
+                    const ref = this.dialog.open(InfoDialog, {
+                        data: {
+                            message: "Welcome to the Stainless demonstrator!",
+                            requireAck: true,
+                            title: "Welcome",
+                        },
+                        width: "30em",
+                    });
+
+                    ref.afterClosed().subscribe((_) => {
+                        resolve(new UserState());
+                    });
+                } else {
+                    resolve(userState);
+                }
+            } catch (e) {
+                const ref = this.dialog.open(InfoDialog, {
+                    data: {
+                        message: "User data could not be read and will be reinitialized",
+                        requireAck: true,
+                        title: "User data cleared",
+                    },
+                    width: "30em",
+                });
+
+                ref.afterClosed().subscribe((_) => {
+                    localStorage.clear();
+                    window.location.reload();
+                });
+            }
+        });
     }
 
     async initProjects() {
@@ -73,38 +127,6 @@ export class StainlessComponent implements OnInit {
                  projectData.map((p: any) => p.name).join(", "));
 
         this.userState.updateProjects(projectData);
-    }
-
-    loadUserState() {
-        let userState: UserState = null;
-
-        try {
-            userState = UserState.load() as UserState;
-
-            if (userState === null) {
-                this.dialog.open(InfoDialog, {
-                    data: {
-                        message: "Welcome to the Stainless demonstrator!",
-                        requireAck: true,
-                        title: "Welcome",
-                    },
-                    width: "30em",
-                });
-            }
-        } catch (e) {
-            this.dialog.open(InfoDialog, {
-                data: {
-                    message: "User data could not be read and has been reinitialized",
-                    requireAck: true,
-                    title: "User data cleared",
-                },
-                width: "30em",
-            });
-        }
-
-        if (userState !== null) {
-            this.userState = userState;
-        }
     }
 
     async createAccount() {
@@ -139,20 +161,22 @@ export class StainlessComponent implements OnInit {
                                                 bufferAmount);
     }
 
-    handleNotRegistered() {
-        const dialogRef = this.dialog.open(InfoDialog, {
-            data: {
-                message: "Access to the Stainless demonstrator requires  a registration by the C4DT.\
-                You will now be redirected to the registration process.\
-                Please contact Christian Grigis <christian.grigis@epfl.ch> for any question.",
-                requireAck: true,
-                title: "User not registered",
-            },
-            width: "30em",
-        });
+    handleNotRegistered(): Promise<void> {
+        return new Promise(() => {
+            const dialogRef = this.dialog.open(InfoDialog, {
+                data: {
+                    message: "Access to the Stainless demonstrator requires  a registration by the C4DT.\
+                    You will now be redirected to the registration process.\
+                    Please contact Christian Grigis <christian.grigis@epfl.ch> for any question.",
+                    requireAck: true,
+                    title: "User not registered",
+                },
+                width: "30em",
+            });
 
-        dialogRef.afterClosed().subscribe(async (_) => {
-            window.location.href = USER_REGISTRATION_URL;
+            dialogRef.afterClosed().subscribe(async (_) => {
+                window.location.href = USER_REGISTRATION_URL;
+            });
         });
     }
 
