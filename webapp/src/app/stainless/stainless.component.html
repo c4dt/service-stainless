@@ -5,6 +5,7 @@
     <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="30px">
 
         <div fxLayout="column" fxLayoutAlign="top fill" fxFlex="60%">
+
             <mat-form-field>
                 <mat-label>Available projects</mat-label>
                 <mat-select [value]="projectSelectedIndex" (selectionChange)="selectProject($event.value)">
@@ -31,7 +32,8 @@
 
         </div>
 
-        <div fxLayout="column" fxLayoutAlign="bottom" fxFlex="40%">
+        <div fxLayout="column" fxLayoutAlign="top left">
+
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
                 <mat-form-field fxFlexOffset="30px">
                     <mat-label>Accounts</mat-label>
@@ -45,7 +47,7 @@
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="80px">
-                <mat-form-field fxFlexOffset="50px">
+                <mat-form-field fxFlexOffset="30px">
                     <mat-label>Contracts</mat-label>
                     <mat-select [value]="contractSelectedIndex" (selectionChange)="selectContract($event.value)" disabled="{{ !projectCompiled }}">
                         <mat-option *ngFor="let contract of contracts; let i = index" [attr.data-index]="i" [value]="i">
@@ -53,13 +55,16 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+            </div>
+
+            <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
                 <mat-form-field fxFlexOffset="50px">
                     <mat-label>Instances</mat-label>
                     <mat-select [value]="instanceSelectedIndex" (selectionChange)="selectInstance($event.value)" disabled="{{ contractSelectedIndex === undefined }}">
                         <div *ngIf="contractSelectedIndex !== undefined">
-                        <mat-option *ngFor="let instance of instances; let i = index" [attr.data-index]="i" [value]="i">
-                            <code>#{{ i + 1 }} ({{ instance.toString("hex").substr(0, 8) }})</code>
-                        </mat-option>
+                            <mat-option *ngFor="let instance of instances; let i = index" [attr.data-index]="i" [value]="i">
+                                <code>#{{ i + 1 }} ({{ instance.toString("hex").substr(0, 8) }})</code>
+                            </mat-option>
                         </div>
                     </mat-select>
                 </mat-form-field>
@@ -67,8 +72,8 @@
                                                              fxFlexOffset="10px">Deploy new instance</button>
             </div>
 
-            <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="10px">
-                <mat-form-field fxFlexOffset="50px">
+            <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="20px">
+                <mat-form-field fxFlexOffset="70px">
                     <mat-label>Transactions</mat-label>
                     <mat-select [value]="transactionSelectedIndex" (selectionChange)="selectTransaction($event.value)" disabled="{{ transactions === [] }}">
                         <mat-option *ngFor="let t of transactions; let i = index" [attr.data-index]="i" [value]="i">
@@ -81,7 +86,7 @@
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
-                <mat-form-field fxFlexOffset="50px">
+                <mat-form-field fxFlexOffset="70px">
                     <mat-label>View methods</mat-label>
                     <mat-select [value]="viewMethodSelectedIndex" (selectionChange)="selectViewMethod($event.value)" disabled="{{ viewMethods === [] }}">
                         <mat-option *ngFor="let m of viewMethods; let i = index" [attr.data-index]="i" [value]="i">
@@ -91,7 +96,10 @@
                 </mat-form-field>
                 <button mat-raised-button (click)="executeViewMethod()" disabled="{{ instanceSelectedIndex === undefined || viewMethodSelectedIndex === undefined }}"
                                                                         fxFlexOffset="10px">Execute</button>
-                <mat-form-field fxFlexOffset="50px" class="result">
+            </div>
+
+            <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
+                <mat-form-field fxFlexOffset="120px" class="result">
                     <mat-label>Result</mat-label>
                     <input matInput disabled="true" value="{{ viewMethodResult }}">
                 </mat-form-field>

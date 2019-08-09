@@ -132,7 +132,7 @@ export class StainlessComponent implements OnInit {
     async createAccount() {
         const dialogRef = this.dialog.open(AccountDialog, {
             data: {
-                title: "Creating new account",
+                title: "Create new account",
             },
             width: "30em",
         });
@@ -143,7 +143,7 @@ export class StainlessComponent implements OnInit {
 
                 await this.performLongAction(
                     () => this.creditAccount(account, 5),
-                        "Creating account");
+                        "Creating new account");
 
                 // Select newly created account
                 this.selectAccount(this.accounts.length - 1);
@@ -458,7 +458,7 @@ export class StainlessComponent implements OnInit {
                         contract,
                         args,
                     ),
-                    "Deploying contract");
+                    "Deploying new instance");
 
                 // Select newly deployed instance
                 this.selectInstance(this.instances.length - 1);
@@ -477,7 +477,7 @@ export class StainlessComponent implements OnInit {
             data: {
                 abi: JSON.parse(contract.abi),
                 methodName,
-                title: `Executing transaction '${methodName}'`,
+                title: `Execute transaction '${methodName}'`,
             },
             width: "30em",
         });
@@ -516,7 +516,7 @@ export class StainlessComponent implements OnInit {
             data: {
                 abi: JSON.parse(contract.abi),
                 methodName,
-                title: `Executing view method '${methodName}'`,
+                title: `Execute view method '${methodName}'`,
             },
             width: "30em",
         });
