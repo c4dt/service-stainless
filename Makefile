@@ -29,6 +29,8 @@ $Dbackend/build/cvc4: | $Dbackend/build
 
 $Sbackend-docker-build: | $Sexternal-deps
 
+$Dbackend/build/conode.Linux.x86_64: $Dbackend/bevm/*.go $Dbackend/stainless/service/*.go
+
 $Dbackend/build/bevmadmin: | $Dbackend/build
 	cd $Dbackend/bevmadmin && GO111MODULE=on go build -o ../build/$(@F)
 

@@ -295,7 +295,7 @@ func (service *Stainless) GenBytecode(req *proto.BytecodeGenRequest) (network.Me
 	}, nil
 }
 
-func decodeArgs(encodedArgs []string) ([]interface{}, error) {
+func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{}, error) {
 	args := make([]interface{}, len(encodedArgs))
 	for i, argJSON := range encodedArgs {
 		var arg interface{}
@@ -304,15 +304,19 @@ func decodeArgs(encodedArgs []string) ([]interface{}, error) {
 			return nil, err
 		}
 
-		// FIXME: the JSON unmarshaller decodes numbers as float64's; convert them to BigInt's
-		// This currently does not support nested structures.
-		if reflect.TypeOf(arg).Kind() == reflect.Float64 {
+		// FIXME: Limited number of supported argument types so far
+		switch abi[i].Type.String() {
+		case "uint256":
+			// The JSON unmarshaller decodes numbers as 'float64'; the EVM expects BigInt
 			args[i] = big.NewInt(int64(arg.(float64)))
-		} else {
-			args[i] = arg
+		case "address":
+			args[i] = common.HexToAddress(arg.(string))
+		default:
+			return nil, fmt.Errorf("Unsupported argument type: %s", abi[i].Type)
 		}
 
-		log.Lvlf2("arg #%d: %v (%s)", i, args[i], reflect.TypeOf(args[i]).Kind())
+		log.Lvlf2("arg #%d: %v (%s) --%v--> %v (%v)",
+			i, arg, reflect.TypeOf(arg).Kind(), abi[i].Type, args[i], reflect.TypeOf(args[i]).Kind())
 	}
 
 	return args, nil
@@ -324,7 +328,7 @@ func (service *Stainless) DeployContract(req *proto.DeployRequest) (network.Mess
 		return nil, err
 	}
 
-	args, err := decodeArgs(req.Args)
+	args, err := decodeArgs(req.Args, abi.Constructor.Inputs)
 	if err != nil {
 		return nil, err
 	}
@@ -357,7 +361,7 @@ func (service *Stainless) ExecuteTransaction(req *proto.TransactionRequest) (net
 		return nil, err
 	}
 
-	args, err := decodeArgs(req.Args)
+	args, err := decodeArgs(req.Args, abi.Methods[req.Method].Inputs)
 	if err != nil {
 		return nil, err
 	}
@@ -414,7 +418,7 @@ func (service *Stainless) Call(req *proto.CallRequest) (network.Message, error) 
 		return nil, err
 	}
 
-	args, err := decodeArgs(req.Args)
+	args, err := decodeArgs(req.Args, abi.Methods[req.Method].Inputs)
 	if err != nil {
 		return nil, err
 	}

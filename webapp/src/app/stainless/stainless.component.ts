@@ -428,43 +428,44 @@ export class StainlessComponent implements OnInit {
         this.userState.contracts = contracts;
     }
 
-    async deploy() {
+    deploy() {
         const contract = this.userState.contractSelected;
         const account = this.userState.accountSelected;
+        const abi = this.getMethodAbi(contract, undefined);
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
-                abi: JSON.parse(contract.abi),
-                methodName: undefined,
+                abi,
                 title: `Deploy new instance of contract '${contract.name}'`,
             },
             width: "30em",
         });
 
         dialogRef.afterClosed().subscribe(async (result) => {
-            if ((result !== undefined) && (result.filter((v: string) => v === undefined).length === 0)) {
-                let args = result.map(parseInt); // FIXME: handle non-numeric arguments
-                args = args.map(JSON.stringify);
+            const args = this.parseArguments(result, abi);
 
-                Log.lvl2(`Deploying contract with constructor args ${args}`);
-
-                await this.performLongAction(
-                    () => this.config.bevmRPC.deploy(
-                        [this.config.bevmUser],
-                        1e7,
-                        1,
-                        0,
-                        account,
-                        contract,
-                        args,
-                    ),
-                    "Deploying new instance");
-
-                // Select newly deployed instance
-                this.selectInstance(this.instances.length - 1);
-
-                this.userState.save();
+            if (args === null) {
+                return;
             }
+
+            Log.lvl2(`Deploying contract with constructor args ${args}`);
+
+            await this.performLongAction(
+                () => this.config.bevmRPC.deploy(
+                    [this.config.bevmUser],
+                    1e7,
+                    1,
+                    0,
+                    account,
+                    contract,
+                    args,
+                ),
+                "Deploying new instance");
+
+            // Select newly deployed instance
+            this.selectInstance(this.instances.length - 1);
+
+            this.userState.save();
         });
     }
 
@@ -472,38 +473,39 @@ export class StainlessComponent implements OnInit {
         const methodName = this.userState.transactionSelected;
         const contract = this.userState.contractSelected;
         const account = this.userState.accountSelected;
+        const abi = this.getMethodAbi(contract, methodName);
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
-                abi: JSON.parse(contract.abi),
-                methodName,
+                abi,
                 title: `Execute transaction '${methodName}'`,
             },
             width: "30em",
         });
 
         dialogRef.afterClosed().subscribe(async (result) => {
-            if ((result !== undefined) && (result.filter((v: string) => v === undefined).length === 0)) {
-                let args = result.map(parseInt); // FIXME: handle non-numeric arguments
-                args = args.map(JSON.stringify);
+            const args = this.parseArguments(result, abi);
 
-                Log.lvl2(`Executing transaction with args ${args}`);
-
-                await this.performLongAction(
-                    () => this.config.bevmRPC.transaction(
-                        [this.config.bevmUser],
-                        1e7,
-                        1,
-                        0,
-                        account,
-                        contract,
-                        methodName,
-                        args,
-                    ),
-                    "Executing transaction");
-
-                this.userState.save();
+            if (args === null) {
+                return;
             }
+
+            Log.lvl2(`Executing transaction with args ${args}`);
+
+            await this.performLongAction(
+                () => this.config.bevmRPC.transaction(
+                    [this.config.bevmUser],
+                    1e7,
+                    1,
+                    0,
+                    account,
+                    contract,
+                    methodName,
+                    args,
+                ),
+                "Executing transaction");
+
+            this.userState.save();
         });
     }
 
@@ -511,47 +513,114 @@ export class StainlessComponent implements OnInit {
         const methodName = this.userState.viewMethodSelected;
         const contract = this.userState.contractSelected;
         const account = this.userState.accountSelected;
+        const abi = this.getMethodAbi(contract, methodName);
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
-                abi: JSON.parse(contract.abi),
-                methodName,
+                abi,
                 title: `Execute view method '${methodName}'`,
             },
             width: "30em",
         });
 
         dialogRef.afterClosed().subscribe(async (result) => {
-            if ((result !== undefined) && (result.filter((v: string) => v === undefined).length === 0)) {
-                let args = result.map(parseInt); // FIXME: handle non-numeric arguments
-                args = args.map(JSON.stringify);
+            const args = this.parseArguments(result, abi);
 
-                Log.lvl2(`Executing view method with args ${args}`);
-
-                const response = await this.performLongAction(
-                    () => this.config.bevmRPC.call(
-                        this.config.genesisBlock,
-                        this.config.rosterToml,
-                        this.config.bevmRPC.id,
-                        account,
-                        contract,
-                        methodName,
-                        args,
-                    ),
-                    "Executing view method");
-
-                Log.lvl2(`Response = ${response}`);
-
-                this.viewMethodResult = response;
+            if (args === null) {
+                return;
             }
+
+            Log.lvl2(`Executing view method with args ${args}`);
+
+            const response = await this.performLongAction(
+                () => this.config.bevmRPC.call(
+                    this.config.genesisBlock,
+                    this.config.rosterToml,
+                    this.config.bevmRPC.id,
+                    account,
+                    contract,
+                    methodName,
+                    args,
+                ),
+                "Executing view method");
+
+            Log.lvl2(`Response = ${response}`);
+
+            this.viewMethodResult = response;
         });
+    }
+
+    private getMethodAbi(contract: EvmContract, methodName: string): any {
+        const contractAbi = JSON.parse(contract.abi);
+        const methodAbi = contractAbi.filter((elem: any) => elem.name === methodName);
+
+        if (methodAbi.length === 0) {
+            throw new Error(`No ABI found in contract ${contract.name} for method ${methodName}`);
+        } else if (methodAbi.length > 1) {
+            throw new Error(`{methodAbi.length} entries found in contract ${contract.name} for method ${methodName}`);
+        }
+
+        return methodAbi[0];
+    }
+
+    private parseArguments(args: string[], abi: any): string[] {
+        if (args === undefined) {
+            return null;
+        }
+
+        if (args.filter((v: string) => v === undefined).length > 0) {
+            return null;
+        }
+
+        const argsParsed: Array<number | string> = [];
+        try {
+            for (let i = 0; i < args.length; i++) {
+                const value = args[i];
+                const type = abi.inputs[i].type;
+
+                switch (type) {
+                    case "uint256": {
+                        const n = Number(value);
+                        if (value === "" || !Number.isSafeInteger(n) || n < 0) {
+                            throw new Error(`Invalid number value: ${value}`);
+                        }
+
+                        argsParsed.push(n);
+                        break;
+                    }
+
+                    case "address": {
+                        const rx = new RegExp("^0x[0-9a-fA-F]+$");
+                        if (!rx.test(value)) {
+                            throw new Error(`Invalid address value: ${value}`);
+                        }
+
+                        argsParsed.push(value);
+                        break;
+                    }
+
+                    default: throw new Error(`Type not supported: ${type}`);
+                }
+            }
+
+            return argsParsed.map((v: number | string) => JSON.stringify(v));
+        } catch (exc) {
+            this.dialog.open(InfoDialog, {
+                data: {
+                    message: exc,
+                    requireAck: true,
+                    title: "Argument error",
+                },
+                width: "30em",
+            });
+            return null;
+        }
     }
 }
 
 export interface IArgDialogData {
     title: string;
     abi: any;
-    methodName: string;
 }
 
 @Component({
@@ -560,20 +629,18 @@ export interface IArgDialogData {
 })
 export class ArgDialog {
     values: string[];
-    method: any;
+    methodInputs: any;
 
     constructor(
         public dialogRef: MatDialogRef<ArgDialog>,
         @Inject(MAT_DIALOG_DATA) public data: IArgDialogData) {
-        this.method = this.data.abi.filter( (elem: any, _index: number, _array: any) => {
-            return elem.name === this.data.methodName;
-        })[0];
 
-        this.values = this.method.inputs.map((_: any) => undefined);
-        if (this.values.length === 0) {
-            this.onEnter();
+            this.methodInputs = this.data.abi.inputs;
+            this.values = this.methodInputs.map((_: any) => undefined);
+            if (this.values.length === 0) {
+                this.onEnter();
+            }
         }
-    }
 
     onNoClick(): void {
         this.dialogRef.close();

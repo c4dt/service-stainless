@@ -2,7 +2,16 @@
   {
     "files": [
       {
-        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\nimport Environment._\n\ntrait Accounts extends ContractInterface {\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  val target: Accounts\n  \n  @ghost @inline\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def constructor(_totalCoins: Uint256) = {\n    totalCoins = _totalCoins\n    contractBalance = _totalCoins\n    userBalance = Uint256.ZERO\n  }\n\n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    target.transfer(amount)\n\n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n  }\n}\n",
+        "contents": "import stainless.smartcontracts._\nimport stainless.lang.StaticChecks._\nimport stainless.annotation._\n\ntrait Candy extends Contract {\n  var initialCandies: Uint256\n  var remainingCandies: Uint256\n  var eatenCandies: Uint256\n  \n  @solidityPublic\n  final def constructor(_candies: Uint256) = {\n    initialCandies = _candies\n    remainingCandies = _candies\n    eatenCandies = Uint256.ZERO\n  }\n  \n  @solidityPublic\n  final def eatCandy(candies: Uint256) = {\n    dynRequire(candies <= remainingCandies)\n    \n    remainingCandies -= candies\n    eatenCandies += candies\n  }\n  \n  @solidityPublic @solidityView\n  final def getRemainingCandies() = remainingCandies\n  \n  @ghost @inline\n  final def invariant(): Boolean = {\n    eatenCandies <= initialCandies &&\n    remainingCandies <= initialCandies &&\n    initialCandies - eatenCandies == remainingCandies\n  }\n}\n",
+        "name": "Candy.scala"
+      }
+    ],
+    "name": "Candy"
+  },
+  {
+    "files": [
+      {
+        "contents": "import stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\nimport Environment._\n\ntrait Malicious extends Contract {\n  var balance: Uint256\n  var counter: Uint256\n  \n  @solidityPublic\n  final def constructor(_balance: Uint256) = {\n    balance = _balance\n    counter = Uint256.ZERO\n  }\n  \n  @solidityPublic @solidityView\n  final def getBalance() = balance\n  \n  @solidityPublic\n  final def transfer(amount: Uint256): Unit = {\n    balance += amount\n    \n    counter += Uint256(\"1\")\n    if (counter < Uint256(\"3\")) {\n      unsafeCast[DAO](Msg.sender).withdrawBalance()\n    }\n  }\n}\n\ntrait DAO extends Contract {\n  var totalCoins: Uint256\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  \n  var user: Malicious\n  \n  @ghost @inline\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def constructor(_totalCoins: Uint256, _userBalance: Uint256, _user: Malicious) = {\n    dynRequire(_userBalance <= _totalCoins)\n\n    totalCoins = _totalCoins\n    userBalance = _userBalance\n    user = _user\n\n    contractBalance = _totalCoins - _userBalance\n  }\n  \n  @solidityPublic @solidityView\n  final def getTotalCoins() = totalCoins\n  \n  @solidityPublic @solidityView\n  final def getContractBalance() = contractBalance\n  \n  @solidityPublic @solidityView\n  final def getUserBalance() = userBalance\n  \n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    user.transfer(amount)\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n  }\n}\n",
         "name": "DAO_bad.scala"
       }
     ],
@@ -11,19 +20,10 @@
   {
     "files": [
       {
-        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\nimport Environment._\n\ntrait Accounts extends ContractInterface {\n  def transfer(amount: Uint256): Unit\n}\n\ntrait DAO extends Contract {\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  var totalCoins: Uint256\n  \n  val target: Accounts\n  \n  @ghost @inline\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def constructor(_totalCoins: Uint256) = {\n    totalCoins = _totalCoins\n    contractBalance = _totalCoins\n    userBalance = Uint256.ZERO\n  }\n\n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n    \n    target.transfer(amount)\n  }\n}\n",
+        "contents": "import stainless.smartcontracts._\nimport stainless.lang._\nimport stainless.collection._\nimport stainless.annotation._\n\nimport Environment._\n\ntrait Malicious extends Contract {\n  var balance: Uint256\n  var counter: Uint256\n  \n  @solidityPublic\n  final def constructor(_balance: Uint256) = {\n    balance = _balance\n    counter = Uint256.ZERO\n  }\n  \n  @solidityPublic @solidityView\n  final def getBalance() = balance\n  \n  @solidityPublic\n  final def transfer(amount: Uint256): Unit = {\n    balance += amount\n    \n    counter += Uint256(\"1\")\n    if (counter < Uint256(\"3\")) {\n      unsafeCast[DAO](Msg.sender).withdrawBalance()\n    }\n  }\n}\n\ntrait DAO extends Contract {\n  var totalCoins: Uint256\n  var userBalance: Uint256\n  var contractBalance: Uint256\n  \n  var user: Malicious\n  \n  @ghost @inline\n  final def invariant() = userBalance + contractBalance == totalCoins\n  \n  @solidityPublic\n  final def constructor(_totalCoins: Uint256, _userBalance: Uint256, _user: Malicious) = {\n    dynRequire(_userBalance <= _totalCoins)\n\n    totalCoins = _totalCoins\n    userBalance = _userBalance\n    user = _user\n\n    contractBalance = _totalCoins - _userBalance\n  }\n  \n  @solidityPublic @solidityView\n  final def getTotalCoins() = totalCoins\n  \n  @solidityPublic @solidityView\n  final def getContractBalance() = contractBalance\n  \n  @solidityPublic @solidityView\n  final def getUserBalance() = userBalance\n  \n  @solidityPublic\n  final def withdrawBalance() = {\n    val amount = userBalance\n    \n    totalCoins = totalCoins - amount\n    userBalance = Uint256.ZERO\n    \n    user.transfer(amount)\n  }\n}\n",
         "name": "DAO_good.scala"
       }
     ],
     "name": "DAO good"
-  },
-  {
-    "files": [
-      {
-        "contents": "\nimport stainless.smartcontracts._\nimport stainless.lang.StaticChecks._\nimport stainless.annotation._\n\ntrait Candy extends Contract {\n  var initialCandies: Uint256\n  var remainingCandies: Uint256\n  var eatenCandies: Uint256\n  \n  @solidityPublic\n  final def constructor(_candies: Uint256) = {\n    initialCandies = _candies\n    remainingCandies = _candies\n    eatenCandies = Uint256.ZERO\n  }\n  \n  @solidityPublic\n  final def eatCandy(candies: Uint256) = {\n    dynRequire(candies <= remainingCandies)\n    \n    remainingCandies -= candies\n    eatenCandies += candies\n  }\n  \n  @solidityPublic @solidityView\n  final def getRemainingCandies() = remainingCandies\n  \n  @ghost @inline\n  final def invariant(): Boolean = {\n    eatenCandies <= initialCandies &&\n    remainingCandies <= initialCandies &&\n    initialCandies - eatenCandies == remainingCandies\n  }\n}\n",
-        "name": "Candy.scala"
-      }
-    ],
-    "name": "Candy"
   }
 ]

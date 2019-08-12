@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"os"
 	"os/exec"
@@ -13,7 +14,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
+
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.dedis.ch/cothority/v3/byzcoin"
 	"go.dedis.ch/kyber/v3/suites"
 	"go.dedis.ch/onet/v3"
@@ -353,6 +358,64 @@ trait PositiveUint extends Contract {
 
 	// The contents of the bin file does not seem deterministic (last 86 bytes changing?)
 	assert.Equal(t, expectedBin[:len(expectedBin)-86], generated.Bin[:len(generated.Bin)-86])
+}
+
+func Test_InputArgs(t *testing.T) {
+	methodName := "method"
+
+	abiJSON := `[{"constant":true,` +
+		`"name":"` + methodName + `",` +
+		`"inputs":[` +
+		`{"name":"name1","type":"uint256"},` +
+		`{"name":"name2","type":"address"}` +
+		`],` +
+		`"outputs":[{"name":"","type":"uint256"}],` +
+		`"payable":false,"stateMutability":"view","type":"function"}]`
+	testABI, err := abi.JSON(strings.NewReader(abiJSON))
+	assert.Nil(t, err)
+
+	argsNative := []interface{}{
+		100,
+		"0x000102030405060708090a0b0c0d0e0f10111213",
+	}
+	expectedArgs := []interface{}{
+		big.NewInt(int64(argsNative[0].(int))),
+		common.HexToAddress(argsNative[1].(string)),
+	}
+
+	argsJSON := make([]string, len(argsNative))
+	for i, arg := range argsNative {
+		argJSON, err := json.Marshal(arg)
+		assert.Nil(t, err)
+		argsJSON[i] = string(argJSON)
+	}
+
+	// Check that decoding does not fail ...
+	args, err := decodeArgs(argsJSON, testABI.Methods[methodName].Inputs)
+	assert.Nil(t, err)
+
+	// ... and produces the right arguments ...
+	assert.Equal(t, expectedArgs, args)
+
+	// ... which are accepted by Ethereum
+	_, err = testABI.Pack(methodName, args...)
+	assert.Nil(t, err)
+
+	// Check that argument types which are not supported trigger an error
+	abiJSON = `[{"constant":true,` +
+		`"name":"` + methodName + `",` +
+		`"inputs":[` +
+		`{"name":"name2","type":"uint42"}` +
+		`],` +
+		`"outputs":[{"name":"","type":"uint256"}],` +
+		`"payable":false,"stateMutability":"view","type":"function"}]`
+	testABI, err = abi.JSON(strings.NewReader(abiJSON))
+	assert.Nil(t, err)
+
+	args, err = decodeArgs([]string{`100`}, testABI.Methods[methodName].Inputs)
+	assert.NotNil(t, err)
+	require.Contains(t, err.Error(), "Unsupported argument type")
+	require.Contains(t, err.Error(), "uint42")
 }
 
 func Test_Deploy(t *testing.T) {
