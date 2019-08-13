@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
+import { ClipboardService } from "ngx-clipboard";
 
 import { Config as DynaCredConfig, Data } from "@c4dt/dynacred";
 import { ByzCoinRPC } from "@dedis/cothority/byzcoin";
@@ -27,7 +28,7 @@ export class StainlessComponent implements OnInit {
     private userState: UserState;
     private config: Config;
 
-    constructor(public dialog: MatDialog) { }
+    constructor(public dialog: MatDialog, private cbService: ClipboardService) { }
 
     async ngOnInit() {
         this.userState = new UserState();
@@ -233,6 +234,10 @@ export class StainlessComponent implements OnInit {
 
     get instances(): Buffer[] {
         return this.userState.instances;
+    }
+
+    get instanceSelected(): Buffer {
+        return this.userState.instanceSelected;
     }
 
     get instanceSelectedIndex(): number {
@@ -575,6 +580,10 @@ export class StainlessComponent implements OnInit {
 
             this.viewMethodResult = response;
         });
+    }
+
+    copyInstanceAddress() {
+        this.cbService.copyFromContent("0x" + this.instanceSelected.toString(("hex")));
     }
 
     private getMethodAbi(contract: EvmContract, methodName: string): any {

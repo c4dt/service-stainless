@@ -26,8 +26,12 @@
             </mat-tab-group>
 
             <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="10px">
-                <button mat-raised-button (click)="verify()">{{ projectVerified ? "View verification results" : "Verify" }}</button>
-                <button mat-raised-button (click)="compile()" disabled="{{ projectCompiled }}">Compile</button>
+                <button mat-icon-button title="{{ projectVerified ? 'View verification results' : 'Verify' }}" (click)="verify()">
+                    <mat-icon class="material-icons-outlined">{{ projectVerified ? "check_circle_outline" : "check" }}</mat-icon>
+                </button>
+                <button mat-icon-button title="Compile" (click)="compile()" disabled="{{ projectCompiled }}">
+                    <mat-icon class="material-icons-outlined">transform</mat-icon>
+                </button>
             </div>
 
         </div>
@@ -37,13 +41,15 @@
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
                 <mat-form-field fxFlexOffset="30px">
                     <mat-label>Accounts</mat-label>
-                    <mat-select [value]="accountSelectedIndex" (selectionChange)="selectAccount($event.value)">
+                    <mat-select [value]="accountSelectedIndex" (selectionChange)="selectAccount($event.value)" disabled="{{ accounts.length === 0 }}">
                         <mat-option *ngFor="let account of accounts; let i = index" [attr.data-index]="i" [value]="i">
-                            <code>{{ account.name }} ({{ account.address.toString("hex").substr(0, 8) }})</code>
+                            <code>{{ account.name }}</code>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-raised-button (click)="createAccount()" fxFlexOffset="10px">Create new account</button>
+                <button mat-icon-button title="Create new account" (click)="createAccount()" fxFlexOffset="10px">
+                    <mat-icon class="material-icons-outlined">add_box</mat-icon>
+                </button>
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="80px">
@@ -63,39 +69,45 @@
                     <mat-select [value]="instanceSelectedIndex" (selectionChange)="selectInstance($event.value)" disabled="{{ contractSelectedIndex === undefined }}">
                         <div *ngIf="contractSelectedIndex !== undefined">
                             <mat-option *ngFor="let instance of instances; let i = index" [attr.data-index]="i" [value]="i">
-                                <code>#{{ i + 1 }} ({{ instance.toString("hex").substr(0, 8) }})</code>
+                                <code>instance #{{ i + 1 }}</code>
                             </mat-option>
                         </div>
                     </mat-select>
                 </mat-form-field>
-                <button mat-raised-button (click)="deploy()" disabled="{{ accountSelectedIndex === undefined || contractSelectedIndex === undefined }}"
-                                                             fxFlexOffset="10px">Deploy new instance</button>
+                <button mat-icon-button title="Copy instance address to clipboard" ngxClipboard *ngxClipboardIfSupported (click)="copyInstanceAddress()" disabled="{{ accountSelectedIndex === undefined || contractSelectedIndex === undefined || instanceSelectedIndex === undefined }}" fxFlexOffset="0px">
+                    <mat-icon class="material-icons-outlined">file_copy</mat-icon>
+                </button>
+                <button mat-icon-button title="Deploy new instance" (click)="deploy()" disabled="{{ accountSelectedIndex === undefined || contractSelectedIndex === undefined }}" fxFlexOffset="5px">
+                    <mat-icon class="material-icons-outlined">add_box</mat-icon>
+                </button>
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="20px">
                 <mat-form-field fxFlexOffset="70px">
                     <mat-label>Transactions</mat-label>
-                    <mat-select [value]="transactionSelectedIndex" (selectionChange)="selectTransaction($event.value)" disabled="{{ transactions === [] }}">
+                    <mat-select [value]="transactionSelectedIndex" (selectionChange)="selectTransaction($event.value)" disabled="{{ instanceSelectedIndex === undefined }}">
                         <mat-option *ngFor="let t of transactions; let i = index" [attr.data-index]="i" [value]="i">
                             <code>{{ t }}</code>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-raised-button (click)="executeTransaction()" disabled="{{ instanceSelectedIndex === undefined || transactionSelectedIndex === undefined }}"
-                                                                         fxFlexOffset="10px">Execute</button>
+                <button mat-icon-button title="Execute transaction" (click)="executeTransaction()" disabled="{{ instanceSelectedIndex === undefined || transactionSelectedIndex === undefined }}" fxFlexOffset="10px">
+                    <mat-icon class="material-icons-outlined">play_circle_outline</mat-icon>
+                </button>
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">
                 <mat-form-field fxFlexOffset="70px">
                     <mat-label>View methods</mat-label>
-                    <mat-select [value]="viewMethodSelectedIndex" (selectionChange)="selectViewMethod($event.value)" disabled="{{ viewMethods === [] }}">
+                    <mat-select [value]="viewMethodSelectedIndex" (selectionChange)="selectViewMethod($event.value)" disabled="{{ instanceSelectedIndex === undefined }}">
                         <mat-option *ngFor="let m of viewMethods; let i = index" [attr.data-index]="i" [value]="i">
                             <code>{{ m }}</code>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <button mat-raised-button (click)="executeViewMethod()" disabled="{{ instanceSelectedIndex === undefined || viewMethodSelectedIndex === undefined }}"
-                                                                        fxFlexOffset="10px">Execute</button>
+                <button mat-icon-button title="Execute view method" (click)="executeViewMethod()" disabled="{{ instanceSelectedIndex === undefined || viewMethodSelectedIndex === undefined }}" fxFlexOffset="10px">
+                    <mat-icon class="material-icons-outlined">play_circle_outline</mat-icon>
+                </button>
             </div>
 
             <div fxLayout="row" fxLayoutAlign="left center" fxFlexOffset="0px">

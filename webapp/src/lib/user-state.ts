@@ -247,6 +247,10 @@ export class UserState extends UserEvmInfo {
         return this._projects.selected.contracts.selectedIndex;
     }
 
+    selectContract(index: number) {
+        this._projects.selected.contracts.select(index);
+    }
+
     get instances(): Buffer[] {
         if (this.contractSelected === undefined) {
             return [];
@@ -255,8 +259,12 @@ export class UserState extends UserEvmInfo {
         return this.contractSelected.addresses.elements;
     }
 
-    selectContract(index: number) {
-        this._projects.selected.contracts.select(index);
+    get instanceSelected(): Buffer {
+        if (this.contractSelected === undefined) {
+            return undefined;
+        }
+
+        return this.contractSelected.addresses.selected;
     }
 
     get instanceSelectedIndex(): number {

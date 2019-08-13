@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { ClipboardModule } from "ngx-clipboard";
 import { HighlightModule } from "ngx-highlightjs";
 
 import scala from "highlight.js/lib/languages/scala";
@@ -38,6 +39,7 @@ import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent, VerifDialog }
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
+        ClipboardModule,
         DemoMaterialModule,
         FormsModule,
         FlexLayoutModule,
