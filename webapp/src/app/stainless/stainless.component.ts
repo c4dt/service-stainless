@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 
 import { Config as DynaCredConfig, Data } from "@c4dt/dynacred";
 import { ByzCoinRPC } from "@dedis/cothority/byzcoin";
+import { Darc, IdentityWrapper } from "@dedis/cothority/darc";
 import Log from "@dedis/cothority/log";
 
 import Long from "long";
@@ -53,7 +54,6 @@ export class StainlessComponent implements OnInit {
     }
 
     async checkRegistration() {
-        return; // FIXME: dev bypass
         try {
             const res = await fetch("assets/conodes.toml");
             if (!res.ok) {
@@ -67,7 +67,16 @@ export class StainlessComponent implements OnInit {
 
             if (userData.contact && userData.contact.isRegistered()) {
                 Log.lvl2("User is registered");
-                // FIXME: Check if user is authorized to access; if not, indicate so and abort
+
+                const identity = IdentityWrapper.fromIdentity(userData.keyIdentitySigner);
+                const casLoginDarc =
+                    Buffer.from("b7240d7e4bcc33b4a2af5d2110c512f3118478b964f2b4be9f99b27853702489", "hex");
+
+                const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, casLoginDarc, identity);
+                if (auths.indexOf(Darc.ruleSign) < 0) {
+                    Log.lvl2("User is not authorized");
+                    await this.handleNotAuthorized();
+                }
             } else {
                 Log.lvl2("User is not registered");
                 await this.handleNotRegistered();
@@ -165,7 +174,7 @@ export class StainlessComponent implements OnInit {
         return new Promise(() => {
             const dialogRef = this.dialog.open(InfoDialog, {
                 data: {
-                    message: "Access to the Stainless demonstrator requires  a registration by the C4DT.\
+                    message: "Access to the Stainless demonstrator requires a registration with the C4DT.\
                     You will now be redirected to the registration process.\
                     Please contact Christian Grigis <christian.grigis@epfl.ch> for any question.",
                     requireAck: true,
@@ -176,6 +185,24 @@ export class StainlessComponent implements OnInit {
 
             dialogRef.afterClosed().subscribe(async (_) => {
                 window.location.href = USER_REGISTRATION_URL;
+            });
+        });
+    }
+
+    handleNotAuthorized(): Promise<void> {
+        return new Promise(() => {
+            const dialogRef = this.dialog.open(InfoDialog, {
+                data: {
+                    message: "You are registered with the C4DT, but do not have access to this resource.\
+                    Please contact Christian Grigis <christian.grigis@epfl.ch> to request access.",
+                    requireAck: true,
+                    title: "User not authorized",
+                },
+                width: "30em",
+            });
+
+            dialogRef.afterClosed().subscribe(async (_) => {
+                window.location.reload();
             });
         });
     }
