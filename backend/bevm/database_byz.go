@@ -158,13 +158,15 @@ func NewServerByzDatabase(bevmIID byzcoin.InstanceID, keyList []string, roStateT
 	}, nil
 }
 
-// Dump returns the list of StateChanges to apply to ByzCoin as well the list
-// of keys in the Ethereum state database, representing the modifications that
-// the EVM performed on its state database
+// Dump returns the list of StateChanges to apply to ByzCoin as well as the
+// list of keys in the Ethereum state database, representing the modifications
+// that the EVM performed on its state database
 func (db *ServerByzDatabase) Dump() ([]byzcoin.StateChange, []string, error) {
-	// The changes produced by the EVM are apparently not ordered deterministically.
-	// Their order should, however, not be relevant, because each key is only affected by one change.
-	// We can tehrefore sort them as we please, as long as the sort order is deterministic to make ByzCoin happy.
+	// The changes produced by the EVM are apparently not ordered
+	// deterministically. Their order should, however, not be relevant,
+	// because each key is only affected by one change. We can tehrefore sort
+	// them as we please, as long as the sort order is deterministic to make
+	// ByzCoin happy.
 
 	// We check the hypothesis of unique keys before going further though...
 	keyMap := make(map[string]string)

@@ -1,11 +1,12 @@
 .DEFAULT_GOAL := all
 
 services:
-	git clone git@github.com:c4dt/services.git
+	git clone https://github.com/c4dt/services.git
 services/%: | services
 	@: nothing
 
 toml_filename = conodes_bevm.toml
+webapp_build_options = --prod --base-href /stainless/
 
 include services/mk/service.mk
 

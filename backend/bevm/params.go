@@ -9,7 +9,7 @@ import (
 )
 
 func getChainConfig() *params.ChainConfig {
-	///ChainConfig (adapted from Rinkeby test net)
+	// ChainConfig (adapted from Rinkeby test net)
 	chainconfig := &params.ChainConfig{
 		ChainID:             big.NewInt(1),
 		HomesteadBlock:      big.NewInt(0),
@@ -30,7 +30,7 @@ func getChainConfig() *params.ChainConfig {
 }
 
 func getVMConfig() vm.Config {
-	//vmConfig Config
+	// vmConfig Config
 	vmconfig := &vm.Config{
 		// Debug enabled debugging Interpreter options
 		Debug: false,

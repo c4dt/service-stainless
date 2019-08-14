@@ -13,7 +13,7 @@ func init() {
 	log.ErrFatal(err)
 }
 
-// Service is only used to being able to store our contracts
+// Service structure for BEvm contracts
 type Service struct {
 	// We need to embed the ServiceProcessor, so that incoming messages
 	// are correctly handled.

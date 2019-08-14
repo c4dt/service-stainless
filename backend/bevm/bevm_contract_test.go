@@ -100,7 +100,7 @@ func Test_InvokeCandyContract(t *testing.T) {
 	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
 	require.Nil(t, err)
 
-	// Initialize an accounts
+	// Initialize an account
 	a, err := NewEvmAccount(testPrivateKeys[0])
 	require.Nil(t, err)
 
@@ -147,7 +147,7 @@ func Test_Time(t *testing.T) {
 	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
 	require.Nil(t, err)
 
-	// Initialize an accounts
+	// Initialize an account
 	a, err := NewEvmAccount(testPrivateKeys[0])
 	require.Nil(t, err)
 
@@ -162,7 +162,7 @@ func Test_Time(t *testing.T) {
 	require.Nil(t, err)
 
 	// Get current block time
-    expectedTime := big.NewInt(12345) // Currently hardcoded in getContext()
+	expectedTime := big.NewInt(12345) // Currently hardcoded in getContext()
 	time := big.NewInt(0)
 	err = bevmClient.Call(a, &time, contract, "getTime")
 	require.Nil(t, err)
@@ -394,7 +394,7 @@ func (bct *bcTest) Close() {
 
 // Helper functions
 
-// Sometimes, the result of a call to an Ethereum method s unpacked to a
+// Sometimes, the result of a call to an Ethereum method is unpacked to a
 // big.Int value of zero which, while correct, confuses require.Equal() when
 // comparing to big.NewInt(0) (it returns false).
 // This seems to be due to a different internal representation:

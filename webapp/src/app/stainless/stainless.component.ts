@@ -74,7 +74,9 @@ export class StainlessComponent implements OnInit {
                     Buffer.from("b7240d7e4bcc33b4a2af5d2110c512f3118478b964f2b4be9f99b27853702489", "hex");
 
                 const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, casLoginDarc, identity);
-                if (auths.indexOf(Darc.ruleSign) < 0) {
+                if (auths.indexOf(Darc.ruleSign) >= 0) {
+                    Log.lvl2("User is authenticated");
+                } else {
                     Log.lvl2("User is not authorized");
                     await this.handleNotAuthorized();
                 }
