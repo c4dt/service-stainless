@@ -18,9 +18,14 @@ jobs:
 
         - stage: build
           name: webapp
-          language: node_js
-          node_js: 10
+          language: go
+          go: 1.12.x
           script: make webapp-build
+          before_install:
+              - sudo apt-get install -y protobuf-compiler
+          addons:
+              apt:
+                  update: true
 
 notifications:
     email: false
