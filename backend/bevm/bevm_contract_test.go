@@ -385,6 +385,8 @@ func newBCTest(t *testing.T) (out *bcTest) {
 	out.cl, _, err = byzcoin.NewLedger(out.gMsg, false)
 	require.Nil(t, err)
 
+	out.cl.UseNode(0)
+
 	return out
 }
 
