@@ -94,6 +94,36 @@ func NewContractState(stateDb *state.StateDB) (*State, []byzcoin.StateChange, er
 	return &State{RootHash: root, KeyList: keyList}, stateChanges, nil
 }
 
+// DeleteValues returns a list of state changes to delete all the values in the EVM state database
+func DeleteValues(keyList []string, stateDb *state.StateDB) ([]byzcoin.StateChange, error) {
+	// Retrieve the low-level database
+	byzDb, ok := stateDb.Database().TrieDB().DiskDB().(*ServerByzDatabase)
+	if !ok {
+		return nil, errors.New("Internal error: EVM State DB is not of expected type")
+	}
+
+	// Delete all the values
+	for _, key := range keyList {
+		err := byzDb.Delete([]byte(key))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Dump the low-level database contents changes
+	stateChanges, keyList, err := byzDb.Dump()
+	if err != nil {
+		return nil, err
+	}
+
+	// Sanity check: the resulted list of keys should be empty
+	if len(keyList) != 0 {
+		return nil, errors.New("Internal error: DeleteValues() does not produce an empty key list")
+	}
+
+	return stateChanges, nil
+}
+
 // Spawn creates a new BEvm contract
 func (c *contractBEvm) Spawn(rst byzcoin.ReadOnlyStateTrie, inst byzcoin.Instruction, coins []byzcoin.Coin) (sc []byzcoin.StateChange, cout []byzcoin.Coin, err error) {
 	cout = coins
@@ -256,4 +286,32 @@ func sendTx(tx *types.Transaction, stateDb *state.StateDB) (*types.Receipt, erro
 	}
 
 	return receipt, nil
+}
+
+// Delete deletes an existing BEvm contract
+func (c *contractBEvm) Delete(rst byzcoin.ReadOnlyStateTrie, inst byzcoin.Instruction, coins []byzcoin.Coin) (sc []byzcoin.StateChange, cout []byzcoin.Coin, err error) {
+	cout = coins
+	var darcID darc.ID
+	_, _, _, darcID, err = rst.GetValues(inst.InstanceID.Slice())
+	if err != nil {
+		return
+	}
+
+	stateDb, err := NewEvmDb(&c.State, rst, inst.InstanceID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	stateChanges, err := DeleteValues(c.State.KeyList, stateDb)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// State changes to ByzCoin contain the Delete of the main contract state,
+	// plus the Delete of all the BEvmValue contracts known to it.
+	sc = append([]byzcoin.StateChange{
+		byzcoin.NewStateChange(byzcoin.Remove, inst.InstanceID, ContractBEvmID, nil, darcID),
+	}, stateChanges...)
+
+	return
 }

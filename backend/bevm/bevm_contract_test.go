@@ -47,6 +47,42 @@ func Test_Spawn(t *testing.T) {
 	require.Nil(t, err)
 }
 
+// Spawn and delete a BEvm instance
+func Test_SpawnAndDelete(t *testing.T) {
+	log.LLvl1("BEvm creation and deletion")
+
+	// Create a new ledger and prepare for proper closing
+	bct := newBCTest(t)
+	defer bct.Close()
+
+	// Spawn a new BEvm instance
+	instanceID, err := NewBEvm(bct.cl, bct.signer, bct.gDarc)
+	require.Nil(t, err)
+
+	// Create a new BEvm client
+	bevmClient, err := NewClient(bct.cl, bct.signer, instanceID)
+	require.Nil(t, err)
+
+	// Initialize an account
+	a, err := NewEvmAccount(testPrivateKeys[0])
+	require.Nil(t, err)
+
+	// Credit the account
+	err = bevmClient.CreditAccount(big.NewInt(5*WeiPerEther), a.Address)
+	require.Nil(t, err)
+
+	// Deploy a Candy contract
+	candySupply := big.NewInt(100)
+	candyContract, err := NewEvmContract(getContractPath(t, "Candy"))
+	require.Nil(t, err)
+	err = bevmClient.Deploy(txParams.GasLimit, txParams.GasPrice, 0, a, candyContract, candySupply)
+	require.Nil(t, err)
+
+	// Delete the BEvm instance
+	err = bevmClient.Delete()
+	require.Nil(t, err)
+}
+
 // Credit and display three accounts balances
 func Test_InvokeCreditAccounts(t *testing.T) {
 	log.LLvl1("Account credit and balance")
@@ -374,7 +410,8 @@ func newBCTest(t *testing.T) (out *bcTest) {
 	// to create and update keyValue contracts.
 	var err error
 	out.gMsg, err = byzcoin.DefaultGenesisMsg(byzcoin.CurrentVersion, out.roster,
-		[]string{"spawn:bevm", "invoke:bevm.credit", "invoke:bevm.transaction"}, out.signer.Identity())
+		[]string{"spawn:bevm", "invoke:bevm.credit", "invoke:bevm.transaction", "delete:bevm"},
+		out.signer.Identity())
 	require.Nil(t, err)
 	out.gDarc = &out.gMsg.GenesisDarc
 

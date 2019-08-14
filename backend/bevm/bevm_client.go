@@ -179,6 +179,35 @@ func NewClient(bcClient *byzcoin.Client, signer darc.Signer, instanceID byzcoin.
 	}, nil
 }
 
+// Delete deletes the ByzCoin EVM client and all its state
+func (client *Client) Delete() error {
+	counters, err := client.bcClient.GetSignerCounters(client.signer.Identity().String())
+	if err != nil {
+		return err
+	}
+
+	ctx := byzcoin.ClientTransaction{
+		Instructions: []byzcoin.Instruction{{
+			InstanceID:    client.instanceID,
+			SignerCounter: []uint64{counters.Counters[0] + 1},
+			Delete: &byzcoin.Delete{
+				ContractID: ContractBEvmID,
+			},
+		}},
+	}
+
+	err = ctx.FillSignersAndSignWith(client.signer)
+	if err != nil {
+		return err
+	}
+
+	// Sending this transaction to ByzCoin does not directly include it in the
+	// global state - first we must wait for the new block to be created.
+	_, err = client.bcClient.AddTransactionAndWait(ctx, 5)
+
+	return err
+}
+
 // Deploy deploys a new Ethereum contract on the EVM
 func (client *Client) Deploy(gasLimit uint64, gasPrice *big.Int, amount uint64, account *EvmAccount, contract *EvmContract, args ...interface{}) error {
 	log.Lvlf2(">>> Deploy EVM contract '%s'", contract.name)
