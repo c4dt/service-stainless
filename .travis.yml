@@ -22,10 +22,9 @@ jobs:
           go: 1.12.x
           script: make webapp-build
           before_install:
-              - sudo apt-get install -y protobuf-compiler
-          addons:
-              apt:
-                  update: true
+              - wget https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protoc-3.9.1-linux-x86_64.zip -O /tmp/protoc.zip
+              - unzip /tmp/protoc.zip -d /tmp bin/protoc
+              - export PATH=${PATH}:/tmp/bin
 
 notifications:
     email: false
