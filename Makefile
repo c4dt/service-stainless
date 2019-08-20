@@ -52,14 +52,16 @@ $Dbackend/build/ident_bevm: $Dbackend/build/bcadmin $Dbackend/build/conodes.toml
 		  echo "bevm_darc:             $$bevm_darc" ; \
 		  echo "bevm_instance_id:      $$bevm_instance_id" ) > $@)
 
-$Dwebapp/src/config_bevm.ts: $Dbackend/build/ident_bevm
-	awk '	function mkvar(key,value) { \
-			print "export const " key " = Buffer.from(\"" value "\", \"hex\");" \
-		} \
-		/^bevm_user_private_key:/  {mkvar("bevmUserID", $$2)} \
-		/^bevm_instance_id:/       {mkvar("bevmInstanceID", $$2)}' $^ > $@
+$Dbackend/build/config_bevm.toml: $Dbackend/build/ident_bevm
+	awk ' \
+		/^bevm_user_private_key:/  {printf("bevmUserID = \"%s\"\n", $$2)} \
+		/^bevm_instance_id:/       {printf("bevmInstanceID = \"%s\"\n", $$2)} \
+		' $^ > $@
 
-$Swebapp-build $Swebapp-test $Swebapp-serve: $Dwebapp/src/config_bevm.ts
+$Swebapp-build $Swebapp-test $Swebapp-serve: $Dwebapp/src/assets/config_bevm.toml
+
+$Dwebapp/src/assets/config_bevm.toml: $Dbackend/build/config_bevm.toml
+	cp $^ $@
 
 $Dsrc/Implementation/%_pb2.py: $Dprotobuf/%.proto
 	cd $Dprotobuf && protoc --python_out=../$(@D) $(^F)

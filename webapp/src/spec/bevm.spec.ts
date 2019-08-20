@@ -13,7 +13,7 @@ import { StainlessRPC } from "src/lib/stainless";
 class TestConfig extends Config {
 
     static async init(): Promise<Config> {
-        const rosterToml = await TestConfig.getRosterToml(window.location.origin);
+        const rosterToml = await TestConfig.getRosterToml();
         const roster = Roster.fromTOML(rosterToml);
         const stainlessConode = roster.list[0];
 
@@ -36,14 +36,14 @@ class TestConfig extends Config {
         const stainlessRPC = new StainlessRPC(stainlessConode);
         bevmRPC.setStainlessRPC(stainlessRPC);
 
-        const cfg = new TestConfig();
-
-        cfg.genesisBlock = bc.genesisID;
-        cfg.rosterToml = rosterToml;
-        cfg.roster = roster;
-        cfg.bevmRPC = bevmRPC;
-        cfg.stainlessRPC = stainlessRPC;
-        cfg.bevmUser = admin;
+        const cfg = new TestConfig(
+            bc.genesisID,
+            rosterToml,
+            roster,
+            bevmRPC,
+            stainlessRPC,
+            admin,
+        );
 
         return cfg;
     }

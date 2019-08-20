@@ -130,7 +130,7 @@ export class StainlessComponent implements OnInit {
     }
 
     async initProjects() {
-        const resp = await fetch(window.location.href + "/assets/projects.json");
+        const resp = await fetch("assets/projects.json");
         if (!resp.ok) {
             return Promise.reject(new Error(`Load projects: ${resp.status}`));
         }
