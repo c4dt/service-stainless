@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 
 services:
-	git clone https://github.com/c4dt/services.git
+	git clone -b stainless https://github.com/c4dt/services.git
 services/%: | services
 	@: nothing
 
