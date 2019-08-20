@@ -22,6 +22,7 @@ class TestConfig extends Config {
         const darc = ByzCoinRPC.makeGenesisDarc([admin], roster, "genesis darc");
         [
             "spawn:bevm",
+            "delete:bevm",
             "invoke:bevm.credit",
             "invoke:bevm.transaction",
         ].forEach((rule) => {

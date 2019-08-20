@@ -79,6 +79,13 @@ ${bcadmin} \
     --config ${bevm_admin_path} \
     darc rule \
         --bc ${bevm_admin_path}bc-* \
+        --rule "delete:bevm" \
+        --identity ${bevm_admin_key}
+
+${bcadmin} \
+    --config ${bevm_admin_path} \
+    darc rule \
+        --bc ${bevm_admin_path}bc-* \
         --rule "invoke:bevm.credit" \
         --identity ${bevm_user_key}
 
