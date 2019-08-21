@@ -60,6 +60,9 @@ func init() {
 
 	// Override solc command
 	solCompiler = filepath.Join(outDir, "node_modules", ".bin", "solcjs")
+
+	// Ethereum starts goroutines for caching transactions, and never terminates them
+	log.AddUserUninterestingGoroutine("go-ethereum/core.(*txSenderCacher).cache")
 }
 
 func getSolidityCompiler(version string, outDir string) error {
