@@ -19,6 +19,7 @@ import { DemoMaterialModule } from "../material-module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent, VerifDialog } from "./stainless/stainless.component";
+import { TutorialComponent } from "./tutorial/tutorial.component";
 
 @NgModule({
     bootstrap: [AppComponent],
@@ -29,6 +30,7 @@ import { AccountDialog, ArgDialog, InfoDialog, StainlessComponent, VerifDialog }
         AccountDialog,
         VerifDialog,
         StainlessComponent,
+        TutorialComponent,
     ],
     entryComponents: [
         ArgDialog,

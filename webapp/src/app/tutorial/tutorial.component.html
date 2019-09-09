@@ -1,0 +1,109 @@
+<h1>
+    Stainless Smart Contracts Tutorial
+</h1>
+<p>
+Welcome to the tutorial for Stainless Smart Contracts!
+</p>
+<p>
+The following steps will show you the different parts of the demonstrator, and guide you through the process of verifying a Smart Contract, compiling it, deploying it and finally interacting with it on the ByzCoin blockchain.
+</p>
+<p>
+For ease of use, it is suggested to keep this tutorial open in a seperate browser tab or window from the demonstrator, allowing you to follow along while you execute the steps.
+</p>
+<p>
+For any question or issues with this tutorial, please send an email to <a href="mailto:christian.grigis@epfl.ch?subject=Stainless Demonstrator Tutorial">C4DT</a>.
+</p>
+<p>
+Enjoy!
+</p>
+<mat-vertical-stepper linear>
+    <ng-template matStepperIcon="edit">
+        <mat-icon class="material-icons-outlined">done</mat-icon>
+    </ng-template>
+    <ng-template matStepperIcon="done">
+        <mat-icon class="material-icons-outlined">done</mat-icon>
+    </ng-template>
+
+    <mat-step label="Identifying the components of the demonstrator">
+        The demonstrator is separated in two areas:
+        <ul>
+            <li>Project selection and source code on the left</li>
+            <li>Management and interaction on the right</li>
+        </ul>
+        <div>
+            <em>Projects</em> are a collection of related source files.
+        </div>
+        <div>
+            The dropdown list at the top of the left pane allows you to select the project on which you wish to work. Once a project is selected, the various source files that compose it are displayed in a tabbed view underneath.
+        </div>
+        <br/>
+        <div>
+            The controls on the right side of the screen allow you to manage your accounts, deploy new Smart Contracts on the blockchain, and interact with them.
+        </div>
+        <div>
+            The next steps will go in more details over these.
+        </div>
+
+        <div>
+            <button mat-icon-button title="Go to next step" matStepperNext>
+                <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
+            </button>
+        </div>
+    </mat-step>
+
+    <mat-step label="Understanding the lifecycle of a Smart Contract">
+        <div>This is the second step</div>
+        <div>
+            <button mat-icon-button title="Go back to previous step" matStepperPrevious>
+                <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
+            </button>
+            <br/>
+            <button mat-icon-button title="Go to next step" matStepperNext>
+                <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
+            </button>
+        </div>
+    </mat-step>
+
+    <mat-step label="A simple contract: Candy">
+        <div>This is the second step</div>
+        <div>
+            <button mat-icon-button title="Go back to previous step" matStepperPrevious>
+                <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
+            </button>
+            <br/>
+            <button mat-icon-button title="Go to next step" matStepperNext>
+                <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
+            </button>
+        </div>
+    </mat-step>
+
+    <mat-step label="A real-life example: the DAO">
+        <div>This is the second step</div>
+        <div>
+            <button mat-icon-button title="Go back to previous step" matStepperPrevious>
+                <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
+            </button>
+            <br/>
+            <button mat-icon-button title="Go to next step" matStepperNext>
+                <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
+            </button>
+        </div>
+    </mat-step>
+
+    <mat-step label="Fixing the DAO bug">
+        <div>This is the second step</div>
+        <div>
+            <button mat-icon-button title="Go back to previous step" matStepperPrevious>
+                <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
+            </button>
+            <br/>
+            <button mat-icon-button title="Go to next step" matStepperNext>
+                <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
+            </button>
+        </div>
+    </mat-step>
+
+    <mat-step label="Done">
+        <div>Congratulations, you have completed the tutorial!</div>
+    </mat-step>
+</mat-vertical-stepper>
