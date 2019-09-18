@@ -3,7 +3,7 @@
 .code-area {
     font-family: monospace;
     font-size: 1em;
-    height: 50vh;
+    height: 60vh;
     overflow-x: auto;
     overflow-y: auto;
 }
@@ -40,4 +40,16 @@
 
 mat-form-field.result {
     font-size: 20px;
+}
+
+mat-sidenav-container.tutorial {
+    background: white;
+}
+
+mat-sidenav.tutorial {
+    width: 30vw;
+}
+
+div.tutorial {
+    margin: 30px;
 }
