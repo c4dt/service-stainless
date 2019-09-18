@@ -199,7 +199,44 @@
                 </mat-step>
 
                 <mat-step label="A real-life example: the DAO">
-                    <div>This is the second step</div>
+                    <p>
+                    The <a href="https://en.wikipedia.org/wiki/The_DAO_(organization)" target="_blank">DAO</a> was a project using Smart Contracts in order to provide a digital, decentralized form of a venture capital fund. A few months after its launch in 2016, several vulnerabilities in its implementation were exploited during an attack that led to the loss of about 1/3 of the fund value ($50M). One of the vulnerabilities involved concerned recursive calls, and it is illustrated in this example. This will also allow us to show how Stainless can help identify such vulnerabilities.
+                    </p>
+                    <p>
+                    Please select <code>DAO bad</code> from the <em>Available projects</em> list.
+                    <br/>
+                    This project defines two contracts, <code>DAO</code> and <code>Malicious</code>. The former one models an extrimely simplified version of the DAO, with one user, focusing solely on keeping track of:
+                    </p>
+                    <ul>
+                        <li><code>totalCoins</code>, the total fund amount</li>
+                        <li><code>userBalance</code>, the current amount invested in the fund by the user</li>
+                        <li><code>contractBalance</code>, the remaining amount in the fund (not invested by the user)</li>
+                    </ul>
+                    <p>
+                    DAO also provides the <code>withdrawBalance()</code> method, allowing to transfer back to the user his investment. The implementation of this method will send the user its balance calling its <code>transfer()</code> method, and perform some accounting.
+                    <p>
+                    The second contract models a malicious user who will try to exploit a vulnerability in the DAO. Indeed, in his <code>transfer()</code> implementation, he will try to recursively call the DAO's <code>withdrawBalance()</code> a number of times, which will trigger a call to <code>transfer()</code>, and so forth.
+                    <br/>
+                    Let's see what happens.
+                    </p>
+                    <p>
+                    We will skip verification for now and go ahead. As before, compile the source code using the <mat-icon class="material-icons-outlined">transform</mat-icon> button. This time, two contracts appear in the <em>Contracts</em> dropdown: <code>DAO</code> and <code>Malicious</code>.
+                    </p>
+                    <p>
+                    As the deployment of <code>DAO</code> requires an instance of <code>Malicious</code>, we create the latter first. Select <code>Malicious</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined">add_box</mat-icon> button next to the <em>Instances</em> list. Next, click on the <mat-icon class="material-icons-outlined">file_copy</mat-icon> button just before, which will copy the address of the newly created instance to the clipboard.
+                    </p>
+                    <p>
+                    We are now ready to deploy the DAO. Select <code>DAO</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined">add_box</mat-icon> button next to the <em>Instances</em> list. Fill in 1000 in the total fund amount, 300 for the user balance, and paste the <code>Malicious</code> address for the user (usually CTRL-V).
+                    <br/>
+                    Once deployed, the state of the <code>DAO</code> instance can be verified calling its various <code>getXXX()</code> view methods.
+                    </p>
+                    <p>
+                    Execute now the <code>withdrawBalance</code> transaction. Once completed, check again the state of the <code>DAO</code> instance.
+                    </p>
+                    <p>
+                    What happened?
+                    </p>
+
                     <div>
                         <button mat-icon-button title="Go back to previous step" matStepperPrevious>
                             <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
