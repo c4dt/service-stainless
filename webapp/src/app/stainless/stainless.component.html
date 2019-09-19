@@ -234,7 +234,26 @@
                     Execute now the <code>withdrawBalance</code> transaction. Once completed, check again the state of the <code>DAO</code> instance.
                     </p>
                     <p>
-                    What happened?
+                    The user balance is correctly at 0, the contract balance is correctly at 700, but the fund balance is at 100. What happened?
+                    </p>
+
+                    <div>
+                        <button mat-icon-button title="Go back to previous step" matStepperPrevious>
+                            <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
+                        </button>
+                        <br/>
+                        <button mat-icon-button title="Go to next step" matStepperNext>
+                            <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
+                        </button>
+                    </div>
+                </mat-step>
+
+                <mat-step label="The DAO recursion bug">
+                    <p>
+                    If we now perform a verification of the Smart Contract by clicking on the <mat-icon class="material-icons-outlined">check</mat-icon> button, we see in the report that Stainless complains about an invalid check (you might need to scroll down in the report to find it): the postcondition in the <code>withdrawBalance()</code> method. More precisely, it means that Stainless cannot guarantee that the postcondition (the invariant here) holds after the execution of the method, even though it held at the beginning. Indeed, since the method contains an external call to <code>user.transfer()</code> in the middle, Stainless assumes that this call could alter the control flow and change the state variables, and cannot guarantee their values after the external call.
+                    </p>
+                    <p>
+                    That is precisely what <code>Malicious</code> is exploiting: by calling recursively <code>withdrawBalance()</code>, the flow of execution uses again the <code>userBalance</code>, <strong>which has not yet been zeroed</strong>, resulting in the amount transferred multiple times.
                     </p>
 
                     <div>
@@ -249,7 +268,26 @@
                 </mat-step>
 
                 <mat-step label="Fixing the DAO bug">
-                    <div>This is the second step</div>
+                    <p>
+                    In light of the previous behavior, we can imagine a way to fix it, which is commonly listed as a security guideline when writing Smart Contracts: perform all state changes <strong>before</strong> calling an external entity. (Avoiding calling an external entity, if possible, is even better.)
+                    </p>
+                    <p>
+                    Please select <code>DAO good</code> from the <em>Available projects</em> list.
+                    <br/>
+                    Examining the code, we can see that, accordingly, the only change in the code compared to the previous version is that the call to <code>user.transfer()</code> has been moved to the end of the method, after the balances have been changed.
+                    </p>
+                    <p>
+                    Verify this code using Stainless by clicking on the <mat-icon class="material-icons-outlined">check</mat-icon> button. The Stainless report should now be all green; indeed, the postcondition in <code>withdrawBalance()</code> is now valid, because no matter how the execution flow is altered by the external call, the state variables will be correct.
+                    </p>
+                    <p>
+                    Try to reproduce the same scenario we did with the faulty code: compile, deploy a <code>Malicious</code> instance, copy its address, deploy a <code>DAO</code> instance with 1000, 300 and the copied address. Check the balances, execute <code>withdrawBalance</code> and check the balances again.
+                    <br/>
+                    This time, the fund balance is correctly 700. Even though <code>Malicious</code> attempted the same attack by calling back into <code>DAO</code>, all the calls after the first one saw the <code>userBalance</code> at 0, and transferred nothing.
+                    </p>
+                    <p>
+                    Stainless accurately validated the code as correct.
+                    </p>
+
                     <div>
                         <button mat-icon-button title="Go back to previous step" matStepperPrevious>
                             <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
@@ -262,7 +300,13 @@
                 </mat-step>
 
                 <mat-step label="Done">
-                    <div>Congratulations, you have completed the tutorial!</div>
+                    <p>
+                    This concludes this Stainless tutorial. Congratulations!
+                    </p>
+                    <p>
+                    If you have any question or remark, please do not hesitate to contact the <a href="mailto:christian.grigis@epfl.ch?subject=Stainless DemonstratorTutorial">C4DT</a>.
+                    </p>
+
                     <div>
                         <button mat-icon-button title="Go back to previous step" matStepperPrevious>
                             <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
