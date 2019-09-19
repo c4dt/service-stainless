@@ -448,7 +448,7 @@ export class StainlessComponent implements OnInit {
         // Call Stainless service to generate bytecode and ABI
         const response = await this.performLongAction<proto.BytecodeGenResponse>(
             () => this.config.stainlessRPC.genBytecode(sourceFiles),
-            "Generating bytecode");
+            "Compiling...");
         Log.print("Received bytecode generation results");
 
         const contracts = Object.keys(response.BytecodeObjs).map((name) => {
