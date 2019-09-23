@@ -71,7 +71,7 @@ export class StainlessComponent implements OnInit {
 
                 const identity = IdentityWrapper.fromIdentity(userData.keyIdentitySigner);
                 const casLoginDarc =
-                    Buffer.from("b7240d7e4bcc33b4a2af5d2110c512f3118478b964f2b4be9f99b27853702489", "hex");
+                    Buffer.from("55427479252691730dd055703f7920d9b9bbf2b01b38f405c2e97e5f55176c5c", "hex");
 
                 const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, casLoginDarc, identity);
                 if (auths.indexOf(Darc.ruleSign) >= 0) {
