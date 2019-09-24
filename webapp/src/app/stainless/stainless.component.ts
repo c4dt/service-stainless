@@ -71,10 +71,10 @@ export class StainlessComponent implements OnInit {
                 Log.lvl2("User is registered");
 
                 const identity = IdentityWrapper.fromIdentity(userData.keyIdentitySigner);
-                const casLoginDarc =
+                const stainlessDarc =
                     Buffer.from("55427479252691730dd055703f7920d9b9bbf2b01b38f405c2e97e5f55176c5c", "hex");
 
-                const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, casLoginDarc, identity);
+                const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, stainlessDarc, identity);
                 if (auths.indexOf(Darc.ruleSign) >= 0) {
                     Log.lvl2("User is authorized");
                 } else {
