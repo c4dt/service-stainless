@@ -14,7 +14,7 @@ import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
 import { Project, SourceFile, UserState } from "src/lib/user-state";
 
-const USER_REGISTRATION_URL = "https://demo.c4dt.org/omniledger/c4dt/newuser";
+const USER_REGISTRATION_URL = "https://demo.c4dt.org/omniledger/newuser";
 const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 
 @Component({
@@ -25,6 +25,7 @@ const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 export class StainlessComponent implements OnInit {
 
     viewMethodResult: string = "";
+    tutorialOpen: boolean = false;
     private userState: UserState;
     private config: Config;
 
@@ -70,10 +71,10 @@ export class StainlessComponent implements OnInit {
                 Log.lvl2("User is registered");
 
                 const identity = IdentityWrapper.fromIdentity(userData.keyIdentitySigner);
-                const casLoginDarc =
+                const stainlessDarc =
                     Buffer.from("55427479252691730dd055703f7920d9b9bbf2b01b38f405c2e97e5f55176c5c", "hex");
 
-                const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, casLoginDarc, identity);
+                const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, stainlessDarc, identity);
                 if (auths.indexOf(Darc.ruleSign) >= 0) {
                     Log.lvl2("User is authorized");
                 } else {
@@ -106,6 +107,7 @@ export class StainlessComponent implements OnInit {
                     });
 
                     ref.afterClosed().subscribe((_) => {
+                        this.tutorialOpen = true;
                         resolve(new UserState());
                     });
                 } else {
@@ -208,6 +210,10 @@ export class StainlessComponent implements OnInit {
                 window.location.reload();
             });
         });
+    }
+
+    toggleTutorial() {
+        this.tutorialOpen = !this.tutorialOpen;
     }
 
     get projects(): Project[] {
