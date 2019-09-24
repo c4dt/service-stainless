@@ -25,9 +25,9 @@ const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 export class StainlessComponent implements OnInit {
 
     viewMethodResult: string = "";
+    tutorialOpen: boolean = false;
     private userState: UserState;
     private config: Config;
-    private tutorialOpen: boolean = false;
 
     constructor(public dialog: MatDialog, private cbService: ClipboardService) { }
 
@@ -210,6 +210,10 @@ export class StainlessComponent implements OnInit {
                 window.location.reload();
             });
         });
+    }
+
+    toggleTutorial() {
+        this.tutorialOpen = !this.tutorialOpen;
     }
 
     get projects(): Project[] {
@@ -655,10 +659,6 @@ export class StainlessComponent implements OnInit {
             });
             return null;
         }
-    }
-
-    private toggleTutorial() {
-        this.tutorialOpen = !this.tutorialOpen;
     }
 }
 
