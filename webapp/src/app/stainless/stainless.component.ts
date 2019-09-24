@@ -14,7 +14,7 @@ import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
 import { Project, SourceFile, UserState } from "src/lib/user-state";
 
-const USER_REGISTRATION_URL = "https://demo.c4dt.org/omniledger/c4dt/newuser";
+const USER_REGISTRATION_URL = "https://demo.c4dt.org/omniledger/newuser";
 const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 
 @Component({
