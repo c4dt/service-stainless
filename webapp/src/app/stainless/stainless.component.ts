@@ -27,6 +27,7 @@ export class StainlessComponent implements OnInit {
     viewMethodResult: string = "";
     private userState: UserState;
     private config: Config;
+    private tutorialOpen: boolean = false;
 
     constructor(public dialog: MatDialog, private cbService: ClipboardService) { }
 
@@ -106,6 +107,7 @@ export class StainlessComponent implements OnInit {
                     });
 
                     ref.afterClosed().subscribe((_) => {
+                        this.tutorialOpen = true;
                         resolve(new UserState());
                     });
                 } else {
@@ -653,6 +655,10 @@ export class StainlessComponent implements OnInit {
             });
             return null;
         }
+    }
+
+    private toggleTutorial() {
+        this.tutorialOpen = !this.tutorialOpen;
     }
 }
 
