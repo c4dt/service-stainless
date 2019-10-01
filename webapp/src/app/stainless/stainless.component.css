@@ -53,3 +53,8 @@ mat-sidenav.tutorial {
 div.tutorial {
     margin: 30px;
 }
+
+p.tutorial-step {
+    text-align: justify;
+    text-justify: inter-word;
+}

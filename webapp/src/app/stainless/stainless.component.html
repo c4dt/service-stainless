@@ -13,21 +13,21 @@
             <h1>
                 Tutorial
             </h1>
-            <p>
+            <p class="tutorial-step">
             Welcome to the tutorial for Stainless Smart Contracts!
             </p>
-            <p>
+            <p class="tutorial-step">
             The following steps will show you the different parts of the demonstrator, and guide you through the process of verifying a Smart Contract, compiling it, deploying it and finally interacting with it on the ByzCoin blockchain.
             </p>
-            <p>
+            <p class="tutorial-step">
             You can open and close this tutorial at any time using the
             <mat-icon class="material-icons-outlined">help_outline</mat-icon>
             button.
             </p>
-            <p>
+            <p class="tutorial-step">
             For any question or issues with this tutorial, please send an email to <a href="mailto:christian.grigis@epfl.ch?subject=Stainless Demonstrator Tutorial">C4DT</a>.
             </p>
-            <p>
+            <p class="tutorial-step">
             Enjoy!
             </p>
 
@@ -40,19 +40,19 @@
                 </ng-template>
 
                 <mat-step label="Introduction">
-                    <p>
+                    <p class="tutorial-step">
                     <a href="https://stainless.epfl.ch/" target="_blank">Stainless</a> is a verification tool developed at Prof. Viktor Kunčak's <a href="https://lara.epfl.ch/" target="_blank">Laboratory for Automated Reasoning and Analysis</a>.
                     It performs formal verification of programs written in (a subset of) <a href="https://www.scala-lang.org/" target="_blank">Scala</a>, a high-level programming language developed at EPFL.
                     Formal verification is more powerful than traditional testing because it allows to check program correctness for all inputs, reporting counter-examples for failing checks.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     An example application of Stainless is to <a href="https://stainless.epfl.ch/smart-contracts.html" target="_blank">verify Smart Contracts</a>, the programs that run on a blockchain.
                     Stainless can verify such contracts and generate Solidity code, the language used to write contracts for the Ethereum blockchain.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     <a href="https://www.epfl.ch/labs/dedis/">Prof. Bryan Ford's Decentralized and Distributed Systems Lab</a> developed a blockchain called <a href="https://github.com/dedis/cothority/tree/master/byzcoin">OmniLedger</a> based on skipchains. An extension of OmniLedger allows the execution of Ethereum Smart Contracts by embedding an Ethereum Virtual Machine.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     This demonstrator combines the two technologies, showing how Smart Contracts can be written and verified with Stainless, then deployed and executed on OmniLedger.
                     </p>
 
@@ -69,12 +69,12 @@
                         <li>Project selection and source code on the left.</li>
                         <li>Management and interaction on the right.</li>
                     </ul>
-                    <p>
+                    <p class="tutorial-step">
                     <em>Projects</em> are a collection of related source files.
                     <br/>
                     The dropdown list at the top of the left pane allows you to select the project on which you wish to work. Once a project is selected, the various source files that compose it are displayed in a tabbed view underneath.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     The controls on the right side of the screen allow you to manage your accounts, deploy new Smart Contracts on the blockchain, and interact with them.
                     <br/>
                     The next steps will go over these in more details.
@@ -92,16 +92,16 @@
                 </mat-step>
 
                 <mat-step label="Lifecycle of a Smart Contract">
-                    <p>
+                    <p class="tutorial-step">
                     As mentioned before, Stainless Smart Contracts are written in a subset of Scala, and must follow certain rules (e.g. implement a <code>trait</code> that extends <code>Contract</code>, etc.)
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     The successful compilation of a Smart Contract by Stainless produces bytecode that can be run on an Ethereum Virtual Machine (EVM). This is very similar to using a Java compiler and running the resulting bytecode on a JVM.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Deploying the Smart Contract bytecode on an EVM executes its constructor and produces a new instance of this contract. The same Smart Contract can be deployed multiple times, producing many independent instances.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     To interact with a Smart Contract instance, a user (or another contract) calls its methods. Two types of methods are available:
                     </p>
                     <dl>
@@ -123,13 +123,13 @@
                 </mat-step>
 
                 <mat-step label="A simple contract: Candy">
-                    <p>
+                    <p class="tutorial-step">
                     To illustrate this, we will start with a simple contract. Please ensure that <code>Candy</code> is selected from the <em>Available projects</em> list.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Examining the code, it can be seen that this contract models a bag of candies: it is initialized with the number of candies in the bag, and provides a method to eat some of them (if possible), and another to show the number of remaining candies.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     The author of the contract also defined an <em>invariant</em>, which is a condition verified for the execution of any of the contract's methods: if the condition holds before starting execution, it must still hold at the end. This is typically the work that Stainless will perform.
                     <br/>
                     In our example, the invariant ensures proper candy accounting.
@@ -147,29 +147,29 @@
                 </mat-step>
 
                 <mat-step label="Eating candy">
-                    <p>
+                    <p class="tutorial-step">
                     The first step is to verify the Smart Contract with Stainless. For this, click on the <mat-icon class="material-icons-outlined">check</mat-icon> button under the contract source code. Please be patient as this may take some time.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Once the verification is completed, a report will be displayed showing all the checks performed by Stainless, along with their status (valid or invalid). These cover the user-defined invariant, as well as other implicit checks (cast correctness, overflows, etc.).
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Close the verification report and click on the <mat-icon class="material-icons-outlined">transform</mat-icon> button to compile the Smart Contract. As a result, the <em>Contracts</em> dropdown list on the right will now contain the <code>Candy</code> contract.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     One more step is needed before being able to deploy the contract: the creation of an account.
                     <br/>
                     Indeed, on the EVM, every operation is performed on behalf of a given account. This allows contracts to e.g. decide whether particular actions can be executed or not, depending on who is calling the method.
                     <br/>
                     Click on the <mat-icon class="material-icons-outlined">add_box</mat-icon> button next to the <em>Accounts</em> list at the top to create a new account, giving it a name.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     You can now deploy a new instance of the Candy contract by clicking on the <mat-icon class="material-icons-outlined">add_box</mat-icon> button next to the <em>Instances</em> list, and filling in the arguments needed by the constructor. In our case it is the initial number of candies, for example 100.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Once an instance is deployed, access to its methods becomes available. Try clicking on the <mat-icon class="material-icons-outlined">play_circle_outline</mat-icon> button next to the <code>getRemainingCandies</code> view method: the result should be the number of candies with which you created the instance.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Try now to click on the <mat-icon class="material-icons-outlined">play_circle_outline</mat-icon> button next to <code>eatCandy</code>: a dialog will ask you to fill in the method arguments, namely the number of candies to eat. Enter e.g. 58. The next call to <code>getRemainingCandies</code> should now show you the new balance.
                     </p>
 
@@ -185,10 +185,10 @@
                 </mat-step>
 
                 <mat-step label="A real-life example: the DAO">
-                    <p>
+                    <p class="tutorial-step">
                     The <a href="https://en.wikipedia.org/wiki/The_DAO_(organization)" target="_blank">DAO</a> was a project using Smart Contracts in order to provide a digital, decentralized form of a venture capital fund. A few months after its launch in 2016, several vulnerabilities in its implementation were exploited during an attack that led to the loss of about 1/3 of the fund value ($50M). One of the vulnerabilities involved concerned recursive calls, and it is illustrated in this example. This will also allow us to show how Stainless can help identify such vulnerabilities.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Please select <code>DAO bad</code> from the <em>Available projects</em> list.
                     <br/>
                     This project defines two contracts, <code>DAO</code> and <code>Malicious</code>. The former one models an extrimely simplified version of the DAO, with one user, focusing solely on keeping track of:
@@ -198,28 +198,28 @@
                         <li><code>userBalance</code>, the current amount invested in the fund by the user</li>
                         <li><code>contractBalance</code>, the remaining amount in the fund (not invested by the user)</li>
                     </ul>
-                    <p>
+                    <p class="tutorial-step">
                     DAO also provides the <code>withdrawBalance()</code> method, allowing to transfer back to the user his investment. The implementation of this method will send the user its balance calling its <code>transfer()</code> method, and perform some accounting.
-                    <p>
+                    <p class="tutorial-step">
                     The second contract models a malicious user who will try to exploit a vulnerability in the DAO. Indeed, in his <code>transfer()</code> implementation, he will try to recursively call the DAO's <code>withdrawBalance()</code> a number of times, which will trigger a call to <code>transfer()</code>, and so forth.
                     <br/>
                     Let's see what happens.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     We will skip verification for now and go ahead. As before, compile the source code using the <mat-icon class="material-icons-outlined">transform</mat-icon> button. This time, two contracts appear in the <em>Contracts</em> dropdown: <code>DAO</code> and <code>Malicious</code>.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     As the deployment of <code>DAO</code> requires an instance of <code>Malicious</code>, we create the latter first. Select <code>Malicious</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined">add_box</mat-icon> button next to the <em>Instances</em> list. Next, click on the <mat-icon class="material-icons-outlined">file_copy</mat-icon> button just before, which will copy the address of the newly created instance to the clipboard.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     We are now ready to deploy the DAO. Select <code>DAO</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined">add_box</mat-icon> button next to the <em>Instances</em> list. Fill in 1000 in the total fund amount, 300 for the user balance, and paste the <code>Malicious</code> address for the user (usually CTRL-V).
                     <br/>
                     Once deployed, the state of the <code>DAO</code> instance can be verified calling its various <code>getXXX()</code> view methods.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Execute now the <code>withdrawBalance</code> transaction. Once completed, check again the state of the <code>DAO</code> instance.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     The user balance is correctly at 0, the contract balance is correctly at 700, but the fund balance is at 100. What happened?
                     </p>
 
@@ -235,10 +235,10 @@
                 </mat-step>
 
                 <mat-step label="The DAO recursion bug">
-                    <p>
+                    <p class="tutorial-step">
                     If we now perform a verification of the Smart Contract by clicking on the <mat-icon class="material-icons-outlined">check</mat-icon> button, we see in the report that Stainless complains about an invalid check (you might need to scroll down in the report to find it): the postcondition in the <code>withdrawBalance()</code> method. More precisely, it means that Stainless cannot guarantee that the postcondition (the invariant here) holds after the execution of the method, even though it held at the beginning. Indeed, since the method contains an external call to <code>user.transfer()</code> in the middle, Stainless assumes that this call could alter the control flow and change the state variables, and cannot guarantee their values after the external call.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     That is precisely what <code>Malicious</code> is exploiting: by calling recursively <code>withdrawBalance()</code>, the flow of execution uses again the <code>userBalance</code>, <strong>which has not yet been zeroed</strong>, resulting in the amount transferred multiple times.
                     </p>
 
@@ -254,23 +254,23 @@
                 </mat-step>
 
                 <mat-step label="Fixing the DAO bug">
-                    <p>
+                    <p class="tutorial-step">
                     In light of the previous behavior, we can imagine a way to fix it, which is commonly listed as a security guideline when writing Smart Contracts: perform all state changes <strong>before</strong> calling an external entity. (Avoiding calling an external entity, if possible, is even better.)
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Please select <code>DAO good</code> from the <em>Available projects</em> list.
                     <br/>
                     Examining the code, we can see that, accordingly, the only change in the code compared to the previous version is that the call to <code>user.transfer()</code> has been moved to the end of the method, after the balances have been changed.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Verify this code using Stainless by clicking on the <mat-icon class="material-icons-outlined">check</mat-icon> button. The Stainless report should now be all green; indeed, the postcondition in <code>withdrawBalance()</code> is now valid, because no matter how the execution flow is altered by the external call, the state variables will be correct.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Try to reproduce the same scenario we did with the faulty code: compile, deploy a <code>Malicious</code> instance, copy its address, deploy a <code>DAO</code> instance with 1000, 300 and the copied address. Check the balances, execute <code>withdrawBalance</code> and check the balances again.
                     <br/>
                     This time, the fund balance is correctly 700. Even though <code>Malicious</code> attempted the same attack by calling back into <code>DAO</code>, all the calls after the first one saw the <code>userBalance</code> at 0, and transferred nothing.
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     Stainless accurately validated the code as correct.
                     </p>
 
@@ -286,12 +286,12 @@
                 </mat-step>
 
                 <mat-step label="Done">
-                    <p>
+                    <p class="tutorial-step">
                     This concludes this Stainless tutorial. Congratulations!
                     </p>
-                    <p>
+                    <p class="tutorial-step">
                     To explore Stainless more in detail, please go the the <a href="https://stainless.epfl.ch/smart-contracts.html" target="_blank">documentation</a> and visit the "<a href="https://github.com/epfl-lara/smart" target="_blank">GitHub public repository</a>.
-                    <p>
+                    <p class="tutorial-step">
                     If you have any question or remark, please do not hesitate to contact the <a href="mailto:christian.grigis@epfl.ch?subject=Stainless DemonstratorTutorial">C4DT</a>.
                     </p>
 
