@@ -58,3 +58,13 @@ p.tutorial-step {
     text-align: justify;
     text-justify: inter-word;
 }
+
+mat-icon.demo-main {
+    font-size: 28px;
+}
+
+mat-icon.tutorial {
+    vertical-align: middle;
+    font-size: 18px;
+    width: 18px;
+}
