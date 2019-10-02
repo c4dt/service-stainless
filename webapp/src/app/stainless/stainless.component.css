@@ -8,6 +8,12 @@
     overflow-y: auto;
 }
 
+pre.line-numbers {
+    padding: 0.5em;
+    background-color: #F0F0F0;
+    text-align: right;
+}
+
 .verif-viewport {
     border: 1px solid black;
 }

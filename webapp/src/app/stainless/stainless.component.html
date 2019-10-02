@@ -328,7 +328,14 @@
                         <mat-tab *ngFor="let file of projectSourceFiles" label="{{ file.name }}">
                             <mat-card>
                                 <mat-card-content class="code-area">
-                                    <pre><code [highlight]="file.contents"></code></pre>
+                                    <div fxLayout="row" fxLayoutAlign="start">
+                                        <div>
+                                            <pre class="line-numbers"><code>{{ getLineNumbers(file) }}</code></pre>
+                                        </div>
+                                        <div fxFlex="grow">
+                                            <pre><code [highlight]="file.contents"></code></pre>
+                                        </div>
+                                    </div>
                                 </mat-card-content>
                             </mat-card>
                         </mat-tab>

@@ -594,6 +594,23 @@ export class StainlessComponent implements OnInit {
         this.cbService.copyFromContent("0x" + this.instanceSelected.toString(("hex")));
     }
 
+    getLineNumbers(file: any): string {
+        const lines = file.contents.split("\n");
+
+        let nbLines = lines.length;
+        if (lines[lines.length - 1].length === 0) {
+            // File ends with EOL
+            nbLines -= 1;
+        }
+
+        const lineNumbers: number[] = [];
+        for (let i = 0; i < nbLines; i++) {
+            lineNumbers.push(i + 1);
+        }
+
+        return lineNumbers.join("\n");
+    }
+
     private getMethodAbi(contract: EvmContract, methodName: string): any {
         const contractAbi = JSON.parse(contract.abi);
         const methodAbi = contractAbi.filter((elem: any) => elem.name === methodName);
