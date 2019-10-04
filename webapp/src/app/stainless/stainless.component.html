@@ -71,7 +71,8 @@
                     </ul>
                     <p class="tutorial-step">
                     <em>Projects</em> are a collection of related source files.
-                    <br/>
+                    </p>
+                    <p class="tutorial-step">
                     The dropdown list at the top of the left pane allows you to select the project on which you wish to work. Once a project is selected, the various source files that compose it are displayed in a tabbed view underneath.
                     </p>
                     <p class="tutorial-step">
@@ -106,9 +107,9 @@
                     </p>
                     <dl>
                         <dt><em>Transactions</em></dt>
-                        <dd>methods that modify the contract's state</dd>
+                        <dd>Methods that modify the contract's state. They take some time to execute because a consensus is required to modify the state of the blockchain.</dd>
                         <dt><em>View Methods</em></dt>
-                        <dd>methods that do not modify the contract state, but possibly read it</dd>
+                        <dd>Methods that do not modify the contract state, but possibly read it. They are faster to execute because read operations do not require consensus.</dd>
                     </dl>
 
                     <div>
@@ -149,12 +150,16 @@
                 <mat-step label="Eating candy">
                     <p class="tutorial-step">
                     The first step is to verify the Smart Contract with Stainless. For this, click on the <mat-icon class="material-icons-outlined tutorial">check</mat-icon> button under the contract source code. Please be patient as this may take some time.
+                    <br/>
+                    The verification results are cached, so performing a verification again will bring you the results immediately.
                     </p>
                     <p class="tutorial-step">
                     Once the verification is completed, a report will be displayed showing all the checks performed by Stainless, along with their status (valid or invalid). These cover the user-defined invariant, as well as other implicit checks (cast correctness, overflows, etc.).
                     </p>
                     <p class="tutorial-step">
-                    Close the verification report and click on the <mat-icon class="material-icons-outlined tutorial">transform</mat-icon> button to compile the Smart Contract. As a result, the <em>Contracts</em> dropdown list on the right will now contain the <code>Candy</code> contract.
+                    Close the verification report and click on the <mat-icon class="material-icons-outlined tutorial">build</mat-icon> button to compile the Smart Contract. As a result, the <em>Contracts</em> dropdown list on the right will now contain the <code>Candy</code> contract.
+                    <br/>
+                    Similarly to the verification, the compilation operation is cached, and is no longer needed after a successful outcome.
                     </p>
                     <p class="tutorial-step">
                     One more step is needed before being able to deploy the contract: the creation of an account.
@@ -206,10 +211,10 @@
                     Let's see what happens.
                     </p>
                     <p class="tutorial-step">
-                    We will skip verification for now and go ahead. As before, compile the source code using the <mat-icon class="material-icons-outlined tutorial">transform</mat-icon> button. This time, two contracts appear in the <em>Contracts</em> dropdown: <code>DAO</code> and <code>Malicious</code>.
+                    We will skip verification for now and go ahead. As before, compile the source code using the <mat-icon class="material-icons-outlined tutorial">build</mat-icon> button. This time, two contracts appear in the <em>Contracts</em> dropdown: <code>DAO</code> and <code>Malicious</code>.
                     </p>
                     <p class="tutorial-step">
-                    As the deployment of <code>DAO</code> requires an instance of <code>Malicious</code>, we create the latter first. Select <code>Malicious</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined tutorial">add_box</mat-icon> button next to the <em>Instances</em> list. Next, click on the <mat-icon class="material-icons-outlined tutorial">file_copy</mat-icon> button just before, which will copy the address of the newly created instance to the clipboard.
+                    As the deployment of <code>DAO</code> requires an instance of <code>Malicious</code>, we create the latter first. Select <code>Malicious</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined tutorial">add_box</mat-icon> button next to the <em>Instances</em> list. Next, click on the <mat-icon class="material-icons-outlined tutorial">file_copy</mat-icon> button just on the left, which will copy the address of the newly created instance to the clipboard.
                     </p>
                     <p class="tutorial-step">
                     We are now ready to deploy the DAO. Select <code>DAO</code> in the <em>Contracts</em> list, and click on the <mat-icon class="material-icons-outlined tutorial">add_box</mat-icon> button next to the <em>Instances</em> list. Fill in 1000 in the total fund amount, 300 for the user balance, and paste the <code>Malicious</code> address for the user (usually CTRL-V).
@@ -290,7 +295,7 @@
                     This concludes this Stainless tutorial. Congratulations!
                     </p>
                     <p class="tutorial-step">
-                    To explore Stainless more in detail, please go the the <a href="https://stainless.epfl.ch/smart-contracts.html" target="_blank">documentation</a> and visit the "<a href="https://github.com/epfl-lara/smart" target="_blank">GitHub public repository</a>.
+                    To explore Stainless more in detail, please go the the <a href="https://stainless.epfl.ch/smart-contracts.html" target="_blank">documentation</a> and visit the <a href="https://github.com/epfl-lara/smart" target="_blank">GitHub public repository</a>.
                     <p class="tutorial-step">
                     If you have any question or remark, please do not hesitate to contact the <a href="mailto:christian.grigis@epfl.ch?subject=Stainless Demonstrator Tutorial">C4DT</a>.
                     </p>
@@ -347,7 +352,7 @@
                         <mat-icon class="material-icons-outlined demo-main">{{ projectVerified ? "check_circle_outline" : "check" }}</mat-icon>
                     </button>
                     <button mat-icon-button title="Compile" (click)="compile()" disabled="{{ projectCompiled }}">
-                        <mat-icon class="material-icons-outlined demo-main">transform</mat-icon>
+                        <mat-icon class="material-icons-outlined demo-main">build</mat-icon>
                     </button>
                 </div>
 
