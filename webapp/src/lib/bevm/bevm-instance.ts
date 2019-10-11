@@ -2,11 +2,11 @@ import { createHash, randomBytes } from "crypto";
 import { ec } from "elliptic";
 import Keccak from "keccak";
 
-import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
-import ClientTransaction, { Argument, Instruction } from "@dedis/cothority/byzcoin/client-transaction";
-import Instance, { InstanceID } from "@dedis/cothority/byzcoin/instance";
-import Signer from "@dedis/cothority/darc/signer";
-import Log from "@dedis/cothority/log";
+import ByzCoinRPC from "@c4dt/cothority/byzcoin/byzcoin-rpc";
+import ClientTransaction, { Argument, Instruction } from "@c4dt/cothority/byzcoin/client-transaction";
+import Instance, { InstanceID } from "@c4dt/cothority/byzcoin/instance";
+import Signer from "@c4dt/cothority/darc/signer";
+import Log from "@c4dt/cothority/log";
 
 import { StainlessRPC } from "src/lib/stainless";
 import { SelectableColl, UserEvmInfo } from "src/lib/storage";
@@ -218,12 +218,12 @@ export class BevmInstance extends Instance {
             [],
         );
 
-        const ctx = new ClientTransaction({instructions: [inst]});
+        const ctx = ClientTransaction.make(bc.getProtocolVersion(), inst);
         await ctx.updateCountersAndSign(bc, [signers]);
 
         await bc.sendTransactionAndWait(ctx);
 
-        return BevmInstance.fromByzcoin(bc, inst.deriveId());
+        return BevmInstance.fromByzcoin(bc, ctx.instructions[0].deriveId());
     }
 
     /**
@@ -337,12 +337,11 @@ export class BevmInstance extends Instance {
     }
 
     private async invoke(command: string, args: Argument[], signers: Signer[], wait?: number) {
-        const ctx = new ClientTransaction({
-            instructions: [
-                Instruction.createInvoke(
-                    this.id, BevmInstance.contractID, command, args,
-                ),
-            ]});
+        const ctx = ClientTransaction.make(
+            this.rpc.getProtocolVersion(),
+            Instruction.createInvoke(
+                this.id, BevmInstance.contractID, command, args,
+            ));
 
         await ctx.updateCountersAndSign(this.rpc, [signers]);
 

@@ -2,10 +2,10 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 import { ClipboardService } from "ngx-clipboard";
 
-import { Config as DynaCredConfig, Data } from "@c4dt/dynacred";
-import { ByzCoinRPC } from "@dedis/cothority/byzcoin";
-import { Darc, IdentityWrapper } from "@dedis/cothority/darc";
-import Log from "@dedis/cothority/log";
+import { ByzCoinRPC } from "@c4dt/cothority/byzcoin";
+import { Darc, IdentityWrapper } from "@c4dt/cothority/darc";
+import Log from "@c4dt/cothority/log";
+import { Config as DynaCredConfig, Data, StorageDB } from "@c4dt/dynacred";
 
 import Long from "long";
 
@@ -64,8 +64,7 @@ export class StainlessComponent implements OnInit {
             const config = DynaCredConfig.fromTOML(await res.text());
             const bc = await ByzCoinRPC.fromByzcoin(config.roster, config.byzCoinID);
 
-            const userData: Data = new Data(bc);
-            await userData.load();
+            const userData: Data = await Data.load(bc, StorageDB);
 
             if (userData.contact && userData.contact.isRegistered()) {
                 Log.lvl2("User is registered");
