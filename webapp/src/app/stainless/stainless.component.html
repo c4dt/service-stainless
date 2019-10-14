@@ -31,7 +31,7 @@
             Enjoy!
             </p>
 
-            <mat-vertical-stepper linear>
+            <mat-vertical-stepper [linear]="!tutorialIsCompleted">
                 <ng-template matStepperIcon="edit">
                     <mat-icon class="material-icons-outlined">done</mat-icon>
                 </ng-template>
@@ -284,7 +284,7 @@
                             <mat-icon class="material-icons-outlined">arrow_upward</mat-icon>
                         </button>
                         <br/>
-                        <button mat-icon-button title="Go to next step" matStepperNext>
+                        <button mat-icon-button title="Go to next step" matStepperNext (click)="completeTutorial()">
                             <mat-icon class="material-icons-outlined">arrow_downward</mat-icon>
                         </button>
                     </div>

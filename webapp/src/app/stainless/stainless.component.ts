@@ -215,6 +215,14 @@ export class StainlessComponent implements OnInit {
         this.tutorialOpen = !this.tutorialOpen;
     }
 
+    get tutorialIsCompleted(): boolean {
+        return this.userState.tutorialIsCompleted;
+    }
+
+    completeTutorial() {
+        this.userState.completeTutorial();
+    }
+
     get projects(): Project[] {
         return this.userState.projects;
     }

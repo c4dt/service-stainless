@@ -83,16 +83,19 @@ export class UserState extends UserEvmInfo {
         const userState = new UserState();
         userState._accounts = accounts;
         userState._projects = projects;
+        userState._tutorialIsCompleted = obj.tutorialIsCompleted || false;
 
         return userState;
     }
 
     private _accounts: SelectableColl<EvmAccount>;
     private _projects: SelectableColl<Project>;
+    private _tutorialIsCompleted: boolean;
 
     constructor() {
         super();
 
+        this._tutorialIsCompleted = false;
         this._accounts = new SelectableColl<EvmAccount>();
         this._projects = new SelectableColl<Project>();
     }
@@ -335,10 +338,20 @@ export class UserState extends UserEvmInfo {
         this._projects.selected.contracts.selected.viewMethods.select(index);
     }
 
+    get tutorialIsCompleted(): boolean {
+        return this._tutorialIsCompleted;
+    }
+
+    completeTutorial() {
+        this._tutorialIsCompleted = true;
+        this.save();
+    }
+
     serialize(): object {
         return {
             accounts: this._accounts.serialize(),
             projects: this._projects.serialize(),
+            tutorialIsCompleted: this._tutorialIsCompleted,
         };
     }
 
