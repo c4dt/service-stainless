@@ -1,5 +1,5 @@
-import Log from "@dedis/cothority/log";
-import { ServerIdentity } from "@dedis/cothority/network/proto";
+import Log from "@c4dt/cothority/log";
+import { ServerIdentity } from "@c4dt/cothority/network/proto";
 
 import { WebSocketConnection } from "src/lib/connections";
 import { stainless as proto } from "src/lib/proto";

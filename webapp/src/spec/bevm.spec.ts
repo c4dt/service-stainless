@@ -1,10 +1,10 @@
 import Long from "long";
 
-import Log from "@dedis/cothority/log";
+import Log from "@c4dt/cothority/log";
 
-import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
-import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
-import { Roster } from "@dedis/cothority/network";
+import ByzCoinRPC from "@c4dt/cothority/byzcoin/byzcoin-rpc";
+import SignerEd25519 from "@c4dt/cothority/darc/signer-ed25519";
+import { Roster } from "@c4dt/cothority/network";
 
 import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/config";

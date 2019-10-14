@@ -13,6 +13,8 @@ import {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatSidenavModule,
+    MatStepperModule,
     MatTableModule,
     MatTabsModule,
 } from "@angular/material";
@@ -40,6 +42,8 @@ describe("StainlessComponent", () => {
           MatInputModule,
           MatIconModule,
           MatSelectModule,
+          MatSidenavModule,
+          MatStepperModule,
           MatTableModule,
           MatTabsModule,
           ScrollDispatchModule,

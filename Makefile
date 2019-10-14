@@ -30,10 +30,8 @@ $Dbackend/build/cvc4: | $Dbackend/build
 
 $Sbackend-docker-build: | $Sexternal-deps
 
-$Dbackend/build/conode.Linux.x86_64: $Dbackend/bevm/*.go $Dbackend/stainless/service/*.go
-
 $Dbackend/build/bevmadmin: | $Dbackend/build
-	cd $Dbackend/bevmadmin && GO111MODULE=on go build -o ../build/$(@F)
+	cd $Dbackend/cothority/bevm/bevmadmin && GO111MODULE=on go build -o ../../../build/$(@F)
 
 $Dbackend/build/ident_bevm: $Dbackend/build/bcadmin $Dbackend/build/conodes.toml $Dbackend/build/bevmadmin $Dbackend/build/ident
 	rm -rf $Dbackend/build/bevm_admin $Dbackend/build/bevm_user

@@ -7,14 +7,13 @@ package stainless
 // stainless-smart and solcjs@0.4.24
 
 import (
+	"go.dedis.ch/cothority/v3/bevm"
 	"go.dedis.ch/cothority/v3/byzcoin"
 	"go.dedis.ch/cothority/v3/darc"
 	"go.dedis.ch/onet/v3"
 	"go.dedis.ch/onet/v3/app"
 	"go.dedis.ch/onet/v3/log"
 	"go.dedis.ch/onet/v3/network"
-
-	"github.com/c4dt/service-stainless/backend/bevm"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"

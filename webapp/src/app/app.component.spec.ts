@@ -16,6 +16,8 @@ import {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatSidenavModule,
+    MatStepperModule,
     MatTableModule,
     MatTabsModule,
 } from "@angular/material";
@@ -48,6 +50,8 @@ describe("AppComponent", () => {
                 MatIconModule,
                 MatInputModule,
                 MatSelectModule,
+                MatSidenavModule,
+                MatStepperModule,
                 MatTableModule,
                 MatTabsModule,
                 ScrollDispatchModule,
