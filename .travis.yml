@@ -17,9 +17,13 @@ jobs:
           node_js: 10
           install: cd webapp && npm ci
           script: ng lint
-        - script:
+        - language: go
+          go: 1.12.x
+          script:
             - cd backend
             - if test $( gofmt -d . | tee gofmt.results | wc -l ) -ne 0; then cat gofmt.results; exit 1; fi
+            - go get -u golang.org/x/lint/golint
+            - golint -set_exit_status ./...
 
         - stage: build
           language: go
