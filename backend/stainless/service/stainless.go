@@ -40,6 +40,7 @@ const (
 	timeout    = 120 * time.Second
 )
 
+// The following are declared as 'var' to allow overwriting them in tests.
 var stainlessCmd = "stainless"
 var solCompiler = "solcjs"
 
@@ -321,6 +322,8 @@ func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{}, error) 
 	return args, nil
 }
 
+// DeployContract builds a transaction to deploy an EVM contract. Returns an
+// EVM transaction and its hash to be signed by the caller.
 func (service *Stainless) DeployContract(req *proto.DeployRequest) (network.Message, error) {
 	abi, err := abi.JSON(strings.NewReader(req.Abi))
 	if err != nil {
@@ -354,6 +357,9 @@ func (service *Stainless) DeployContract(req *proto.DeployRequest) (network.Mess
 	return &proto.TransactionHashResponse{Transaction: unsignedBuffer, TransactionHash: hashedTx[:]}, nil
 }
 
+// ExecuteTransaction builds a transaction to execute a R/W method on a
+// previously deployed EVM contract instance. Returns an EVM transaction and
+// its hash to be signed by the caller.
 func (service *Stainless) ExecuteTransaction(req *proto.TransactionRequest) (network.Message, error) {
 	abi, err := abi.JSON(strings.NewReader(req.Abi))
 	if err != nil {
@@ -385,6 +391,9 @@ func (service *Stainless) ExecuteTransaction(req *proto.TransactionRequest) (net
 	return &proto.TransactionHashResponse{Transaction: unsignedBuffer, TransactionHash: hashedTx[:]}, nil
 }
 
+// FinalizeTransaction finalizes a previously initiated transaction, signed by
+// the caller. Returns an EVM transaction ready to be sent to ByzCoin and
+// handled by the bevm contract.
 func (service *Stainless) FinalizeTransaction(req *proto.TransactionFinalizationRequest) (network.Message, error) {
 	signer := types.HomesteadSigner{}
 
@@ -411,6 +420,8 @@ func (service *Stainless) FinalizeTransaction(req *proto.TransactionFinalization
 	}, nil
 }
 
+// Call executes a R-only method on a previously deployed EVM contract instance
+// by contacting a ByzCoin cothority. Returns the call response.
 func (service *Stainless) Call(req *proto.CallRequest) (network.Message, error) {
 	abi, err := abi.JSON(strings.NewReader(req.Abi))
 	if err != nil {
