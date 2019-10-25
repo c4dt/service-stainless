@@ -53,6 +53,21 @@ describe("BEvm should", async () => {
     let config: TestConfig;
 
     /* tslint:disable:max-line-length */
+    const basicSource = `
+    import stainless.smartcontracts._
+import stainless.annotation._
+
+trait BasicContract extends Contract {
+  val other: Address
+
+  @solidityView
+  @solidityPublic
+  final def foo(): Address = {
+    other
+  }
+}
+`.trim();
+
     const candySource = `
 import stainless.smartcontracts._
 import stainless.lang.StaticChecks._
@@ -127,13 +142,13 @@ trait Candy extends Contract {
     }
 
     it("should verify a contract", async () => {
-        const response = await config.stainlessRPC.verify({"Candy.scala": candySource});
+        const response = await config.stainlessRPC.verify({"BasicContract.scala": basicSource});
 
         const {valid, invalid} = parseReport(response.Report);
 
         expect(valid).toBeGreaterThan(0);
         expect(invalid).toEqual(0);
-    }, 60000); // Extend Jasmine default timeout interval to 1 minute
+    }, 180000); // Extend Jasmine default timeout interval to 3 minutes
 
     it("should create a contract deployment transaction", async () => {
         /* tslint:disable:max-line-length */

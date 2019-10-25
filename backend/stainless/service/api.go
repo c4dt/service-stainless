@@ -9,17 +9,17 @@ import (
 	proto "github.com/c4dt/service-stainless/backend/proto/stainless"
 )
 
-// Client is a structure to communicate with stainless service
+// Client is a structure to communicate with the stainless service.
 type Client struct {
 	*onet.Client
 }
 
-// NewClient makes a new Client
+// NewClient makes a new Client.
 func NewClient() *Client {
 	return &Client{Client: onet.NewClient(cothority.Suite, ServiceName)}
 }
 
-// Verify sends a verification request
+// Verify sends a verification request.
 func (c *Client) Verify(dst *network.ServerIdentity, sourceFiles map[string]string) (*proto.VerificationResponse, error) {
 	response := &proto.VerificationResponse{}
 
@@ -31,7 +31,7 @@ func (c *Client) Verify(dst *network.ServerIdentity, sourceFiles map[string]stri
 	return response, nil
 }
 
-// GenBytecode sends a bytecode generation request
+// GenBytecode sends a bytecode generation request.
 func (c *Client) GenBytecode(dst *network.ServerIdentity, sourceFiles map[string]string) (*proto.BytecodeGenResponse, error) {
 	response := &proto.BytecodeGenResponse{}
 
@@ -43,6 +43,8 @@ func (c *Client) GenBytecode(dst *network.ServerIdentity, sourceFiles map[string
 	return response, nil
 }
 
+// DeployContract sends a request to deploy an EVM contract. Returns an EVM
+// transaction and its hash to be signed by the caller.
 func (c *Client) DeployContract(dst *network.ServerIdentity, gasLimit uint64, gasPrice uint64, amount uint64, nonce uint64, bytecode []byte, abi string, args ...string) (*proto.TransactionHashResponse, error) {
 	request := &proto.DeployRequest{
 		GasLimit: gasLimit,
@@ -63,6 +65,9 @@ func (c *Client) DeployContract(dst *network.ServerIdentity, gasLimit uint64, ga
 	return response, err
 }
 
+// ExecuteTransaction sends a request to execute a Transaction (R/W method) on
+// a previously deployed EVM contract instance. Returns an EVM transaction and
+// its hash to be signed by the caller.
 func (c *Client) ExecuteTransaction(dst *network.ServerIdentity, gasLimit uint64, gasPrice uint64, amount uint64, contractAddress []byte, nonce uint64, abi string, method string, args ...string) (*proto.TransactionHashResponse, error) {
 	request := &proto.TransactionRequest{
 		GasLimit:        gasLimit,
@@ -84,6 +89,9 @@ func (c *Client) ExecuteTransaction(dst *network.ServerIdentity, gasLimit uint64
 	return response, err
 }
 
+// FinalizeTransaction sends a request to finalize a previously initiated
+// transaction (deployment of contract or execution of transaction). Returns a
+// signed EVM transaction, ready to be sent to ByzCoin.
 func (c *Client) FinalizeTransaction(dst *network.ServerIdentity, tx []byte, signature []byte) (*proto.TransactionResponse, error) {
 	request := &proto.TransactionFinalizationRequest{
 		Transaction: tx,
@@ -99,6 +107,8 @@ func (c *Client) FinalizeTransaction(dst *network.ServerIdentity, tx []byte, sig
 	return response, err
 }
 
+// Call sends a request to execute a Call (R-only method, "view method") on a
+// previously deployed EVM contract instance. Returns the call response.
 func (c *Client) Call(dst *network.ServerIdentity, blockID []byte, serverConfig string, bevmInstanceID byzcoin.InstanceID, accountAddress []byte, contractAddress []byte, abi string, method string, args ...string) (*proto.CallResponse, error) {
 	request := &proto.CallRequest{
 		BlockID:         blockID,

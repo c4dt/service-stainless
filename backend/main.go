@@ -1,7 +1,7 @@
-// Declare the dependencies for the BEvm contract and the Stainless service
 package stainless
 
 import (
+	// Declare dependency for the Stainless service
 	_ "github.com/c4dt/service-stainless/backend/stainless/service"
 )
 
