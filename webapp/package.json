@@ -25,7 +25,7 @@
     "@angular/platform-browser-dynamic": "^8.2.10",
     "@angular/router": "^8.2.10",
     "@c4dt/cothority": "^3.1.23",
-    "@c4dt/dynacred": "0.1.1-p20191010083636.0",
+    "@c4dt/dynacred": "dev",
     "@dedis/kyber": "^3.0.9",
     "core-js": "^2.6.10",
     "crypto-browserify": "^3.12.0",
