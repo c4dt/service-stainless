@@ -14,7 +14,8 @@ jobs:
     include:
         - stage: lint
           language: node_js
-          node_js: 10
+          node_js:
+              - 10
           install: cd webapp && npm ci
           script: ng lint
         - language: go
@@ -29,6 +30,7 @@ jobs:
           language: go
           go: 1.12.x
           script:
+              - nvm install
               - make backend-test
               - make backend-serve-test
               - make webapp-test
@@ -41,6 +43,7 @@ jobs:
           language: go
           go: 1.12.x
           script:
+              - nvm install
               - make webapp-build
               - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
               - docker push c4dt/service-stainless-backend:latest
