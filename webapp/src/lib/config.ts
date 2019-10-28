@@ -1,8 +1,8 @@
-import ByzCoinRPC from "@c4dt/cothority/byzcoin/byzcoin-rpc";
-import { InstanceID } from "@c4dt/cothority/byzcoin/instance";
-import Signer from "@c4dt/cothority/darc/signer";
-import SignerEd25519 from "@c4dt/cothority/darc/signer-ed25519";
-import { Roster } from "@c4dt/cothority/network";
+import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
+import { InstanceID } from "@dedis/cothority/byzcoin/instance";
+import Signer from "@dedis/cothority/darc/signer";
+import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
+import { Roster } from "@dedis/cothority/network";
 
 import toml from "toml";
 

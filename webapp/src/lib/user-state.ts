@@ -1,4 +1,4 @@
-import Log from "@c4dt/cothority/log";
+import Log from "@dedis/cothority/log";
 
 import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { SelectableColl, UserEvmInfo } from "src/lib/storage";

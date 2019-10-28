@@ -2,10 +2,10 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 import { ClipboardService } from "ngx-clipboard";
 
-import { ByzCoinRPC } from "@c4dt/cothority/byzcoin";
-import { Darc, IdentityWrapper } from "@c4dt/cothority/darc";
-import Log from "@c4dt/cothority/log";
 import { Config as DynaCredConfig, Data, StorageDB } from "@c4dt/dynacred";
+import { ByzCoinRPC } from "@dedis/cothority/byzcoin";
+import { Darc, IdentityWrapper } from "@dedis/cothority/darc";
+import Log from "@dedis/cothority/log";
 
 import Long from "long";
 
