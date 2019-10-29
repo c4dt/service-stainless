@@ -3,7 +3,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 import { ClipboardService } from "ngx-clipboard";
 
 import { Config as DynaCredConfig, Data, StorageDB } from "@c4dt/dynacred";
-import { ByzCoinRPC } from "@dedis/cothority/byzcoin";
 import { Darc, IdentityWrapper } from "@dedis/cothority/darc";
 import Log from "@dedis/cothority/log";
 
@@ -108,7 +107,7 @@ export class StainlessComponent implements OnInit {
             } catch (e) {
                 const ref = this.dialog.open(InfoDialog, {
                     data: {
-                        message: "User data could not be read and will be reinitialized",
+                        message: `The user data is invalid and must be reinitialized (reason: ${e.message})`,
                         requireAck: true,
                         title: "User data cleared",
                     },
