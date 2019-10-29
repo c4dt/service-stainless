@@ -1,32 +1,41 @@
 import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
-import { InstanceID } from "@dedis/cothority/byzcoin/instance";
 import Signer from "@dedis/cothority/darc/signer";
 import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
 import { Roster } from "@dedis/cothority/network";
 
 import toml from "toml";
 
-import { BevmInstance } from "src/lib/bevm";
+import { BevmRPC } from "src/lib/bevm";
 import { StainlessRPC } from "src/lib/stainless";
+
+const ROSTER_FILE = "conodes.toml";
+const STAINLESS_ROSTER_FILE = "conodes_stainless.toml";
+const BYZCOIN_CONFIG_FILE = "config.toml";
+const BEVM_CONFIG_FILE = "config_bevm.toml";
 
 export class Config {
 
     static async init(): Promise<Config> {
         const rosterToml = await Config.getRosterToml();
         const roster = Roster.fromTOML(rosterToml);
-        const stainlessConode = roster.list[0];
+
+        const stainlessRoster = Roster.fromTOML(await Config.getStainlessRosterToml());
+        if (stainlessRoster.length === 0) {
+            Promise.reject("Empty Stainless roster");
+        }
+        const stainlessConode = stainlessRoster.list[0];
 
         const serverConfig = await Config.getServerConfig();
 
-        const bc = await ByzCoinRPC.fromByzcoin(roster, serverConfig.byzCoinID);
-        const bevmRPC = await BevmInstance.fromByzcoin(bc, serverConfig.bevmInstanceID);
+        const byzcoinRPC = await ByzCoinRPC.fromByzcoin(roster, serverConfig.byzCoinID);
+        const bevmRPC = await BevmRPC.fromByzcoin(byzcoinRPC, serverConfig.bevmInstanceID);
         const bevmUser = SignerEd25519.fromBytes(serverConfig.bevmUserID);
 
         const stainlessRPC = new StainlessRPC(stainlessConode);
         bevmRPC.setStainlessRPC(stainlessRPC);
 
         const cfg = new Config(
-            bc.genesisID,
+            byzcoinRPC,
             rosterToml,
             roster,
             bevmRPC,
@@ -38,7 +47,11 @@ export class Config {
     }
 
     protected static async getRosterToml(): Promise<string> {
-        return await Config.getAsset("conodes_bevm.toml");
+        return await Config.getAsset(ROSTER_FILE);
+    }
+
+    protected static async getStainlessRosterToml(): Promise<string> {
+        return await Config.getAsset(STAINLESS_ROSTER_FILE);
     }
 
     private static async getAsset(name: string): Promise<string> {
@@ -51,8 +64,8 @@ export class Config {
     }
 
     private static async getServerConfig(): Promise<any> {
-        const configRaw = await Config.getAsset("config.toml");
-        const bevmConfigRaw = await Config.getAsset("config_bevm.toml");
+        const configRaw = await Config.getAsset(BYZCOIN_CONFIG_FILE);
+        const bevmConfigRaw = await Config.getAsset(BEVM_CONFIG_FILE);
 
         const configParsed = toml.parse(configRaw);
         const bevmConfigParsed = toml.parse(bevmConfigRaw);
@@ -67,10 +80,10 @@ export class Config {
     }
 
     protected constructor(
-        readonly genesisBlock: InstanceID,
+        readonly byzcoinRPC: ByzCoinRPC,
         readonly rosterToml: string,
         readonly roster: Roster,
-        readonly bevmRPC: BevmInstance,
+        readonly bevmRPC: BevmRPC,
         readonly stainlessRPC: StainlessRPC,
         readonly bevmUser: Signer,
     ) {}

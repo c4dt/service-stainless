@@ -6,7 +6,7 @@ import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
 import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
 import { Roster } from "@dedis/cothority/network";
 
-import { BevmInstance, EvmAccount, EvmContract } from "src/lib/bevm";
+import { BevmRPC, EvmAccount, EvmContract } from "src/lib/bevm";
 import { Config } from "src/lib/config";
 import { StainlessRPC } from "src/lib/stainless";
 
@@ -29,15 +29,15 @@ class TestConfig extends Config {
             darc.rules.appendToRule(rule, admin, "|");
         });
 
-        const bc = await ByzCoinRPC.newByzCoinRPC(roster, darc, Long.fromNumber(5e8));
+        const byzcoinRPC = await ByzCoinRPC.newByzCoinRPC(roster, darc, Long.fromNumber(5e8));
 
-        const bevmRPC = await BevmInstance.spawn(bc, darc.getBaseID(), [admin]);
+        const bevmRPC = await BevmRPC.spawn(byzcoinRPC, darc.getBaseID(), [admin]);
 
         const stainlessRPC = new StainlessRPC(stainlessConode);
         bevmRPC.setStainlessRPC(stainlessRPC);
 
         const cfg = new TestConfig(
-            bc.genesisID,
+            byzcoinRPC,
             rosterToml,
             roster,
             bevmRPC,
@@ -68,42 +68,6 @@ trait BasicContract extends Contract {
 }
 `.trim();
 
-    const candySource = `
-import stainless.smartcontracts._
-import stainless.lang.StaticChecks._
-import stainless.annotation._
-
-trait Candy extends Contract {
-  var initialCandies: Uint256
-  var remainingCandies: Uint256
-  var eatenCandies: Uint256
-
-  @solidityPublic
-  final def constructor(_candies: Uint256) = {
-    initialCandies = _candies
-    remainingCandies = _candies
-    eatenCandies = Uint256.ZERO
-  }
-
-  @solidityPublic
-  final def eatCandy(candies: Uint256) = {
-    dynRequire(candies <= remainingCandies)
-
-    remainingCandies -= candies
-    eatenCandies += candies
-  }
-
-  @solidityPublic @solidityView
-  final def getRemainingCandies() = remainingCandies
-
-  @ghost @inline
-  final def invariant(): Boolean = {
-    eatenCandies <= initialCandies &&
-    remainingCandies <= initialCandies &&
-    initialCandies - eatenCandies == remainingCandies
-  }
-}
-`.trim();
     const candyBytecode = Buffer.from(`
 608060405234801561001057600080fd5b506040516020806101cb833981018060405281019080805190602001909291905050508060008190555080600181905550600060028190555050610172806100596000396000f30060806040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff168063a1ff2f5214610051578063ea319f281461007e575b600080fd5b34801561005d57600080fd5b5061007c600480360381019080803590602001909291905050506100a9565b005b34801561008a57600080fd5b5061009361013c565b6040518082815260200191505060405180910390f35b6001548111151515610123576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260058152602001807f6572726f7200000000000000000000000000000000000000000000000000000081525060200191505060405180910390fd5b8060015403600181905550806002540160028190555050565b60006001549050905600a165627a7a723058207721a45f17c0e0f57e255f33575281d17f1a90d3d58b51688230d93c460a19aa0029
 `.trim(), "hex");
@@ -211,7 +175,7 @@ trait Candy extends Contract {
     });
 
     it("deploy and interact with a contract", async () => {
-        Log.print("ByzCoinID:", config.genesisBlock);
+        Log.print("ByzCoinID:", config.byzcoinRPC.genesisID);
 
         Log.print("BEvm instance ID:", config.bevmRPC.id);
 
@@ -256,7 +220,7 @@ trait Candy extends Contract {
 
         Log.lvl2("Retrieve number of remaining candies");
         const expectedRemainingCoins = 100 - (10 * 11 / 2);
-        await expectAsync(config.bevmRPC.call(config.genesisBlock,
+        await expectAsync(config.bevmRPC.call(config.byzcoinRPC.genesisID,
                                               config.rosterToml,
                                               config.bevmRPC.id,
                                               account,

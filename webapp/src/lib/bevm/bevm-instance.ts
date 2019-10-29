@@ -180,7 +180,7 @@ export class EvmContract extends UserEvmInfo {
     }
 }
 
-export class BevmInstance extends Instance {
+export class BevmRPC extends Instance {
     static readonly contractID = "bevm";
 
     static readonly commandTransaction = "transaction";
@@ -198,7 +198,7 @@ export class BevmInstance extends Instance {
      */
     static getInstanceID(buf: Buffer): InstanceID {
         const h = createHash("sha256");
-        h.update(Buffer.from(BevmInstance.contractID));
+        h.update(Buffer.from(BevmRPC.contractID));
         h.update(buf);
         return h.digest();
     }
@@ -211,10 +211,10 @@ export class BevmInstance extends Instance {
      * @param signers   The list of signers for the transaction
      * @returns a promise that resolves with the new instance
      */
-    static async spawn(bc: ByzCoinRPC, darcID: InstanceID, signers: Signer[]): Promise<BevmInstance> {
+    static async spawn(bc: ByzCoinRPC, darcID: InstanceID, signers: Signer[]): Promise<BevmRPC> {
         const inst = Instruction.createSpawn(
             darcID,
-            BevmInstance.contractID,
+            BevmRPC.contractID,
             [],
         );
 
@@ -223,18 +223,18 @@ export class BevmInstance extends Instance {
 
         await bc.sendTransactionAndWait(ctx);
 
-        return BevmInstance.fromByzcoin(bc, ctx.instructions[0].deriveId());
+        return BevmRPC.fromByzcoin(bc, ctx.instructions[0].deriveId());
     }
 
     /**
-     * Create returns a BevmInstance from the given parameters.
+     * Create returns a BevmRPC from the given parameters.
      * @param bc
      * @param bevmID
      * @param darcID
      */
-    static create(bc: ByzCoinRPC, bevmID: InstanceID, darcID: InstanceID): BevmInstance {
-        return new BevmInstance(bc, new Instance({
-            contractID: BevmInstance.contractID,
+    static create(bc: ByzCoinRPC, bevmID: InstanceID, darcID: InstanceID): BevmRPC {
+        return new BevmRPC(bc, new Instance({
+            contractID: BevmRPC.contractID,
             darcID,
             data: Buffer.from(""),
             id: bevmID,
@@ -247,16 +247,16 @@ export class BevmInstance extends Instance {
      * @param iid   The instance ID
      * @returns a promise that resolves with the BEvm instance
      */
-    static async fromByzcoin(bc: ByzCoinRPC, iid: InstanceID): Promise<BevmInstance> {
-        return new BevmInstance(bc, await Instance.fromByzcoin(bc, iid));
+    static async fromByzcoin(bc: ByzCoinRPC, iid: InstanceID): Promise<BevmRPC> {
+        return new BevmRPC(bc, await Instance.fromByzcoin(bc, iid));
     }
 
     private stainlessRPC: StainlessRPC;
 
     constructor(private rpc: ByzCoinRPC, inst: Instance) {
         super(inst);
-        if (inst.contractID.toString() !== BevmInstance.contractID) {
-            throw new Error(`mismatch contract name: ${inst.contractID} vs ${BevmInstance.contractID}`);
+        if (inst.contractID.toString() !== BevmRPC.contractID) {
+            throw new Error(`mismatch contract name: ${inst.contractID} vs ${BevmRPC.contractID}`);
         }
     }
 
@@ -278,8 +278,8 @@ export class BevmInstance extends Instance {
         const signedTx = await this.stainlessRPC.finalizeTransaction(Buffer.from(unsignedTx.Transaction), signature);
 
         await this.invoke(
-            BevmInstance.commandTransaction, [
-                new Argument({name: BevmInstance.argumentTx, value: Buffer.from(signedTx.Transaction)}),
+            BevmRPC.commandTransaction, [
+                new Argument({name: BevmRPC.argumentTx, value: Buffer.from(signedTx.Transaction)}),
             ],
             signers, wait);
 
@@ -303,8 +303,8 @@ export class BevmInstance extends Instance {
         const signedTx = await this.stainlessRPC.finalizeTransaction(Buffer.from(unsignedTx.Transaction), signature);
 
         await this.invoke(
-            BevmInstance.commandTransaction, [
-                new Argument({name: BevmInstance.argumentTx, value: Buffer.from(signedTx.Transaction)}),
+            BevmRPC.commandTransaction, [
+                new Argument({name: BevmRPC.argumentTx, value: Buffer.from(signedTx.Transaction)}),
             ],
             signers, wait);
 
@@ -329,9 +329,9 @@ export class BevmInstance extends Instance {
 
     async creditAccount(signers: Signer[], address: Buffer, amount: Buffer, wait?: number) {
         await this.invoke(
-            BevmInstance.commandCredit, [
-                new Argument({name: BevmInstance.argumentAddress, value: address}),
-                new Argument({name: BevmInstance.argumentAmount, value: amount}),
+            BevmRPC.commandCredit, [
+                new Argument({name: BevmRPC.argumentAddress, value: address}),
+                new Argument({name: BevmRPC.argumentAmount, value: amount}),
             ],
             signers, wait);
     }
@@ -340,7 +340,7 @@ export class BevmInstance extends Instance {
         const ctx = ClientTransaction.make(
             this.rpc.getProtocolVersion(),
             Instruction.createInvoke(
-                this.id, BevmInstance.contractID, command, args,
+                this.id, BevmRPC.contractID, command, args,
             ));
 
         await ctx.updateCountersAndSign(this.rpc, [signers]);

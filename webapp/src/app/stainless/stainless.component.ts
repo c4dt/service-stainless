@@ -40,11 +40,11 @@ export class StainlessComponent implements OnInit {
     }
 
     async initialize() {
-        // Check user is registered and authorized to access
-        await this.checkRegistration();
-
         // Initialize BEvm cothority
         this.config = await Config.init();
+
+        // Check user is registered and authorized to access
+        await this.checkRegistration();
 
         // Load user state from local data
         this.userState = await this.loadUserState();
@@ -57,14 +57,7 @@ export class StainlessComponent implements OnInit {
 
     async checkRegistration() {
         try {
-            const res = await fetch("assets/conodes.toml");
-            if (!res.ok) {
-                return Promise.reject(`Error while fetching conodes config: ${res.status}`);
-            }
-            const config = DynaCredConfig.fromTOML(await res.text());
-            const bc = await ByzCoinRPC.fromByzcoin(config.roster, config.byzCoinID);
-
-            const userData: Data = await Data.load(bc, StorageDB);
+            const userData: Data = await Data.load(this.config.byzcoinRPC, StorageDB);
 
             if (userData.contact && userData.contact.isRegistered()) {
                 Log.lvl2("User is registered");
@@ -581,7 +574,7 @@ export class StainlessComponent implements OnInit {
 
             const response = await this.performLongAction(
                 () => this.config.bevmRPC.call(
-                    this.config.genesisBlock,
+                    this.config.byzcoinRPC.genesisID,
                     this.config.rosterToml,
                     this.config.bevmRPC.id,
                     account,
