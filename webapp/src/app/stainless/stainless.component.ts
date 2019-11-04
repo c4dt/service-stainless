@@ -56,7 +56,10 @@ export class StainlessComponent implements OnInit {
 
     async checkRegistration() {
         try {
-            const userData: Data = await Data.load(this.config.byzcoinRPC, StorageDB);
+            const userData: Data = this.config.userData;
+            if (!userData) {
+                throw new Error("No user data");
+            }
 
             if (userData.contact && userData.contact.isRegistered()) {
                 Log.lvl2("User is registered");

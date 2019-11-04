@@ -1,9 +1,12 @@
 import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
 import Signer from "@dedis/cothority/darc/signer";
 import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
+import Log from "@dedis/cothority/log";
 import { Roster } from "@dedis/cothority/network";
 
 import toml from "toml";
+
+import { Data, StorageDB } from "@c4dt/dynacred";
 
 import { BevmRPC } from "src/lib/bevm";
 import { StainlessRPC } from "src/lib/stainless";
@@ -29,7 +32,24 @@ export class Config {
 
         const byzcoinRPC = await ByzCoinRPC.fromByzcoin(roster, serverConfig.byzCoinID);
         const bevmRPC = await BevmRPC.fromByzcoin(byzcoinRPC, serverConfig.bevmInstanceID);
-        const bevmUser = SignerEd25519.fromBytes(serverConfig.bevmUserID);
+
+        let userData: Data;
+        try {
+            userData = await Data.load(byzcoinRPC, StorageDB);
+        } catch (e) {
+            Log.lvl2("Cannot load DynaCred user data");
+            userData = null;
+        }
+
+        let bevmUser: Signer;
+        if (serverConfig.bevmUserID) {
+            bevmUser = SignerEd25519.fromBytes(serverConfig.bevmUserID);
+        } else if (userData) {
+            bevmUser = userData.keyIdentitySigner;
+        } else {
+            throw new Error("Cannot determine bevmUser");
+        }
+        Log.lvl2(`bevmUser = ${bevmUser.toString()}`);
 
         const stainlessRPC = new StainlessRPC(stainlessConode);
         bevmRPC.setStainlessRPC(stainlessRPC);
@@ -41,6 +61,7 @@ export class Config {
             bevmRPC,
             stainlessRPC,
             bevmUser,
+            userData,
         );
 
         return cfg;
@@ -73,7 +94,7 @@ export class Config {
         return {
             adminDarc: Buffer.from(configParsed.AdminDarc, "hex"),
             bevmInstanceID: Buffer.from(bevmConfigParsed.bevmInstanceID, "hex"),
-            bevmUserID: Buffer.from(bevmConfigParsed.bevmUserID, "hex"),
+            bevmUserID: bevmConfigParsed.bevmUserID ? Buffer.from(bevmConfigParsed.bevmUserID, "hex") : null,
             byzCoinID: Buffer.from(configParsed.ByzCoinID, "hex"),
             ephemeral: Buffer.from(configParsed.Ephemeral, "hex"),
         };
@@ -86,5 +107,6 @@ export class Config {
         readonly bevmRPC: BevmRPC,
         readonly stainlessRPC: StainlessRPC,
         readonly bevmUser: Signer,
+        readonly userData: Data = null,
     ) {}
 }
