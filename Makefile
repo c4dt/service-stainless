@@ -5,7 +5,6 @@ services:
 services/%: | services
 	@: nothing
 
-toml_filename = conodes_bevm.toml
 webapp_build_options = --prod --base-href /stainless/
 
 include services/mk/service.mk
@@ -56,9 +55,12 @@ $Dbackend/build/config_bevm.toml: $Dbackend/build/ident_bevm
 		/^bevm_instance_id:/       {printf("bevmInstanceID = \"%s\"\n", $$2)} \
 		' $^ > $@
 
-$Swebapp-build $Swebapp-test $Swebapp-serve: $Dwebapp/src/assets/config_bevm.toml
+$Swebapp-build $Swebapp-test $Swebapp-serve: $Dwebapp/src/assets/config_bevm.toml $Dwebapp/src/assets/conodes_stainless.toml
 
 $Dwebapp/src/assets/config_bevm.toml: $Dbackend/build/config_bevm.toml
+	cp $^ $@
+
+$Dwebapp/src/assets/conodes_stainless.toml: $Dwebapp/src/assets/$(toml_filename)
 	cp $^ $@
 
 $Dsrc/Implementation/%_pb2.py: $Dprotobuf/%.proto

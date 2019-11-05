@@ -6,6 +6,7 @@ addons:
 
 stages:
     - lint
+    - test
     - build
     - name: deploy
       if: branch = master

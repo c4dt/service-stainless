@@ -2,10 +2,9 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 import { ClipboardService } from "ngx-clipboard";
 
-import { ByzCoinRPC } from "@c4dt/cothority/byzcoin";
-import { Darc, IdentityWrapper } from "@c4dt/cothority/darc";
-import Log from "@c4dt/cothority/log";
 import { Config as DynaCredConfig, Data, StorageDB } from "@c4dt/dynacred";
+import { Darc, IdentityWrapper } from "@dedis/cothority/darc";
+import Log from "@dedis/cothority/log";
 
 import Long from "long";
 
@@ -40,11 +39,11 @@ export class StainlessComponent implements OnInit {
     }
 
     async initialize() {
-        // Check user is registered and authorized to access
-        await this.checkRegistration();
-
         // Initialize BEvm cothority
         this.config = await Config.init();
+
+        // Check user is registered and authorized to access
+        await this.checkRegistration();
 
         // Load user state from local data
         this.userState = await this.loadUserState();
@@ -57,14 +56,10 @@ export class StainlessComponent implements OnInit {
 
     async checkRegistration() {
         try {
-            const res = await fetch("assets/conodes.toml");
-            if (!res.ok) {
-                return Promise.reject(`Error while fetching conodes config: ${res.status}`);
+            const userData: Data = this.config.userData;
+            if (!userData) {
+                throw new Error("No user data");
             }
-            const config = DynaCredConfig.fromTOML(await res.text());
-            const bc = await ByzCoinRPC.fromByzcoin(config.roster, config.byzCoinID);
-
-            const userData: Data = await Data.load(bc, StorageDB);
 
             if (userData.contact && userData.contact.isRegistered()) {
                 Log.lvl2("User is registered");
@@ -115,7 +110,7 @@ export class StainlessComponent implements OnInit {
             } catch (e) {
                 const ref = this.dialog.open(InfoDialog, {
                     data: {
-                        message: "User data could not be read and will be reinitialized",
+                        message: `The user data is invalid and must be reinitialized (reason: ${e.message})`,
                         requireAck: true,
                         title: "User data cleared",
                     },
@@ -581,7 +576,7 @@ export class StainlessComponent implements OnInit {
 
             const response = await this.performLongAction(
                 () => this.config.bevmRPC.call(
-                    this.config.genesisBlock,
+                    this.config.byzcoinRPC.genesisID,
                     this.config.rosterToml,
                     this.config.bevmRPC.id,
                     account,

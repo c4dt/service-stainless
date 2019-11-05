@@ -1,4 +1,4 @@
-import Log from "@c4dt/cothority/log";
+import Log from "@dedis/cothority/log";
 
 import { EvmAccount, EvmContract } from "src/lib/bevm";
 import { SelectableColl, UserEvmInfo } from "src/lib/storage";
@@ -74,9 +74,24 @@ export class Project extends UserEvmInfo {
 }
 
 export class UserState extends UserEvmInfo {
+    static currentVersion = 1;
+
     static storageKey = "bevm_info";
 
     static deserialize(obj: any): UserState {
+        // Check version
+        const version: number = obj.version || 0;
+        if (version < this.currentVersion) {
+            Log.lvl2(`UserState version not up to date: ${version} vs ${this.currentVersion}`);
+
+            switch (version) {
+                // No migration path for now
+                default: {
+                    throw new Error("incompatible version");
+                }
+            }
+        }
+
         const accounts = SelectableColl.deserializeColl<EvmAccount>(obj.accounts, EvmAccount);
         const projects = SelectableColl.deserializeColl<Project>(obj.projects, Project);
 
@@ -352,6 +367,7 @@ export class UserState extends UserEvmInfo {
             accounts: this._accounts.serialize(),
             projects: this._projects.serialize(),
             tutorialIsCompleted: this._tutorialIsCompleted,
+            version: UserState.currentVersion,
         };
     }
 

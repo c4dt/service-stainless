@@ -1,7 +1,7 @@
-import { BevmInstance, EvmAccount, EvmContract } from "./bevm-instance";
+import { BevmRPC, EvmAccount, EvmContract } from "./bevm-instance";
 
 export {
-    BevmInstance,
+    BevmRPC,
     EvmAccount,
     EvmContract,
 };
