@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-nb_nodes=4
+nb_nodes=1
 container_base_port=9000
 host_base_port=9000
 conode_data_path="${HOME}/conode_data"
-conode_base_name="conode-bevm"
+conode_base_name="conode-stainless"
 
 publish=$(
     for i in $( seq ${nb_nodes} ) 
