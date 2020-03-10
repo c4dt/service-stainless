@@ -3,9 +3,6 @@
 // Scala.
 package stainless
 
-// FIXME: Add info into README regarding what to install on the server, i.e.
-// stainless-smart and solcjs@0.4.24
-
 import (
 	"go.dedis.ch/cothority/v3/bevm"
 	"go.dedis.ch/cothority/v3/byzcoin"
@@ -56,11 +53,13 @@ type Stainless struct {
 	*onet.ServiceProcessor
 }
 
-func createSourceFiles(dir string, sourceFiles map[string]string) ([]string, error) {
+func createSourceFiles(dir string, sourceFiles map[string]string) ([]string,
+	error) {
 	var filenames []string
 
 	for filename, contents := range sourceFiles {
-		err := ioutil.WriteFile(filepath.Join(dir, filename), []byte(contents), 0644)
+		err := ioutil.WriteFile(filepath.Join(dir, filename),
+			[]byte(contents), 0644)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +91,8 @@ func verify(sourceFiles map[string]string) (string, string, error) {
 
 	// Build stainless arguments
 	args := append([]string{
-		fmt.Sprintf("--solvers=%s", strings.Join([]string{"smt-cvc4", "smt-z3"}, ",")),
+		fmt.Sprintf("--solvers=%s",
+			strings.Join([]string{"smt-cvc4", "smt-z3"}, ",")),
 		"--smart-contracts",
 		"--json",
 		fmt.Sprintf("--cache-dir=%s", cacheDir),
@@ -121,7 +121,8 @@ func verify(sourceFiles map[string]string) (string, string, error) {
 	}
 	// If the report is empty, verification could not proceed normally
 	if string(report) == "{}" {
-		return "", "", fmt.Errorf("Error in Stainless execution -- Console:\n%s", console)
+		return "", "", fmt.Errorf("Error in Stainless execution -- "+
+			"Console:\n%s", console)
 	}
 
 	// Verification was performed, and its results are contained in the report
@@ -164,7 +165,8 @@ func compileToSolidity(dir string, sourceFilenames []string) ([]string, error) {
 	return solidityFileNames, nil
 }
 
-func compileToBytecode(dir string, sourceFilenames []string, destDir string) error {
+func compileToBytecode(dir string, sourceFilenames []string,
+	destDir string) error {
 	// % solcjs --bin --abi --output-dir OUT_DIR [SOLIDITY_FILE...]
 
 	// Build Solidity compiler arguments
@@ -203,7 +205,8 @@ func buildContractMap(dir string) (map[string]*proto.BytecodeObj, error) {
 		// Extract contract name, to be used as map key
 		parts := strings.Split(abi, "_sol_")
 		if len(parts) < 2 {
-			return nil, fmt.Errorf("Unexpected filename for ABI file: '%s'", abi)
+			return nil, fmt.Errorf("Unexpected filename for ABI "+
+				"file: '%s'", abi)
 		}
 
 		nameWithExt := parts[len(parts)-1]
@@ -227,13 +230,17 @@ func buildContractMap(dir string) (map[string]*proto.BytecodeObj, error) {
 			return nil, fmt.Errorf("Duplicate contract: '%s'", name)
 		}
 
-		foundContracts[name] = &proto.BytecodeObj{Abi: string(abiContents), Bin: string(binContents)}
+		foundContracts[name] = &proto.BytecodeObj{
+			Abi: string(abiContents),
+			Bin: string(binContents),
+		}
 	}
 
 	return foundContracts, nil
 }
 
-func genBytecode(sourceFiles map[string]string) (map[string]*proto.BytecodeObj, error) {
+func genBytecode(sourceFiles map[string]string) (map[string]*proto.BytecodeObj,
+	error) {
 	// Create temporary working directory for isolated execution
 	dir, err := ioutil.TempDir("", "stainless-")
 	if err != nil {
@@ -267,7 +274,8 @@ func genBytecode(sourceFiles map[string]string) (map[string]*proto.BytecodeObj, 
 }
 
 // Verify performs a Stainless contract verification
-func (service *Stainless) Verify(req *proto.VerificationRequest) (network.Message, error) {
+func (service *Stainless) Verify(
+	req *proto.VerificationRequest) (network.Message, error) {
 	console, report, err := verify(req.SourceFiles)
 	if err != nil {
 		return nil, err
@@ -282,7 +290,8 @@ func (service *Stainless) Verify(req *proto.VerificationRequest) (network.Messag
 }
 
 // GenBytecode generates bytecode from Stainless contracts
-func (service *Stainless) GenBytecode(req *proto.BytecodeGenRequest) (network.Message, error) {
+func (service *Stainless) GenBytecode(
+	req *proto.BytecodeGenRequest) (network.Message, error) {
 	bytecodeObjs, err := genBytecode(req.SourceFiles)
 	if err != nil {
 		return nil, err
@@ -295,7 +304,8 @@ func (service *Stainless) GenBytecode(req *proto.BytecodeGenRequest) (network.Me
 	}, nil
 }
 
-func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{}, error) {
+func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{},
+	error) {
 	args := make([]interface{}, len(encodedArgs))
 	for i, argJSON := range encodedArgs {
 		var arg interface{}
@@ -307,7 +317,8 @@ func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{}, error) 
 		// FIXME: Limited number of supported argument types so far
 		switch abi[i].Type.String() {
 		case "uint256":
-			// The JSON unmarshaller decodes numbers as 'float64'; the EVM expects BigInt
+			// The JSON unmarshaller decodes numbers as 'float64'; the EVM
+			// expects BigInt
 			args[i] = big.NewInt(int64(arg.(float64)))
 		case "address":
 			args[i] = common.HexToAddress(arg.(string))
@@ -316,7 +327,8 @@ func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{}, error) 
 		}
 
 		log.Lvlf2("arg #%d: %v (%s) --%v--> %v (%v)",
-			i, arg, reflect.TypeOf(arg).Kind(), abi[i].Type, args[i], reflect.TypeOf(args[i]).Kind())
+			i, arg, reflect.TypeOf(arg).Kind(), abi[i].Type,
+			args[i], reflect.TypeOf(args[i]).Kind())
 	}
 
 	return args, nil
@@ -324,7 +336,8 @@ func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{}, error) 
 
 // DeployContract builds a transaction to deploy an EVM contract. Returns an
 // EVM transaction and its hash to be signed by the caller.
-func (service *Stainless) DeployContract(req *proto.DeployRequest) (network.Message, error) {
+func (service *Stainless) DeployContract(
+	req *proto.DeployRequest) (network.Message, error) {
 	abi, err := abi.JSON(strings.NewReader(req.Abi))
 	if err != nil {
 		return nil, err
@@ -342,7 +355,8 @@ func (service *Stainless) DeployContract(req *proto.DeployRequest) (network.Mess
 
 	callData := append(req.Bytecode, packedArgs...)
 
-	tx := types.NewContractCreation(req.Nonce, big.NewInt(int64(req.Amount)), req.GasLimit, big.NewInt(int64(req.GasPrice)), callData)
+	tx := types.NewContractCreation(req.Nonce, big.NewInt(int64(req.Amount)),
+		req.GasLimit, big.NewInt(int64(req.GasPrice)), callData)
 
 	signer := types.HomesteadSigner{}
 	hashedTx := signer.Hash(tx)
@@ -354,13 +368,15 @@ func (service *Stainless) DeployContract(req *proto.DeployRequest) (network.Mess
 
 	log.Lvl4("Returning", unsignedBuffer, hashedTx)
 
-	return &proto.TransactionHashResponse{Transaction: unsignedBuffer, TransactionHash: hashedTx[:]}, nil
+	return &proto.TransactionHashResponse{Transaction: unsignedBuffer,
+		TransactionHash: hashedTx[:]}, nil
 }
 
 // ExecuteTransaction builds a transaction to execute a R/W method on a
 // previously deployed EVM contract instance. Returns an EVM transaction and
 // its hash to be signed by the caller.
-func (service *Stainless) ExecuteTransaction(req *proto.TransactionRequest) (network.Message, error) {
+func (service *Stainless) ExecuteTransaction(
+	req *proto.TransactionRequest) (network.Message, error) {
 	abi, err := abi.JSON(strings.NewReader(req.Abi))
 	if err != nil {
 		return nil, err
@@ -376,7 +392,10 @@ func (service *Stainless) ExecuteTransaction(req *proto.TransactionRequest) (net
 		return nil, err
 	}
 
-	tx := types.NewTransaction(req.Nonce, common.BytesToAddress(req.ContractAddress), big.NewInt(int64(req.Amount)), req.GasLimit, big.NewInt(int64(req.GasPrice)), callData)
+	tx := types.NewTransaction(req.Nonce,
+		common.BytesToAddress(req.ContractAddress),
+		big.NewInt(int64(req.Amount)),
+		req.GasLimit, big.NewInt(int64(req.GasPrice)), callData)
 
 	signer := types.HomesteadSigner{}
 	hashedTx := signer.Hash(tx)
@@ -388,13 +407,15 @@ func (service *Stainless) ExecuteTransaction(req *proto.TransactionRequest) (net
 
 	log.Lvl4("Returning", unsignedBuffer, hashedTx)
 
-	return &proto.TransactionHashResponse{Transaction: unsignedBuffer, TransactionHash: hashedTx[:]}, nil
+	return &proto.TransactionHashResponse{Transaction: unsignedBuffer,
+		TransactionHash: hashedTx[:]}, nil
 }
 
 // FinalizeTransaction finalizes a previously initiated transaction, signed by
 // the caller. Returns an EVM transaction ready to be sent to ByzCoin and
 // handled by the bevm contract.
-func (service *Stainless) FinalizeTransaction(req *proto.TransactionFinalizationRequest) (network.Message, error) {
+func (service *Stainless) FinalizeTransaction(
+	req *proto.TransactionFinalizationRequest) (network.Message, error) {
 	signer := types.HomesteadSigner{}
 
 	var tx types.Transaction
@@ -422,7 +443,8 @@ func (service *Stainless) FinalizeTransaction(req *proto.TransactionFinalization
 
 // Call executes a R-only method on a previously deployed EVM contract instance
 // by contacting a ByzCoin cothority. Returns the call response.
-func (service *Stainless) Call(req *proto.CallRequest) (network.Message, error) {
+func (service *Stainless) Call(req *proto.CallRequest) (network.Message,
+	error) {
 	abi, err := abi.JSON(strings.NewReader(req.Abi))
 	if err != nil {
 		return nil, err
@@ -452,7 +474,8 @@ func (service *Stainless) Call(req *proto.CallRequest) (network.Message, error) 
 	bcClient := byzcoin.NewClient(req.BlockID, *grp.Roster)
 
 	// Instantiate a new BEvm client (we don't need a darc to read proofs)
-	bevmClient, err := bevm.NewClient(bcClient, darc.Signer{}, byzcoin.NewInstanceID(req.BEvmInstanceID))
+	bevmClient, err := bevm.NewClient(bcClient, darc.Signer{},
+		byzcoin.NewInstanceID(req.BEvmInstanceID))
 	if err != nil {
 		return nil, err
 	}
