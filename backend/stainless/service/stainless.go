@@ -24,7 +24,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"time"
 
@@ -304,36 +303,6 @@ func (service *Stainless) GenBytecode(
 	}, nil
 }
 
-func decodeArgs(encodedArgs []string, abi abi.Arguments) ([]interface{},
-	error) {
-	args := make([]interface{}, len(encodedArgs))
-	for i, argJSON := range encodedArgs {
-		var arg interface{}
-		err := json.Unmarshal([]byte(argJSON), &arg)
-		if err != nil {
-			return nil, err
-		}
-
-		// FIXME: Limited number of supported argument types so far
-		switch abi[i].Type.String() {
-		case "uint256":
-			// The JSON unmarshaller decodes numbers as 'float64'; the EVM
-			// expects BigInt
-			args[i] = big.NewInt(int64(arg.(float64)))
-		case "address":
-			args[i] = common.HexToAddress(arg.(string))
-		default:
-			return nil, fmt.Errorf("Unsupported argument type: %s", abi[i].Type)
-		}
-
-		log.Lvlf2("arg #%d: %v (%s) --%v--> %v (%v)",
-			i, arg, reflect.TypeOf(arg).Kind(), abi[i].Type,
-			args[i], reflect.TypeOf(args[i]).Kind())
-	}
-
-	return args, nil
-}
-
 // DeployContract builds a transaction to deploy an EVM contract. Returns an
 // EVM transaction and its hash to be signed by the caller.
 func (service *Stainless) DeployContract(
@@ -343,7 +312,7 @@ func (service *Stainless) DeployContract(
 		return nil, err
 	}
 
-	args, err := decodeArgs(req.Args, abi.Constructor.Inputs)
+	args, err := bevm.DecodeEvmArgs(req.Args, abi.Constructor.Inputs)
 	if err != nil {
 		return nil, err
 	}
@@ -382,7 +351,7 @@ func (service *Stainless) ExecuteTransaction(
 		return nil, err
 	}
 
-	args, err := decodeArgs(req.Args, abi.Methods[req.Method].Inputs)
+	args, err := bevm.DecodeEvmArgs(req.Args, abi.Methods[req.Method].Inputs)
 	if err != nil {
 		return nil, err
 	}
@@ -450,7 +419,7 @@ func (service *Stainless) Call(req *proto.CallRequest) (network.Message,
 		return nil, err
 	}
 
-	args, err := decodeArgs(req.Args, abi.Methods[req.Method].Inputs)
+	args, err := bevm.DecodeEvmArgs(req.Args, abi.Methods[req.Method].Inputs)
 	if err != nil {
 		return nil, err
 	}
@@ -460,8 +429,10 @@ func (service *Stainless) Call(req *proto.CallRequest) (network.Message,
 		Address: common.BytesToAddress(req.AccountAddress),
 	}
 	// We don't need the bytecode
-	contract := &bevm.EvmContract{
-		Abi:     abi,
+	contractInstance := bevm.EvmContractInstance{
+		Parent: &bevm.EvmContract{
+			Abi: abi,
+		},
 		Address: common.BytesToAddress(req.ContractAddress),
 	}
 
@@ -480,16 +451,14 @@ func (service *Stainless) Call(req *proto.CallRequest) (network.Message,
 		return nil, err
 	}
 
-	// FIXME: Handle result type appropriately
-	result := big.NewInt(0)
-
 	// Execute the view method in the EVM
-	err = bevmClient.Call(account, &result, contract, req.Method, args...)
+	result, err := bevmClient.Call(account, &contractInstance,
+		req.Method, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Lvl4("Returning", result)
+	log.Lvlf4("Returning: %v", result)
 
 	resultJSON, err := json.Marshal(result)
 	if err != nil {

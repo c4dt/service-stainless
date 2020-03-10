@@ -120,7 +120,7 @@ trait BasicContract extends Contract {
         const expectedHash = Buffer.from("c289e67875d147429d2ffc5cc58e9a1486d581bef5aeca63017ad7855f8dab26", "hex");
         /* tslint:enable:max-line-length */
 
-        const args = [JSON.stringify(100)];
+        const args = [JSON.stringify(String(100))];
 
         const response = await config.stainlessRPC.deployContract(1e7, 1, 0, 0, candyBytecode, candyAbi, args);
 
@@ -137,7 +137,7 @@ trait BasicContract extends Contract {
         /* tslint:enable:max-line-length */
 
         const nonce = 1;
-        const args = [JSON.stringify(10)];
+        const args = [JSON.stringify(String(10))];
 
         const response = await config.stainlessRPC.executeTransaction(1e7, 1, 0, contractAddress, nonce,
                                                                candyAbi, "eatCandy", args);
@@ -200,7 +200,7 @@ trait BasicContract extends Contract {
                                                 0,
                                                 account,
                                                 contract,
-                                                [JSON.stringify(100)],
+                                                [JSON.stringify(String(100))],
                                                )).toBeResolved();
         contract.addresses.select(0);
         expect(contract.addresses.selected).toEqual(expectedContractAddress);
@@ -214,7 +214,7 @@ trait BasicContract extends Contract {
                                                          account,
                                                          contract,
                                                          "eatCandy",
-                                                         [JSON.stringify(nbCandies)],
+                                                         [JSON.stringify(String(nbCandies))],
                                                         )).toBeResolved();
         }
 

@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.dedis.ch/cothority/v3/bevm"
 	"go.dedis.ch/cothority/v3/byzcoin"
 	"go.dedis.ch/kyber/v3/suites"
 	"go.dedis.ch/onet/v3"
@@ -378,11 +380,13 @@ func Test_InputArgs(t *testing.T) {
 	assert.Nil(t, err)
 
 	argsNative := []interface{}{
-		100,
+		"100",
 		"0x000102030405060708090a0b0c0d0e0f10111213",
 	}
+	arg1, err := strconv.ParseInt(argsNative[0].(string), 0, 64)
+	require.NoError(t, err)
 	expectedArgs := []interface{}{
-		big.NewInt(int64(argsNative[0].(int))),
+		big.NewInt(arg1),
 		common.HexToAddress(argsNative[1].(string)),
 	}
 
@@ -394,8 +398,8 @@ func Test_InputArgs(t *testing.T) {
 	}
 
 	// Check that decoding does not fail ...
-	args, err := decodeArgs(argsJSON, testABI.Methods[methodName].Inputs)
-	assert.Nil(t, err)
+	args, err := bevm.DecodeEvmArgs(argsJSON, testABI.Methods[methodName].Inputs)
+	require.NoError(t, err)
 
 	// ... and produces the right arguments ...
 	assert.Equal(t, expectedArgs, args)
@@ -415,9 +419,9 @@ func Test_InputArgs(t *testing.T) {
 	testABI, err = abi.JSON(strings.NewReader(abiJSON))
 	assert.Nil(t, err)
 
-	args, err = decodeArgs([]string{`100`}, testABI.Methods[methodName].Inputs)
-	assert.NotNil(t, err)
-	require.Contains(t, err.Error(), "Unsupported argument type")
+	args, err = bevm.DecodeEvmArgs([]string{`100`}, testABI.Methods[methodName].Inputs)
+	require.NotNil(t, err)
+	require.Contains(t, err.Error(), "unsupported type")
 	require.Contains(t, err.Error(), "uint42")
 }
 
@@ -435,8 +439,8 @@ func Test_Deploy(t *testing.T) {
 
 	candyAbi := `[{"constant":false,"inputs":[{"name":"candies","type":"uint256"}],"name":"eatCandy","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getRemainingCandies","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_candies","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]`
 
-	candySupply, err := json.Marshal(100)
-	assert.Nil(t, err)
+	candySupply, err := json.Marshal("100")
+	require.NoError(t, err)
 
 	response, err := client.DeployContract(ro.List[0], 1e7, 1, 0, 0, candyBytecode, candyAbi, string(candySupply))
 	assert.Nil(t, err)
@@ -465,8 +469,8 @@ func Test_Transaction(t *testing.T) {
 
 	candyAbi := `[{"constant":false,"inputs":[{"name":"candies","type":"uint256"}],"name":"eatCandy","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getRemainingCandies","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_candies","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]`
 
-	candiesToEat, err := json.Marshal(10)
-	assert.Nil(t, err)
+	candiesToEat, err := json.Marshal("10")
+	require.NoError(t, err)
 
 	nonce := uint64(1) // First call right after deployment
 
