@@ -20,10 +20,12 @@ func NewClient() *Client {
 }
 
 // Verify sends a verification request.
-func (c *Client) Verify(dst *network.ServerIdentity, sourceFiles map[string]string) (*proto.VerificationResponse, error) {
+func (c *Client) Verify(dst *network.ServerIdentity,
+	sourceFiles map[string]string) (*proto.VerificationResponse, error) {
 	response := &proto.VerificationResponse{}
 
-	err := c.SendProtobuf(dst, &proto.VerificationRequest{SourceFiles: sourceFiles}, response)
+	err := c.SendProtobuf(
+		dst, &proto.VerificationRequest{SourceFiles: sourceFiles}, response)
 	if err != nil {
 		return nil, err
 	}
@@ -32,10 +34,12 @@ func (c *Client) Verify(dst *network.ServerIdentity, sourceFiles map[string]stri
 }
 
 // GenBytecode sends a bytecode generation request.
-func (c *Client) GenBytecode(dst *network.ServerIdentity, sourceFiles map[string]string) (*proto.BytecodeGenResponse, error) {
+func (c *Client) GenBytecode(dst *network.ServerIdentity,
+	sourceFiles map[string]string) (*proto.BytecodeGenResponse, error) {
 	response := &proto.BytecodeGenResponse{}
 
-	err := c.SendProtobuf(dst, &proto.BytecodeGenRequest{SourceFiles: sourceFiles}, response)
+	err := c.SendProtobuf(
+		dst, &proto.BytecodeGenRequest{SourceFiles: sourceFiles}, response)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +49,10 @@ func (c *Client) GenBytecode(dst *network.ServerIdentity, sourceFiles map[string
 
 // DeployContract sends a request to deploy an EVM contract. Returns an EVM
 // transaction and its hash to be signed by the caller.
-func (c *Client) DeployContract(dst *network.ServerIdentity, gasLimit uint64, gasPrice uint64, amount uint64, nonce uint64, bytecode []byte, abi string, args ...string) (*proto.TransactionHashResponse, error) {
+func (c *Client) DeployContract(dst *network.ServerIdentity,
+	gasLimit uint64, gasPrice uint64, amount uint64, nonce uint64,
+	bytecode []byte, abi string,
+	args ...string) (*proto.TransactionHashResponse, error) {
 	request := &proto.DeployRequest{
 		GasLimit: gasLimit,
 		GasPrice: gasPrice,
@@ -68,7 +75,10 @@ func (c *Client) DeployContract(dst *network.ServerIdentity, gasLimit uint64, ga
 // ExecuteTransaction sends a request to execute a Transaction (R/W method) on
 // a previously deployed EVM contract instance. Returns an EVM transaction and
 // its hash to be signed by the caller.
-func (c *Client) ExecuteTransaction(dst *network.ServerIdentity, gasLimit uint64, gasPrice uint64, amount uint64, contractAddress []byte, nonce uint64, abi string, method string, args ...string) (*proto.TransactionHashResponse, error) {
+func (c *Client) ExecuteTransaction(dst *network.ServerIdentity,
+	gasLimit uint64, gasPrice uint64, amount uint64,
+	contractAddress []byte, nonce uint64, abi string,
+	method string, args ...string) (*proto.TransactionHashResponse, error) {
 	request := &proto.TransactionRequest{
 		GasLimit:        gasLimit,
 		GasPrice:        gasPrice,
@@ -92,7 +102,8 @@ func (c *Client) ExecuteTransaction(dst *network.ServerIdentity, gasLimit uint64
 // FinalizeTransaction sends a request to finalize a previously initiated
 // transaction (deployment of contract or execution of transaction). Returns a
 // signed EVM transaction, ready to be sent to ByzCoin.
-func (c *Client) FinalizeTransaction(dst *network.ServerIdentity, tx []byte, signature []byte) (*proto.TransactionResponse, error) {
+func (c *Client) FinalizeTransaction(dst *network.ServerIdentity,
+	tx []byte, signature []byte) (*proto.TransactionResponse, error) {
 	request := &proto.TransactionFinalizationRequest{
 		Transaction: tx,
 		Signature:   signature,
@@ -109,7 +120,10 @@ func (c *Client) FinalizeTransaction(dst *network.ServerIdentity, tx []byte, sig
 
 // Call sends a request to execute a Call (R-only method, "view method") on a
 // previously deployed EVM contract instance. Returns the call response.
-func (c *Client) Call(dst *network.ServerIdentity, blockID []byte, serverConfig string, bevmInstanceID byzcoin.InstanceID, accountAddress []byte, contractAddress []byte, abi string, method string, args ...string) (*proto.CallResponse, error) {
+func (c *Client) Call(dst *network.ServerIdentity, blockID []byte,
+	serverConfig string, bevmInstanceID byzcoin.InstanceID,
+	accountAddress []byte, contractAddress []byte, abi string,
+	method string, args ...string) (*proto.CallResponse, error) {
 	request := &proto.CallRequest{
 		BlockID:         blockID,
 		ServerConfig:    serverConfig,

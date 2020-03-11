@@ -648,7 +648,7 @@ export class StainlessComponent implements OnInit {
                             throw new Error(`Invalid number value: ${value}`);
                         }
 
-                        argsParsed.push(n);
+                        argsParsed.push(String(n));
                         break;
                     }
 
