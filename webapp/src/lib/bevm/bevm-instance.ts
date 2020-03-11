@@ -105,6 +105,7 @@ export class EvmContract extends UserEvmInfo {
         return address;
     }
 
+    // Translated from the Go Ethereum code
     private static erlEncode(address: Buffer, nonce: number): Buffer {
         const bufNonce = Buffer.alloc(8);
         bufNonce.writeUInt32BE(nonce / (2 ** 32), 0);
@@ -312,7 +313,7 @@ export class BevmRPC extends Instance {
     }
 
     /**
-     * * Execute a BEvm transaction.
+     * * Execute a BEvm view method.
      *
      * FIXME: document parameters
      */

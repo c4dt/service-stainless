@@ -2,8 +2,6 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from "@angular/material";
 import { ClipboardService } from "ngx-clipboard";
 
-import { Config as DynaCredConfig, Data, StorageDB } from "@c4dt/dynacred";
-import { Darc, IdentityWrapper } from "@dedis/cothority/darc";
 import Log from "@dedis/cothority/log";
 
 import Long from "long";
@@ -13,7 +11,6 @@ import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
 import { Project, SourceFile, UserState } from "src/lib/user-state";
 
-const USER_REGISTRATION_URL = "https://demo.c4dt.org/omniledger/newuser";
 const WEI_PER_ETHER = Long.fromString("1000000000000000000");
 
 @Component({
@@ -42,9 +39,6 @@ export class StainlessComponent implements OnInit {
         // Initialize BEvm cothority
         this.config = await Config.init();
 
-        // Check user is registered and authorized to access
-        await this.checkRegistration();
-
         // Load user state from local data
         this.userState = await this.loadUserState();
 
@@ -52,37 +46,6 @@ export class StainlessComponent implements OnInit {
         await this.initProjects();
 
         Log.lvl2("Initialization complete");
-    }
-
-    async checkRegistration() {
-        try {
-            const userData: Data = this.config.userData;
-            if (!userData) {
-                throw new Error("No user data");
-            }
-
-            if (userData.contact && userData.contact.isRegistered()) {
-                Log.lvl2("User is registered");
-
-                const identity = IdentityWrapper.fromIdentity(userData.keyIdentitySigner);
-                const stainlessDarc =
-                    Buffer.from("55427479252691730dd055703f7920d9b9bbf2b01b38f405c2e97e5f55176c5c", "hex");
-
-                const auths = await userData.bc.checkAuthorization(userData.bc.genesisID, stainlessDarc, identity);
-                if (auths.indexOf(Darc.ruleSign) >= 0) {
-                    Log.lvl2("User is authorized");
-                } else {
-                    Log.lvl2("User is not authorized");
-                    await this.handleNotAuthorized();
-                }
-            } else {
-                Log.lvl2("User is not registered");
-                await this.handleNotRegistered();
-            }
-        } catch (e) {
-            Log.lvl2("Failed to check registration:", e);
-            await this.handleNotRegistered();
-        }
     }
 
     loadUserState(): Promise<UserState> {
@@ -167,43 +130,6 @@ export class StainlessComponent implements OnInit {
         await this.config.bevmRPC.creditAccount([this.config.bevmUser],
                                                 account.address,
                                                 bufferAmount);
-    }
-
-    handleNotRegistered(): Promise<void> {
-        return new Promise(() => {
-            const dialogRef = this.dialog.open(InfoDialog, {
-                data: {
-                    message: "Access to the Stainless demonstrator requires a registration with the C4DT.\
-                    You will now be redirected to the registration process.\
-                    Please contact Christian Grigis <christian.grigis@epfl.ch> for any question.",
-                    requireAck: true,
-                    title: "User not registered",
-                },
-                width: "30em",
-            });
-
-            dialogRef.afterClosed().subscribe(async (_) => {
-                window.location.href = USER_REGISTRATION_URL;
-            });
-        });
-    }
-
-    handleNotAuthorized(): Promise<void> {
-        return new Promise(() => {
-            const dialogRef = this.dialog.open(InfoDialog, {
-                data: {
-                    message: "You are registered with the C4DT, but do not have access to this resource.\
-                    Please contact Christian Grigis <christian.grigis@epfl.ch> to request access.",
-                    requireAck: true,
-                    title: "User not authorized",
-                },
-                width: "30em",
-            });
-
-            dialogRef.afterClosed().subscribe(async (_) => {
-                window.location.reload();
-            });
-        });
     }
 
     toggleTutorial() {

@@ -61,7 +61,6 @@ export class Config {
             bevmRPC,
             stainlessRPC,
             bevmUser,
-            userData,
         );
 
         return cfg;
@@ -107,6 +106,5 @@ export class Config {
         readonly bevmRPC: BevmRPC,
         readonly stainlessRPC: StainlessRPC,
         readonly bevmUser: Signer,
-        readonly userData: Data = null,
     ) {}
 }
