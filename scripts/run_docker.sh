@@ -30,6 +30,13 @@ function run_container {
         --user `id -u`:`id -g` \
         ${publish} \
         ${network} \
+        --label "traefik.enable=true" \
+        --label "traefik.http.routers.demo-stainless.rule=Host(\`demo.c4dt.org\`)" \
+        --label "traefik.http.routers.demo-stainless.entryPoints=demo-stainless" \
+        --label "traefik.http.routers.demo-stainless.service=demo-stainless" \
+        --label "traefik.http.routers.demo-stainless.tls=true" \
+        --label "traefik.http.routers.demo-stainless.tls.certResolver=sample" \
+        --label "traefik.http.services.demo-stainless.loadbalancer.server.scheme=http" \
         --name "${conode_base_name}-${index}" \
         c4dt/service-stainless-backend:latest -d 2 -c /config/private.toml server
 }
@@ -48,11 +55,8 @@ else
 
         case ${i} in
             1)
-                main_id=$( run_container "${i}" "${publish}" "--add-host demo.c4dt.org:127.0.0.1" )
-                echo "--> ${main_id}"
-                ;;
-            *)
-                id=$( run_container "${i}" "" "--network container:${main_id}" )
+                container_port=`expr ${container_base_port} + $i '*' 2 + 1`
+                id=$( run_container "${i}" "--expose ${container_port}" "--network proxy" )
                 echo "--> ${id}"
                 ;;
         esac
