@@ -224,7 +224,7 @@ export class BevmRPC extends Instance {
 
         await bc.sendTransactionAndWait(ctx);
 
-        return BevmRPC.fromByzcoin(bc, ctx.instructions[0].deriveId());
+        return BevmRPC.fromByzcoin(bc, ctx.instructions[0].deriveId(), 2);
     }
 
     /**
@@ -248,8 +248,9 @@ export class BevmRPC extends Instance {
      * @param iid   The instance ID
      * @returns a promise that resolves with the BEvm instance
      */
-    static async fromByzcoin(bc: ByzCoinRPC, iid: InstanceID): Promise<BevmRPC> {
-        return new BevmRPC(bc, await Instance.fromByzcoin(bc, iid));
+    static async fromByzcoin(bc: ByzCoinRPC, iid: InstanceID,
+                             waitMatch: number = 0, interval: number = 1000): Promise<BevmRPC> {
+        return new BevmRPC(bc, await Instance.fromByzcoin(bc, iid, waitMatch, interval));
     }
 
     private stainlessRPC: StainlessRPC;

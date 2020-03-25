@@ -29,7 +29,7 @@ class TestConfig extends Config {
             darc.rules.appendToRule(rule, admin, "|");
         });
 
-        const byzcoinRPC = await ByzCoinRPC.newByzCoinRPC(roster, darc, Long.fromNumber(5e8));
+        const byzcoinRPC = await ByzCoinRPC.newByzCoinRPC(roster, darc, Long.fromNumber(1e9));
 
         const bevmRPC = await BevmRPC.spawn(byzcoinRPC, darc.getBaseID(), [admin]);
 
