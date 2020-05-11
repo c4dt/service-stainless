@@ -20,7 +20,7 @@ jobs:
           install: cd webapp && npm ci
           script: ng lint
         - language: go
-          go: 1.12.x
+          go: 1.14.x
           script:
             - cd backend
             - if test $( gofmt -d . | tee gofmt.results | wc -l ) -ne 0; then cat gofmt.results; exit 1; fi
@@ -29,7 +29,7 @@ jobs:
 
         - stage: test
           language: go
-          go: 1.12.x
+          go: 1.14.x
           script:
               - nvm install
               - make backend-test
@@ -42,7 +42,7 @@ jobs:
 
         - stage: build
           language: go
-          go: 1.12.x
+          go: 1.14.x
           script:
               - nvm install
               - make webapp-build
