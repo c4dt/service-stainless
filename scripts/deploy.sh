@@ -8,8 +8,10 @@ mv dist "dist-$( date '+%F_%T' )"
 tar xf build/dist.tar.xz
 cp Config/*toml dist/stainless-demo/assets/
 
-./scripts/run_docker.sh -s
-docker pull c4dt/service-stainless-backend:latest
-./scripts/run_docker.sh
+export USER_INFO="$( id -u ):$( id -g )"
+
+docker-compose -f backend/docker-compose.yml down
+docker-compose -f backend/docker-compose.yml pull
+docker-compose -f backend/docker-compose.yml up -d
 
 echo "Deployment completed."

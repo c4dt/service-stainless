@@ -2,81 +2,83 @@ syntax = "proto3";
 
 package stainless;
 
+option go_package = "github.com/c4dt/service-stainless/backend";
+
 // VerificationRequest asks the Stainless service to perform verification of contracts
 message VerificationRequest {
-    map<string, string> SourceFiles = 1;
+    map<string, string> SourceFiles = 101;
 }
 
 // VerificationResponse is the result of a Stainless verification
 message VerificationResponse {
-    string Console = 1;
-    string Report = 2;
+    string Console = 101;
+    string Report = 102;
 }
 
 // BytecodeGenRequest asks the Stainless service to generate Ethereum bytecode
 // of contracts
 message BytecodeGenRequest {
-	map<string, string> SourceFiles = 1;
+	map<string, string> SourceFiles = 101;
 }
 
 // BytecodeObj is the combination of the binary code and the ABI
 message BytecodeObj {
-    string Abi = 1;
-    string Bin = 2;
+    string Abi = 101;
+    string Bin = 102;
 }
 
 // BytecodeGenResponse is the result of a Stainless bytecode generation
 message BytecodeGenResponse {
-    map<string, BytecodeObj> BytecodeObjs = 1;
+    map<string, BytecodeObj> BytecodeObjs = 101;
 }
 
 message DeployRequest {
-    uint64 GasLimit = 1;
-    uint64 GasPrice = 2;
-    uint64 Amount = 3;
-    uint64 Nonce = 4;
-    bytes Bytecode = 5;
-    string Abi = 6; // JSON-encoded
-    repeated string Args = 7; // JSON-encoded
+    uint64 GasLimit = 101;
+    uint64 GasPrice = 102;
+    uint64 Amount = 103;
+    uint64 Nonce = 104;
+    bytes Bytecode = 105;
+    string Abi = 106; // JSON-encoded
+    repeated string Args = 107; // JSON-encoded
 
 }
 
 message TransactionRequest {
-    uint64 GasLimit = 1;
-    uint64 GasPrice = 2;
-    uint64 Amount = 3;
-    bytes ContractAddress = 4;
-    uint64 Nonce = 5;
-    string Abi = 6; // JSON-encoded
-    string Method = 7;
-    repeated string Args = 8; // JSON-encoded
+    uint64 GasLimit = 101;
+    uint64 GasPrice = 102;
+    uint64 Amount = 103;
+    bytes ContractAddress = 104;
+    uint64 Nonce = 105;
+    string Abi = 106; // JSON-encoded
+    string Method = 107;
+    repeated string Args = 108; // JSON-encoded
 }
 
 message TransactionHashResponse {
-	bytes Transaction = 1;
-	bytes TransactionHash = 2;
+	bytes Transaction = 101;
+	bytes TransactionHash = 102;
 }
 
 message TransactionFinalizationRequest {
-	bytes Transaction = 1;
-	bytes Signature = 2;
+	bytes Transaction = 101;
+	bytes Signature = 102;
 }
 
 message TransactionResponse {
-	bytes Transaction = 1;
+	bytes Transaction = 101;
 }
 
 message CallRequest {
-	bytes BlockID = 1;
-	string ServerConfig = 2;
-	bytes BEvmInstanceID = 3;
-	bytes AccountAddress = 4;
-	bytes ContractAddress = 5;
-	string Abi = 6; // JSON-encoded
-	string Method = 7;
-	repeated string Args = 8; // JSON-encoded
+	bytes BlockID = 101;
+	string ServerConfig = 102;
+	bytes BEvmInstanceID = 103;
+	bytes AccountAddress = 104;
+	bytes ContractAddress = 105;
+	string Abi = 106; // JSON-encoded
+	string Method = 107;
+	repeated string Args = 108; // JSON-encoded
 }
 
 message CallResponse {
-	string Result = 1; // JSON-encoded
+	string Result = 101; // JSON-encoded
 }
