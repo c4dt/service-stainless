@@ -9,9 +9,10 @@ tar xf build/dist.tar.xz
 cp Config/*toml dist/stainless-demo/assets/
 
 export USER_INFO="$( id -u ):$( id -g )"
+compose_file=$( dirname $0 )/docker-compose.yml
 
-docker-compose -f backend/docker-compose.yml down
-docker-compose -f backend/docker-compose.yml pull
-docker-compose -f backend/docker-compose.yml up -d
+docker-compose -f ${compose_file} down
+docker-compose -f ${compose_file} pull
+docker-compose -f ${compose_file} up -d
 
 echo "Deployment completed."
