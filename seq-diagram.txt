@@ -10,7 +10,7 @@ return Ethereum bytecode+ABI
 
 ==Deploy==
 
-Client -> StainlessService ++ : deploy(bytecode, args)
+Client -> StainlessService ++ : deploy(bytecode, abi, args)
 StainlessService -> StainlessService: build Ethereum tx
 return txHash
 
@@ -27,7 +27,7 @@ return status
 
 ==Execute Transaction==
 
-Client -> StainlessService ++ : transaction(bytecode, method, args)
+Client -> StainlessService ++ : transaction(abi, method, args)
 StainlessService -> StainlessService: build Ethereum tx
 return txHash
 
@@ -44,7 +44,7 @@ return status
 
 ==Execute View Method==
 
-Client -> StainlessService ++ : call(bytecode, method, args)
+Client -> StainlessService ++ : call(abi, method, args)
 note over StainlessService: execute in EVM
 loop
 StainlessService -> StainlessService ++ : access state
