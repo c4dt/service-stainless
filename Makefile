@@ -68,6 +68,9 @@ $Dsrc/Implementation/%_pb2.py: $Dprotobuf/%.proto
 .PHONY: src-proto
 src-proto: $(foreach p,$($SPROTOS),$Dsrc/Implementation/$p_pb2.py)
 
+seq-diagram.png: 	seq-diagram.txt
+	plantuml $^
+
 ifneq ($S,)
 all: $Sall
 endif
