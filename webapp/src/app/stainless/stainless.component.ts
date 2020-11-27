@@ -4,14 +4,10 @@ import { ClipboardService } from "ngx-clipboard";
 
 import Log from "@dedis/cothority/log";
 
-import Long from "long";
-
-import { EvmAccount, EvmContract } from "src/lib/bevm";
+import { EvmContract, WEI_PER_ETHER } from "@dedis/cothority/bevm";
 import { Config } from "src/lib/config";
 import { stainless as proto } from "src/lib/proto";
-import { Project, SourceFile, UserState } from "src/lib/user-state";
-
-const WEI_PER_ETHER = Long.fromString("1000000000000000000");
+import { Project, SourceFile, UIEvmAccount, UIEvmContract, UserState } from "src/lib/user-state";
 
 @Component({
   selector: "app-stainless",
@@ -122,14 +118,15 @@ export class StainlessComponent implements OnInit {
         });
     }
 
-    async creditAccount(account: EvmAccount, amount: number) {
-        const bufferAmount = Buffer.from(WEI_PER_ETHER.mul(amount).toBytesBE());
+    async creditAccount(account: UIEvmAccount, amount: number) {
+        const creditAmount = WEI_PER_ETHER.mul(amount);
 
         // Credit account to allow for transactions
         Log.lvl2("Crediting newly created EVM account...");
-        await this.config.bevmRPC.creditAccount([this.config.bevmUser],
-                                                account.address,
-                                                bufferAmount);
+        await this.config.bevmInstance.creditAccount(
+            [this.config.bevmUser],
+            account.wrapped,
+            creditAmount);
     }
 
     toggleTutorial() {
@@ -152,7 +149,7 @@ export class StainlessComponent implements OnInit {
         return this.userState.projectSelectedIndex;
     }
 
-    get accounts(): EvmAccount[] {
+    get accounts(): UIEvmAccount[] {
         return this.userState.accounts;
     }
 
@@ -160,7 +157,7 @@ export class StainlessComponent implements OnInit {
         return this.userState.accountSelectedIndex;
     }
 
-    get contracts(): EvmContract[] {
+    get contracts(): UIEvmContract[] {
         return this.userState.contracts;
     }
 
@@ -291,7 +288,7 @@ export class StainlessComponent implements OnInit {
 
             // Ensure file names are not too long
             if (position.file.length > 15) {
-                position.file = position.file.substr(0, 15) + "*";
+                position.file = position.file.substr(0, 15) + "...";
             }
 
             return {
@@ -390,7 +387,8 @@ export class StainlessComponent implements OnInit {
             const abi = response.BytecodeObjs[name].Abi;
 
             Log.print(`creating contract "${name}"`);
-            return new EvmContract(name, bytecode, abi);
+            const contract = new EvmContract(name, bytecode, abi);
+            return new UIEvmContract(contract);
         });
 
         this.userState.contracts = contracts;
@@ -399,7 +397,7 @@ export class StainlessComponent implements OnInit {
     deploy() {
         const contract = this.userState.contractSelected;
         const account = this.userState.accountSelected;
-        const abi = this.getMethodAbi(contract, undefined);
+        const abi = contract.getMethodAbi("");
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
@@ -409,8 +407,8 @@ export class StainlessComponent implements OnInit {
             width: "30em",
         });
 
-        dialogRef.afterClosed().subscribe(async (result) => {
-            const args = this.parseArguments(result, abi);
+        dialogRef.afterClosed().subscribe(async (userArgs) => {
+            const args = this.parseArguments(contract, userArgs, abi);
 
             if (args === null) {
                 return;
@@ -419,13 +417,13 @@ export class StainlessComponent implements OnInit {
             Log.lvl2(`Deploying contract with constructor args ${args}`);
 
             await this.performLongAction(
-                () => this.config.bevmRPC.deploy(
+                () => this.config.bevmInstance.deploy(
                     [this.config.bevmUser],
                     1e7,
                     1,
                     0,
-                    account,
-                    contract,
+                    account.wrapped,
+                    contract.wrapped,
                     args,
                 ),
                 "Deploying new instance");
@@ -441,7 +439,7 @@ export class StainlessComponent implements OnInit {
         const methodName = this.userState.transactionSelected;
         const contract = this.userState.contractSelected;
         const account = this.userState.accountSelected;
-        const abi = this.getMethodAbi(contract, methodName);
+        const abi = contract.getMethodAbi(methodName);
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
@@ -451,8 +449,8 @@ export class StainlessComponent implements OnInit {
             width: "30em",
         });
 
-        dialogRef.afterClosed().subscribe(async (result) => {
-            const args = this.parseArguments(result, abi);
+        dialogRef.afterClosed().subscribe(async (userArgs) => {
+            const args = this.parseArguments(contract, userArgs, abi);
 
             if (args === null) {
                 return;
@@ -461,13 +459,14 @@ export class StainlessComponent implements OnInit {
             Log.lvl2(`Executing transaction with args ${args}`);
 
             await this.performLongAction(
-                () => this.config.bevmRPC.transaction(
+                () => this.config.bevmInstance.transaction(
                     [this.config.bevmUser],
                     1e7,
                     1,
                     0,
-                    account,
-                    contract,
+                    account.wrapped,
+                    contract.wrapped,
+                    contract.addresses.selectedIndex,
                     methodName,
                     args,
                 ),
@@ -481,7 +480,7 @@ export class StainlessComponent implements OnInit {
         const methodName = this.userState.viewMethodSelected;
         const contract = this.userState.contractSelected;
         const account = this.userState.accountSelected;
-        const abi = this.getMethodAbi(contract, methodName);
+        const abi = contract.getMethodAbi(methodName);
 
         const dialogRef = this.dialog.open(ArgDialog, {
             data: {
@@ -491,8 +490,8 @@ export class StainlessComponent implements OnInit {
             width: "30em",
         });
 
-        dialogRef.afterClosed().subscribe(async (result) => {
-            const args = this.parseArguments(result, abi);
+        dialogRef.afterClosed().subscribe(async (userArgs) => {
+            const args = this.parseArguments(contract, userArgs, abi);
 
             if (args === null) {
                 return;
@@ -501,12 +500,10 @@ export class StainlessComponent implements OnInit {
             Log.lvl2(`Executing view method with args ${args}`);
 
             const response = await this.performLongAction(
-                () => this.config.bevmRPC.call(
-                    this.config.byzcoinRPC.genesisID,
-                    this.config.rosterToml,
-                    this.config.bevmRPC.id,
-                    account,
-                    contract,
+                () => this.config.bevmInstance.call(
+                    account.wrapped,
+                    contract.wrapped,
+                    contract.addresses.selectedIndex,
                     methodName,
                     args,
                 ),
@@ -514,7 +511,7 @@ export class StainlessComponent implements OnInit {
 
             Log.lvl2(`Response = ${response}`);
 
-            this.viewMethodResult = response;
+            this.viewMethodResult = contract.makeUserResult(Array.from(response), abi);
         });
     }
 
@@ -539,20 +536,7 @@ export class StainlessComponent implements OnInit {
         return lineNumbers.join("\n");
     }
 
-    private getMethodAbi(contract: EvmContract, methodName: string): any {
-        const contractAbi = JSON.parse(contract.abi);
-        const methodAbi = contractAbi.filter((elem: any) => elem.name === methodName);
-
-        if (methodAbi.length === 0) {
-            throw new Error(`No ABI found in contract ${contract.name} for method ${methodName}`);
-        } else if (methodAbi.length > 1) {
-            throw new Error(`{methodAbi.length} entries found in contract ${contract.name} for method ${methodName}`);
-        }
-
-        return methodAbi[0];
-    }
-
-    private parseArguments(args: string[], abi: any): string[] {
+    private parseArguments(contract: UIEvmContract, args: string[], abi: any): string[] {
         if (args === undefined) {
             return null;
         }
@@ -561,38 +545,8 @@ export class StainlessComponent implements OnInit {
             return null;
         }
 
-        const argsParsed: Array<number | string> = [];
         try {
-            for (let i = 0; i < args.length; i++) {
-                const value = args[i];
-                const type = abi.inputs[i].type;
-
-                switch (type) {
-                    case "uint256": {
-                        const n = Number(value);
-                        if (value === "" || !Number.isSafeInteger(n) || n < 0) {
-                            throw new Error(`Invalid number value: ${value}`);
-                        }
-
-                        argsParsed.push(String(n));
-                        break;
-                    }
-
-                    case "address": {
-                        const rx = new RegExp("^0x[0-9a-fA-F]+$");
-                        if (!rx.test(value)) {
-                            throw new Error(`Invalid address value: ${value}`);
-                        }
-
-                        argsParsed.push(value);
-                        break;
-                    }
-
-                    default: throw new Error(`Type not supported: ${type}`);
-                }
-            }
-
-            return argsParsed.map((v: number | string) => JSON.stringify(v));
+            return contract.parseUserArgs(args, abi);
         } catch (exc) {
             this.dialog.open(InfoDialog, {
                 data: {
