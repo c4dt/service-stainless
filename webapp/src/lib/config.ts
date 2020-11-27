@@ -1,20 +1,48 @@
-import ByzCoinRPC from "@dedis/cothority/byzcoin/byzcoin-rpc";
+import { BEvmInstance } from "@dedis/cothority/bevm";
+import { ByzCoinRPC, IStorage } from "@dedis/cothority/byzcoin";
 import Signer from "@dedis/cothority/darc/signer";
 import SignerEd25519 from "@dedis/cothority/darc/signer-ed25519";
 import Log from "@dedis/cothority/log";
 import { Roster } from "@dedis/cothority/network";
 
+import Dexie from "dexie";
 import toml from "toml";
 
-import { Data, StorageDB } from "@c4dt/dynacred";
+import { Fetcher, User } from "@c4dt/dynacred";
 
-import { BevmRPC } from "src/lib/bevm";
 import { StainlessRPC } from "src/lib/stainless";
 
 const ROSTER_FILE = "conodes.toml";
 const STAINLESS_ROSTER_FILE = "conodes_stainless.toml";
 const BYZCOIN_CONFIG_FILE = "config.toml";
 const BEVM_CONFIG_FILE = "config_bevm.toml";
+
+/**
+ * The main DB storage for dynacred users.
+ */
+class StorageDB implements IStorage {
+    db: Dexie.Table<{ key: string, buf: Buffer }, string>;
+
+    constructor() {
+        const db = new Dexie("dynasent2");
+        db.version(1).stores({
+            contacts: "&key",
+        });
+        this.db = db.table("contacts");
+    }
+
+    async set(key: string, buf: Buffer) {
+        await this.db.put({key, buf});
+    }
+
+    async get(key: string): Promise<Buffer | undefined> {
+        const entry = await this.db.get({key});
+        if (entry !== undefined) {
+            return Buffer.from(entry.buf);
+        }
+        return undefined;
+    }
+}
 
 export class Config {
 
@@ -31,11 +59,12 @@ export class Config {
         const serverConfig = await Config.getServerConfig();
 
         const byzcoinRPC = await ByzCoinRPC.fromByzcoin(roster, serverConfig.byzCoinID);
-        const bevmRPC = await BevmRPC.fromByzcoin(byzcoinRPC, serverConfig.bevmInstanceID);
+        const bevmInstance = await BEvmInstance.fromByzcoin(byzcoinRPC, serverConfig.bevmInstanceID);
 
-        let userData: Data;
+        let userData: User;
         try {
-            userData = await Data.load(byzcoinRPC, StorageDB);
+            const fetcher = new Fetcher(byzcoinRPC, new StorageDB());
+            userData = await fetcher.retrieveUserByDB();
         } catch (e) {
             Log.lvl2("Cannot load DynaCred user data");
             userData = null;
@@ -45,20 +74,16 @@ export class Config {
         if (serverConfig.bevmUserID) {
             bevmUser = SignerEd25519.fromBytes(serverConfig.bevmUserID);
         } else if (userData) {
-            bevmUser = userData.keyIdentitySigner;
+            bevmUser = userData.kiSigner;
         } else {
             throw new Error("Cannot determine bevmUser");
         }
         Log.lvl2(`bevmUser = ${bevmUser.toString()}`);
 
         const stainlessRPC = new StainlessRPC(stainlessConode);
-        bevmRPC.setStainlessRPC(stainlessRPC);
 
         const cfg = new Config(
-            byzcoinRPC,
-            rosterToml,
-            roster,
-            bevmRPC,
+            bevmInstance,
             stainlessRPC,
             bevmUser,
         );
@@ -100,10 +125,7 @@ export class Config {
     }
 
     protected constructor(
-        readonly byzcoinRPC: ByzCoinRPC,
-        readonly rosterToml: string,
-        readonly roster: Roster,
-        readonly bevmRPC: BevmRPC,
+        readonly bevmInstance: BEvmInstance,
         readonly stainlessRPC: StainlessRPC,
         readonly bevmUser: Signer,
     ) {}

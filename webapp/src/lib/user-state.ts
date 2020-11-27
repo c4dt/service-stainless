@@ -1,6 +1,7 @@
 import Log from "@dedis/cothority/log";
 
-import { EvmAccount, EvmContract } from "src/lib/bevm";
+// import { UIEvmAccount, UIEvmContract } from "src/lib/bevm";
+import { EvmAccount, EvmContract } from "@dedis/cothority/bevm";
 import { SelectableColl, UserEvmInfo } from "src/lib/storage";
 
 export class SourceFile extends UserEvmInfo {
@@ -20,10 +21,124 @@ export class SourceFile extends UserEvmInfo {
     }
 }
 
+export class UIEvmAccount extends UserEvmInfo {
+    static deserialize(obj: any): UIEvmAccount {
+        const account = EvmAccount.deserialize(obj);
+
+        return new UIEvmAccount(account);
+    }
+
+    constructor(readonly wrapped: EvmAccount) { super(); }
+
+    get name(): string {
+        return this.wrapped.name;
+    }
+
+    serialize(): object {
+        return this.wrapped.serialize();
+    }
+}
+
+export class UIEvmContract extends UserEvmInfo {
+    static deserialize(obj: any): UIEvmContract {
+        const contract = EvmContract.deserialize(obj);
+
+        return new UIEvmContract(contract);
+    }
+
+    readonly transactions: SelectableColl<string>;
+    readonly viewMethods: SelectableColl<string>;
+    private _addresses: SelectableColl<Buffer> = new SelectableColl<Buffer>([]);
+
+    constructor(readonly wrapped: EvmContract) {
+        super();
+
+        this.transactions = new SelectableColl<string>(wrapped.transactions);
+        this.viewMethods = new SelectableColl<string>(wrapped.viewMethods);
+        this._addresses = new SelectableColl<Buffer>(wrapped.addresses);
+    }
+
+    get addresses(): SelectableColl<Buffer> {
+        return this._addresses;
+    }
+
+    get name(): string {
+        return this.wrapped.name;
+    }
+
+    getMethodAbi(method: string): any {
+        return this.wrapped.getMethodAbi(method);
+    }
+
+    parseUserArgs(args: string[], abi: any): any[] {
+        if (args === undefined) {
+            return null;
+        }
+
+        if (args.filter((v: string) => v === undefined).length > 0) {
+            return null;
+        }
+
+        const argsParsed: Array<number | string> = [];
+
+        for (let i = 0; i < args.length; i++) {
+            const value = args[i];
+            const type = abi.inputs[i].type;
+
+            switch (type) {
+                case "uint256": {
+                    const n = Number(value);
+                    if (value === "" || !Number.isSafeInteger(n) || n < 0) {
+                        throw new Error(`Invalid number value: ${value}`);
+                    }
+
+                    argsParsed.push(n);
+                    break;
+                }
+
+                case "address": {
+                    const rx = new RegExp("^0x[0-9a-fA-F]+$");
+                    if (!rx.test(value)) {
+                        throw new Error(`Invalid address value: ${value}`);
+                    }
+
+                    argsParsed.push(value);
+                    break;
+                }
+
+                default: throw new Error(`Type not supported: ${type}`);
+            }
+        }
+
+        return argsParsed;
+    }
+
+    makeUserResult(result: any[], abi: any): string {
+        const values: string[] = result.map((val, index) => {
+            const type = abi.outputs[index].type;
+
+            switch (type) {
+                case "uint256": {
+                    // The value is a BigInteger
+                    return val.toString();
+                }
+
+                default: throw new Error(`Type not supported: ${type}`);
+            }
+        });
+
+        return values.join(", ");
+    }
+
+    serialize(): object {
+        return this.wrapped.serialize();
+    }
+}
+
 export class Project extends UserEvmInfo {
     static deserialize(obj: any): Project {
         const sourceFiles = SelectableColl.deserializeColl<SourceFile>(obj.sourceFiles, SourceFile);
-        const contracts = SelectableColl.deserializeColl<EvmContract>(obj.contracts, EvmContract);
+        const contracts = SelectableColl.deserializeColl<UIEvmContract>(obj.contracts, UIEvmContract);
 
         const project = new Project(obj.name, sourceFiles, obj.version);
         project.contracts = contracts;
@@ -33,13 +148,13 @@ export class Project extends UserEvmInfo {
     }
 
     readonly sourceFiles: SelectableColl<SourceFile>;
-    contracts: SelectableColl<EvmContract>;
+    contracts: SelectableColl<UIEvmContract>;
     verificationResults: any = undefined;
 
     constructor(readonly name: string, sourceFiles: SelectableColl<SourceFile>, readonly version: number = 0) {
         super();
 
-        this.contracts = new SelectableColl<EvmContract>();
+        this.contracts = new SelectableColl<UIEvmContract>();
         this.sourceFiles = sourceFiles;
     }
 
@@ -74,7 +189,7 @@ export class Project extends UserEvmInfo {
 }
 
 export class UserState extends UserEvmInfo {
-    static currentVersion = 1;
+    static currentVersion = 2;
 
     static storageKey = "bevm_info";
 
@@ -92,7 +207,7 @@ export class UserState extends UserEvmInfo {
             }
         }
 
-        const accounts = SelectableColl.deserializeColl<EvmAccount>(obj.accounts, EvmAccount);
+        const accounts = SelectableColl.deserializeColl<UIEvmAccount>(obj.accounts, UIEvmAccount);
         const projects = SelectableColl.deserializeColl<Project>(obj.projects, Project);
 
         const userState = new UserState();
@@ -103,7 +218,7 @@ export class UserState extends UserEvmInfo {
         return userState;
     }
 
-    private _accounts: SelectableColl<EvmAccount>;
+    private _accounts: SelectableColl<UIEvmAccount>;
     private _projects: SelectableColl<Project>;
     private _tutorialIsCompleted: boolean;
 
@@ -111,15 +226,15 @@ export class UserState extends UserEvmInfo {
         super();
 
         this._tutorialIsCompleted = false;
-        this._accounts = new SelectableColl<EvmAccount>();
+        this._accounts = new SelectableColl<UIEvmAccount>();
         this._projects = new SelectableColl<Project>();
     }
 
-    get accounts(): EvmAccount[] {
+    get accounts(): UIEvmAccount[] {
         return this._accounts.elements;
     }
 
-    get accountSelected(): EvmAccount {
+    get accountSelected(): UIEvmAccount {
         return this._accounts.selected;
     }
 
@@ -131,12 +246,14 @@ export class UserState extends UserEvmInfo {
         this._accounts.select(index);
     }
 
-    createAccount(name: string): EvmAccount {
+    createAccount(name: string): UIEvmAccount {
         const account = new EvmAccount(name);
-        this._accounts.add(account);
+        const uiAccount = new UIEvmAccount(account);
+
+        this._accounts.add(uiAccount);
         this.save();
 
-        return account;
+        return uiAccount;
     }
 
     get projects(): Project[] {
@@ -236,7 +353,7 @@ export class UserState extends UserEvmInfo {
         this._projects.select(index);
     }
 
-    get contracts(): EvmContract[] {
+    get contracts(): UIEvmContract[] {
         if (this._projects.selected === undefined) {
             return [];
         }
@@ -244,12 +361,12 @@ export class UserState extends UserEvmInfo {
         return this._projects.selected.contracts.elements;
     }
 
-    set contracts(contracts: EvmContract[]) {
-        this._projects.selected.contracts = new SelectableColl<EvmContract>(contracts);
+    set contracts(contracts: UIEvmContract[]) {
+        this._projects.selected.contracts = new SelectableColl<UIEvmContract>(contracts);
         this.save();
     }
 
-    get contractSelected(): EvmContract {
+    get contractSelected(): UIEvmContract {
         if (this._projects.selected === undefined) {
             return undefined;
         }
