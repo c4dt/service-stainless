@@ -58,12 +58,14 @@ export class Config {
 
         const serverConfig = await Config.getServerConfig();
 
-        const byzcoinRPC = await ByzCoinRPC.fromByzcoin(roster, serverConfig.byzCoinID);
+        const db = new StorageDB();
+        const byzcoinRPC = await ByzCoinRPC.fromByzcoin(
+            roster, serverConfig.byzCoinID, undefined, undefined, undefined, db, false);
         const bevmInstance = await BEvmInstance.fromByzcoin(byzcoinRPC, serverConfig.bevmInstanceID);
 
         let userData: User;
         try {
-            const fetcher = new Fetcher(byzcoinRPC, new StorageDB());
+            const fetcher = new Fetcher(byzcoinRPC, db);
             userData = await fetcher.retrieveUserByDB();
         } catch (e) {
             Log.lvl2("Cannot load DynaCred user data");

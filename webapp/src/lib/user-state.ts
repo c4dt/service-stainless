@@ -269,18 +269,16 @@ export class UserState extends UserEvmInfo {
                                      new SelectableColl<SourceFile>(sourceFiles),
                                      pData.version ? pData.version : 0);
 
-            for (const [i, p] of this._projects.elements.entries()) {
-                if (p.name === newP.name) {
+            this._projects.elements.forEach((p, i) => {
+                if (!found && (p.name === newP.name)) {
                     found = true;
 
                     if (p.version < newP.version) {
                         this._projects.update(i, newP);
                         Log.lvl2(`Updated project: ${newP.name}`);
                     }
-
-                    break;
                 }
-            }
+            });
 
             if (!found) {
                 this._projects.add(newP);
