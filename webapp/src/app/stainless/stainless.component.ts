@@ -302,7 +302,8 @@ export class StainlessComponent implements OnInit {
         return res;
     }
 
-    async performLongAction<T>(f: () => Promise<T>, message: string): Promise<T> {
+    async performLongAction<T>(f: () => Promise<T>, message: string,
+                               nbAttempts: number = 1): Promise<T> {
         const dialogRef = this.dialog.open(InfoDialog, {
             data: { message },
             disableClose: true,
@@ -310,14 +311,23 @@ export class StainlessComponent implements OnInit {
         });
 
         let result: T;
-        try {
-            result = await f();
-        } catch (e) {
-            Log.lvl2("Exception in performLongAction(): ", e);
+        let attempt = 0;
 
+        for (attempt = 0; attempt < nbAttempts; attempt++) {
+            try {
+                result = await f();
+                break;
+            } catch (e) {
+                Log.lvl2(`[attempt #${attempt + 1}] Exception in performLongAction(): `, e);
+            }
+        }
+
+        dialogRef.close();
+
+        if (attempt === nbAttempts) {
             const infoRef = this.dialog.open(InfoDialog, {
                 data: {
-                    message: `An unexpected error occurred: ${e}
+                    message: `An unexpected error occurred.\n
                     Please contact the developers at C4DT`,
                     requireAck: true,
                     title: "Error",
@@ -328,8 +338,8 @@ export class StainlessComponent implements OnInit {
             infoRef.afterClosed().subscribe(async (_) => {
                 window.location.reload();
             });
-        } finally {
-            dialogRef.close();
+
+            result = null;
         }
 
         return result;
@@ -507,7 +517,7 @@ export class StainlessComponent implements OnInit {
                     methodName,
                     args,
                 ),
-                "Executing view method");
+                "Executing view method", 5);
 
             Log.lvl2(`Response = ${response}`);
 
