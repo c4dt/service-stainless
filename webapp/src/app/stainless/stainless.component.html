@@ -35,7 +35,9 @@
         button.
       </p>
       <p class="tutorial-step">
-        For any question or issues with this tutorial, please send an email to
+        The tutorial will take between 30 and 60 minutes to complete, depending
+        on your familiarity with the topics discussed. For any question or
+        issue, please send an email to
         <a
           href="mailto:christian.grigis@epfl.ch?subject=Stainless Demonstrator Tutorial"
           >C4DT</a
@@ -75,11 +77,13 @@
             contracts for the Ethereum blockchain.
           </p>
           <p class="tutorial-step">
-            <a href="https://www.epfl.ch/labs/dedis/"
+            <a href="https://www.epfl.ch/labs/dedis/" target="_blank"
               >Prof. Bryan Ford's Decentralized and Distributed Systems Lab</a
             >
             developed a blockchain called
-            <a href="https://github.com/dedis/cothority/tree/master/byzcoin"
+            <a
+              href="https://github.com/dedis/cothority/tree/master/byzcoin"
+              target="_blank"
               >OmniLedger</a
             >
             based on skipchains. An extension of OmniLedger allows the execution
@@ -90,6 +94,21 @@
             This demonstrator combines the two technologies, showing how Smart
             Contracts can be written and verified with Stainless, then deployed
             and executed on OmniLedger.
+          </p>
+          <p class="tutorial-step">
+            The following diagram illustrates the interactions betwween the
+            various components:
+          </p>
+          <div align="center">
+            <img src="assets/interactions.png" width="600" />
+          </div>
+          <p class="tutorial-step">
+            The Smart Contract author uses Stainless to determine whether the
+            code fulfills its specifications, iterating until no error is found.
+            At this point, he uses Stainless to compile the Smart Contract,
+            making it ready to be deployed on the blockchain. Each deployment
+            creates a new instance of the contract, with which users interact by
+            connecting to the blockchain and calling the contract functions.
           </p>
 
           <div>
@@ -151,7 +170,8 @@
             The successful compilation of a Smart Contract by Stainless produces
             bytecode that can be run on an Ethereum Virtual Machine (EVM). This
             is very similar to using a Java compiler and running the resulting
-            bytecode on a JVM.
+            bytecode on a Java Virtual Machine.
+            <sup>[1]</sup>
           </p>
           <p class="tutorial-step">
             Deploying the Smart Contract bytecode on an EVM executes its
@@ -177,6 +197,17 @@
               require consensus.
             </dd>
           </dl>
+          <hr />
+          <section>
+            <p>
+              [1] More precisely, Stainless produces
+              <a href="https://en.wikipedia.org/wiki/Solidity" target="_blank"
+                >Solidity</a
+              >
+              code, which can then be compiled to bytecode with a standard
+              Solidity compiler.
+            </p>
+          </section>
 
           <div>
             <button
@@ -202,10 +233,10 @@
             <em>Available projects</em> list.
           </p>
           <p class="tutorial-step">
-            Examining the code, it can be seen that this contract models a bag
-            of candies: it is initialized with the number of candies in the bag,
-            and provides a method to eat some of them (if possible), and another
-            to show the number of remaining candies.
+            Examining the code, it can be seen that this contract models a Candy
+            Shop: it is initialized with the number of candies in the shop, and
+            provides a method to eat some of them (if possible), and another to
+            show the number of remaining candies.
           </p>
           <p class="tutorial-step">
             The author of the contract also defined an <em>invariant</em>, which
@@ -276,7 +307,8 @@
               >add_box</mat-icon
             >
             button next to the <em>Accounts</em> list at the top to create a new
-            account, giving it a name.
+            account, giving it a name. This will send a transaction to the
+            blockchain asking it to initialize an account.
           </p>
           <p class="tutorial-step">
             You can now deploy a new instance of the Candy contract by clicking
@@ -286,7 +318,10 @@
             >
             button next to the <em>Instances</em> list, and filling in the
             arguments needed by the constructor. In our case it is the initial
-            number of candies, for example 100.
+            number of candies, for example 100. Executing this operation will
+            send a transaction to the blockchain, containing the bytecode and
+            contructor arguments, in order to create a new instance of this
+            contract. The new instance will receive a unique identifier.
           </p>
           <p class="tutorial-step">
             Once an instance is deployed, access to its methods becomes
@@ -296,7 +331,10 @@
             >
             button next to the <code>getRemainingCandies</code> view method: the
             result should be the number of candies with which you created the
-            instance.
+            instance. This value is obtained by sending a view request to the
+            blockchain, specifying the identifier of the contract instance, and
+            the method that we are calling. The blockchain will respond with the
+            result of the method execution.
           </p>
           <p class="tutorial-step">
             Try now to click on the
@@ -305,8 +343,11 @@
             >
             button next to <code>eatCandy</code>: a dialog will ask you to fill
             in the method arguments, namely the number of candies to eat. Enter
-            e.g. 58. The next call to <code>getRemainingCandies</code> should
-            now show you the new balance.
+            e.g. 58. We are now sending a transaction to the blockchain,
+            specifying the identifier of the contract instance, the method we
+            are calling, and the arguments. The next call to
+            <code>getRemainingCandies</code> should then show you the new
+            balance.
           </p>
 
           <div>
