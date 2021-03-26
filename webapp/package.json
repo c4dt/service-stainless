@@ -24,7 +24,6 @@
     "@angular/platform-browser": "^8.2.14",
     "@angular/platform-browser-dynamic": "^8.2.14",
     "@angular/router": "^8.2.14",
-    "@c4dt/dynacred": "^2.0.8",
     "@dedis/cothority": "^3.6.4",
     "@dedis/kyber": "^3.4.4",
     "core-js": "^2.6.11",
