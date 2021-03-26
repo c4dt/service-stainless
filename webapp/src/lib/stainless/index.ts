@@ -1,5 +1,3 @@
 import { StainlessRPC } from "./stainless-rpc";
 
-export {
-    StainlessRPC,
-};
+export { StainlessRPC };

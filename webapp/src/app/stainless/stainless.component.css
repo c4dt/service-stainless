@@ -1,76 +1,76 @@
-@import 'https://fonts.googleapis.com/icon?family=Material+Icons+Outlined';
+@import "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined";
 
 .code-area {
-    font-family: monospace;
-    font-size: 1em;
-    height: 60vh;
-    overflow-x: auto;
-    overflow-y: auto;
+  font-family: monospace;
+  font-size: 1em;
+  height: 60vh;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 pre.line-numbers {
-    padding: 0.5em;
-    background-color: #F0F0F0;
-    text-align: right;
+  padding: 0.5em;
+  background-color: #f0f0f0;
+  text-align: right;
 }
 
 .verif-viewport {
-    border: 1px solid black;
+  border: 1px solid black;
 }
 
 .success-true {
-    background-color: lightgreen;
+  background-color: lightgreen;
 }
 
 .success-false {
-    background-color: salmon;
+  background-color: salmon;
 }
 
 .status-valid {
-    color: green;
-    font-weight: bold;
+  color: green;
+  font-weight: bold;
 }
 
 .status-invalid {
-    color: red;
-    font-weight: bold;
+  color: red;
+  font-weight: bold;
 }
 
 .verif-results td {
-    padding: 10px;
+  padding: 10px;
 }
 
 .verif-results th {
-    padding: 10px;
+  padding: 10px;
 }
 
 mat-form-field.result {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 mat-sidenav-container.tutorial {
-    background: white;
+  background: white;
 }
 
 mat-sidenav.tutorial {
-    width: 30vw;
+  width: 30vw;
 }
 
 div.tutorial {
-    margin: 30px;
+  margin: 30px;
 }
 
 p.tutorial-step {
-    text-align: justify;
-    text-justify: inter-word;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 mat-icon.demo-main {
-    font-size: 28px;
+  font-size: 28px;
 }
 
 mat-icon.tutorial {
-    vertical-align: middle;
-    font-size: 18px;
-    width: 18px;
+  vertical-align: middle;
+  font-size: 18px;
+  width: 18px;
 }
