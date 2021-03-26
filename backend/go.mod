@@ -6,7 +6,7 @@ require (
 	github.com/golang/protobuf v1.4.0
 	github.com/stretchr/testify v1.5.1
 	github.com/urfave/cli v1.22.3
-	go.dedis.ch/cothority/v3 v3.4.6-0.20201123074403-707b3cacaec7
+	go.dedis.ch/cothority/v3 v3.4.7-0.20210326105832-a4f66d75cfc0
 	go.dedis.ch/kyber/v3 v3.0.13
 	go.dedis.ch/onet/v3 v3.2.6
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect

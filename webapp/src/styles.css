@@ -3,13 +3,13 @@
 @import "~highlight.js/styles/atom-one-light.css";
 
 .width100 {
-    width: 100%;
+  width: 100%;
 }
 
 .center {
-    text-align: center;
+  text-align: center;
 }
 
 body {
-    background-color: white;
+  background-color: white;
 }

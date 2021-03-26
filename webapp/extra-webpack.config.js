@@ -1,11 +1,11 @@
 module.exports = {
   node: {
     vm: true,
-    stream: true
+    stream: true,
   },
   resolve: {
     alias: {
-      "crypto": "crypto-browserify"
-    }
-  }
-}
+      crypto: "crypto-browserify",
+    },
+  },
+};
