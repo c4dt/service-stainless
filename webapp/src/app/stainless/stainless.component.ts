@@ -67,6 +67,7 @@ export class StainlessComponent implements OnInit {
             resolve(new UserState());
           });
         } else {
+          this.tutorialOpen = !userState.tutorialIsCompleted;
           resolve(userState);
         }
       } catch (e) {
