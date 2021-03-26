@@ -1,6 +1,5 @@
 import Log from "@dedis/cothority/log";
 
-// import { UIEvmAccount, UIEvmContract } from "src/lib/bevm";
 import { EvmAccount, EvmContract } from "@dedis/cothority/bevm";
 import { SelectableColl, UserEvmInfo } from "src/lib/storage";
 
