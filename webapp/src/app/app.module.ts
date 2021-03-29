@@ -24,6 +24,8 @@ import {
   VerifDialog,
 } from "./stainless/stainless.component";
 
+import { LibModule } from "@c4dt/angular-components";
+
 @NgModule({
   bootstrap: [AppComponent],
   declarations: [
@@ -45,6 +47,7 @@ import {
     HighlightModule.forRoot({
       languages: hljsLanguages,
     }),
+    LibModule,
     ReactiveFormsModule,
     MatDialogModule,
     AppRoutingModule,

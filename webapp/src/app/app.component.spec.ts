@@ -31,6 +31,8 @@ import {
 import { BrowserDynamicTestingModule } from "@angular/platform-browser-dynamic/testing";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
+import { LibModule } from "@c4dt/angular-components";
+
 import { HighlightModule } from "ngx-highlightjs";
 describe("AppComponent", () => {
   beforeEach(async(() => {
@@ -48,6 +50,7 @@ describe("AppComponent", () => {
         BrowserAnimationsModule,
         FormsModule,
         HighlightModule,
+        LibModule,
         MatButtonModule,
         MatCardModule,
         MatDialogModule,
