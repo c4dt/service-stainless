@@ -48,7 +48,7 @@ class TestConfig extends Config {
   }
 }
 
-describe("BEvm should", async () => {
+describe("BEvm", async () => {
   let config: TestConfig;
 
   /* tslint:disable:max-line-length */
