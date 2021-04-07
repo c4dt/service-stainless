@@ -5,7 +5,7 @@ services:
 services/%: | services
 	@: nothing
 
-webapp_build_options = --prod --base-href /stainless/
+webapp_build_options = --prod
 
 include services/mk/service.mk
 
