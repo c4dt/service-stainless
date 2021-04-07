@@ -16,7 +16,7 @@ export class AppComponent {
 
   readonly showcaseBreadCrumb: BreadCrumb = {
     label: "Stainless",
-    link: new URL("https://incubator.c4dt.org/stainless.html"),
+    link: new URL("https://factory.c4dt.org/incubator/stainless"),
   };
 
   constructor() {
