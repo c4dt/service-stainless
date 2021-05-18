@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by diasvg.py -->
+<svg width="66.956cm" height="44.085cm" viewBox="23.194 21.300 66.956 44.085"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Layer: Background -->
+<g id="Background">
+<!-- Group -->
+<!-- Flowchart - Ellipse -->
+<ellipse cx="82.797" cy="54.173" rx="7.253" ry="7.427" fill="none" stroke="#000000"  stroke-width="0.200" />
+<!-- Standard - Text -->
+<text x="79.150" y="54.750"  fill="#000000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Blockchain</text>
+<!-- Standard - BezierLine -->
+<path stroke="#000000" fill="none" stroke-width="0.300"  d="M 35.223,33.475 C 48.523,33.775 49.423,31.675 40.015,23.709 "/>
+<polygon fill="#000000" stroke="#000000" stroke-width="0.300"  points="39.729,23.467 40.272,23.599 40.015,23.709 39.949,23.981 "/>
+<!-- Network - General Computer (Tower) -->
+<rect x="79.701" y="58.700" width="2.150" height="5.018" fill="#B3B3B3" stroke="#000000" stroke-width="0.080"  rx="0.000" />
+<rect x="79.916" y="59.001" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.916" y="59.575" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.916" y="60.148" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.916" y="60.721" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.916" y="61.410" width="1.075" height="0.344" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<ellipse cx="81.529" cy="61.467" rx="0.075" ry="0.075" fill="#00FF00" stroke="#000000"  stroke-width="0.010" />
+<ellipse cx="81.529" cy="61.696" rx="0.075" ry="0.075" fill="#FFFF00" stroke="#000000"  stroke-width="0.010" />
+<rect x="81.099" y="61.524" width="0.258" height="0.229" fill="#FFFFFF" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 80.060,62.212 L 80.060,63.467 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 80.418,62.212 L 80.418,63.467 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 80.776,62.212 L 80.776,63.467 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 81.135,62.212 L 81.135,63.467 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 81.493,62.212 L 81.493,63.467 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 81.852,62.212 L 81.852,63.467 "/>
+<polygon fill="#999999" stroke="#000000" stroke-width="0.010"  points="79.271,64.148 79.701,63.288 79.701,63.718 81.852,63.718 81.852,63.288 82.425,64.148 "/>
+<text x="80.848" y="65.085"  fill="#000000" text-anchor="middle" font-size="1.06" font-family="sans" font-style="normal" font-weight="400">
+Node</text>
+<!-- Network - General Computer (Tower) -->
+<rect x="74.052" y="52.390" width="2.150" height="5.018" fill="#B3B3B3" stroke="#000000" stroke-width="0.080"  rx="0.000" />
+<rect x="74.267" y="52.691" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="74.267" y="53.265" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="74.267" y="53.838" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="74.267" y="54.411" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="74.267" y="55.100" width="1.075" height="0.344" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<ellipse cx="75.880" cy="55.157" rx="0.075" ry="0.075" fill="#00FF00" stroke="#000000"  stroke-width="0.010" />
+<ellipse cx="75.880" cy="55.386" rx="0.075" ry="0.075" fill="#FFFF00" stroke="#000000"  stroke-width="0.010" />
+<rect x="75.450" y="55.214" width="0.258" height="0.229" fill="#FFFFFF" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 74.410,55.902 L 74.410,57.157 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 74.769,55.902 L 74.769,57.157 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 75.127,55.902 L 75.127,57.157 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 75.485,55.902 L 75.485,57.157 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 75.844,55.902 L 75.844,57.157 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 76.202,55.902 L 76.202,57.157 "/>
+<polygon fill="#999999" stroke="#000000" stroke-width="0.010"  points="73.622,57.838 74.052,56.978 74.052,57.408 76.202,57.408 76.202,56.978 76.776,57.838 "/>
+<text x="75.199" y="58.775"  fill="#000000" text-anchor="middle" font-size="1.06" font-family="sans" font-style="normal" font-weight="400">
+Node</text>
+<!-- Network - General Computer (Tower) -->
+<rect x="86.612" y="55.550" width="2.150" height="5.018" fill="#B3B3B3" stroke="#000000" stroke-width="0.080"  rx="0.000" />
+<rect x="86.827" y="55.851" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.827" y="56.425" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.827" y="56.998" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.827" y="57.571" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.827" y="58.260" width="1.075" height="0.344" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<ellipse cx="88.440" cy="58.317" rx="0.075" ry="0.075" fill="#00FF00" stroke="#000000"  stroke-width="0.010" />
+<ellipse cx="88.440" cy="58.546" rx="0.075" ry="0.075" fill="#FFFF00" stroke="#000000"  stroke-width="0.010" />
+<rect x="88.010" y="58.374" width="0.258" height="0.229" fill="#FFFFFF" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 86.970,59.062 L 86.970,60.317 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 87.329,59.062 L 87.329,60.317 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 87.687,59.062 L 87.687,60.317 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 88.045,59.062 L 88.045,60.317 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 88.404,59.062 L 88.404,60.317 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 88.762,59.062 L 88.762,60.317 "/>
+<polygon fill="#999999" stroke="#000000" stroke-width="0.010"  points="86.182,60.998 86.612,60.138 86.612,60.568 88.762,60.568 88.762,60.138 89.336,60.998 "/>
+<text x="87.759" y="61.935"  fill="#000000" text-anchor="middle" font-size="1.06" font-family="sans" font-style="normal" font-weight="400">
+Node</text>
+<!-- Network - General Computer (Tower) -->
+<rect x="79.022" y="44.210" width="2.150" height="5.018" fill="#B3B3B3" stroke="#000000" stroke-width="0.080"  rx="0.000" />
+<rect x="79.237" y="44.511" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.237" y="45.085" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.237" y="45.658" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.237" y="46.231" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="79.237" y="46.920" width="1.075" height="0.344" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<ellipse cx="80.850" cy="46.977" rx="0.075" ry="0.075" fill="#00FF00" stroke="#000000"  stroke-width="0.010" />
+<ellipse cx="80.850" cy="47.206" rx="0.075" ry="0.075" fill="#FFFF00" stroke="#000000"  stroke-width="0.010" />
+<rect x="80.420" y="47.034" width="0.258" height="0.229" fill="#FFFFFF" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 79.380,47.722 L 79.380,48.977 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 79.739,47.722 L 79.739,48.977 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 80.097,47.722 L 80.097,48.977 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 80.455,47.722 L 80.455,48.977 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 80.814,47.722 L 80.814,48.977 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 81.172,47.722 L 81.172,48.977 "/>
+<polygon fill="#999999" stroke="#000000" stroke-width="0.010"  points="78.592,49.658 79.022,48.798 79.022,49.228 81.172,49.228 81.172,48.798 81.746,49.658 "/>
+<text x="80.169" y="50.595"  fill="#000000" text-anchor="middle" font-size="1.06" font-family="sans" font-style="normal" font-weight="400">
+Node</text>
+<!-- Network - General Computer (Tower) -->
+<rect x="86.732" y="46.020" width="2.150" height="5.018" fill="#B3B3B3" stroke="#000000" stroke-width="0.080"  rx="0.000" />
+<rect x="86.947" y="46.321" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.947" y="46.895" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.947" y="47.468" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.947" y="48.041" width="1.720" height="0.573" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<rect x="86.947" y="48.730" width="1.075" height="0.344" fill="none" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<ellipse cx="88.560" cy="48.787" rx="0.075" ry="0.075" fill="#00FF00" stroke="#000000"  stroke-width="0.010" />
+<ellipse cx="88.560" cy="49.016" rx="0.075" ry="0.075" fill="#FFFF00" stroke="#000000"  stroke-width="0.010" />
+<rect x="88.130" y="48.844" width="0.258" height="0.229" fill="#FFFFFF" stroke="#000000" stroke-width="0.010"  rx="0.000" />
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 87.090,49.532 L 87.090,50.787 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 87.449,49.532 L 87.449,50.787 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 87.807,49.532 L 87.807,50.787 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 88.165,49.532 L 88.165,50.787 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 88.524,49.532 L 88.524,50.787 "/>
+<path stroke="#000000" fill="none" stroke-width="0.010"  d="M 88.882,49.532 L 88.882,50.787 "/>
+<polygon fill="#999999" stroke="#000000" stroke-width="0.010"  points="86.302,51.468 86.732,50.608 86.732,51.038 88.882,51.038 88.882,50.608 89.456,51.468 "/>
+<text x="87.879" y="52.405"  fill="#000000" text-anchor="middle" font-size="1.06" font-family="sans" font-style="normal" font-weight="400">
+Node</text>
+<!-- Group -->
+<!-- UML - Actor -->
+<ellipse cx="46.475" cy="49.522" rx="0.586" ry="0.586" fill="#FFFFFF" stroke="#000000"  stroke-width="0.100" />
+<line x1="44.131" y1="50.694" x2="48.819" y2="50.694" stroke="#000000" stroke-width="0.100" />
+<line x1="46.475" y1="50.108" x2="46.475" y2="53.038" stroke="#000000" stroke-width="0.100" />
+<line x1="46.475" y1="53.038" x2="44.131" y2="55.864" stroke="#000000" stroke-width="0.100" />
+<line x1="46.475" y1="53.038" x2="48.819" y2="55.864" stroke="#000000" stroke-width="0.100" />
+<text x="46.475" y="58.346"  fill="#000000" text-anchor="middle" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+User</text>
+<!-- Cisco - Laptop -->
+<path stroke="none" fill="#C9C9B6" stroke-width="0.001"  d="M 49.349,51.609 L 52.034,51.609 L 50.905,52.742 L 48.219,52.742 L 49.349,51.609 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 49.349,51.609 L 52.034,51.609 L 50.905,52.742 L 48.219,52.742 L 49.349,51.609 "/>
+<path stroke="#DBDBCE" fill="none" stroke-width="0.001"  d="M 49.452,52.551 L 49.452,52.557 L 49.453,52.562 L 49.454,52.568 L 49.457,52.575 L 49.460,52.580 L 49.464,52.586 L 49.469,52.591 L 49.474,52.596 L 49.479,52.602 L 49.485,52.608 L 49.492,52.613 L 49.499,52.618 L 49.507,52.622 L 49.515,52.627 L 49.525,52.631 L 49.533,52.636 L 49.543,52.640 L 49.554,52.644 L 49.565,52.647 L 49.576,52.650 L 49.587,52.653 L 49.599,52.657 L 49.611,52.658 L 49.624,52.661 L 49.636,52.662 L 49.650,52.664 L 49.662,52.665 L 49.675,52.667 L 49.689,52.668 L 49.702,52.668 L 49.715,52.668 "/>
+<path stroke="#DBDBCE" fill="none" stroke-width="0.001"  d="M 49.686,52.668 L 49.699,52.668 L 49.712,52.668 L 49.725,52.667 L 49.738,52.665 L 49.751,52.664 L 49.763,52.662 L 49.775,52.661 L 49.788,52.658 L 49.799,52.655 L 49.811,52.652 L 49.822,52.648 L 49.833,52.645 L 49.843,52.641 L 49.853,52.638 L 49.862,52.634 L 49.871,52.629 L 49.880,52.624 L 49.888,52.620 L 49.895,52.614 L 49.902,52.609 L 49.908,52.604 L 49.913,52.599 L 49.918,52.593 L 49.923,52.587 L 49.926,52.582 L 49.930,52.576 L 49.931,52.568 L 49.933,52.562 L 49.935,52.557 L 49.935,52.551 "/>
+<path stroke="#DBDBCE" fill="none" stroke-width="0.001"  d="M 49.744,52.331 L 49.731,52.331 L 49.718,52.332 L 49.704,52.332 L 49.692,52.333 L 49.679,52.334 L 49.666,52.335 L 49.653,52.336 L 49.640,52.339 L 49.628,52.341 L 49.617,52.343 L 49.605,52.346 L 49.594,52.349 L 49.583,52.352 L 49.573,52.355 L 49.564,52.360 L 49.553,52.363 L 49.545,52.367 L 49.536,52.370 L 49.528,52.374 L 49.521,52.379 L 49.514,52.384 L 49.508,52.387 L 49.502,52.392 L 49.498,52.397 L 49.493,52.403 L 49.489,52.408 L 49.487,52.412 L 49.484,52.418 L 49.482,52.422 L 49.482,52.428 L 49.481,52.432 "/>
+<path stroke="#DBDBCE" fill="none" stroke-width="0.001"  d="M 49.964,52.432 L 49.964,52.427 L 49.963,52.422 L 49.961,52.417 L 49.959,52.411 L 49.956,52.407 L 49.952,52.401 L 49.947,52.396 L 49.943,52.391 L 49.936,52.387 L 49.931,52.381 L 49.925,52.377 L 49.916,52.373 L 49.909,52.368 L 49.901,52.365 L 49.892,52.361 L 49.882,52.356 L 49.872,52.353 L 49.861,52.350 L 49.851,52.347 L 49.840,52.345 L 49.828,52.342 L 49.816,52.339 L 49.805,52.338 L 49.793,52.335 L 49.781,52.334 L 49.768,52.333 L 49.755,52.332 L 49.741,52.332 L 49.728,52.331 L 49.715,52.331 "/>
+<path stroke="none" fill="#A5A585" stroke-width="0.001"  d="M 48.219,52.860 L 50.905,52.860 L 50.905,52.742 L 48.219,52.742 L 48.219,52.860 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 48.219,52.860 L 50.905,52.860 L 50.905,52.742 L 48.219,52.742 L 48.219,52.860 "/>
+<path stroke="none" fill="#A5A585" stroke-width="0.001"  d="M 49.349,51.609 L 52.034,51.609 L 52.034,49.772 L 49.349,49.772 L 49.349,51.609 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 49.349,51.609 L 52.034,51.609 L 52.034,49.772 L 49.349,49.772 L 49.349,51.609 "/>
+<path stroke="none" fill="#7A7A5A" stroke-width="0.001"  d="M 52.107,51.537 L 52.107,49.700 L 52.034,49.772 L 52.034,51.609 L 52.107,51.537 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 52.107,51.537 L 52.107,49.700 L 52.034,49.772 L 52.034,51.609 L 52.107,51.537 "/>
+<path stroke="none" fill="#FFFFFF" stroke-width="0.001"  d="M 49.481,51.493 L 51.902,51.493 L 51.902,49.920 L 49.481,49.920 L 49.481,51.493 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 49.481,51.493 L 51.902,51.493 L 51.902,49.920 L 49.481,49.920 L 49.481,51.493 "/>
+<path stroke="none" fill="#93936C" stroke-width="0.001"  d="M 49.481,51.698 L 51.740,51.698 L 51.153,52.287 L 48.895,52.287 L 49.481,51.698 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 49.481,51.698 L 51.740,51.698 L 51.153,52.287 L 48.895,52.287 L 49.481,51.698 "/>
+<path stroke="none" fill="#7A7A5A" stroke-width="0.001"  d="M 49.833,52.514 L 49.833,52.510 L 49.832,52.507 L 49.832,52.504 L 49.830,52.500 L 49.829,52.497 L 49.827,52.494 L 49.826,52.491 L 49.823,52.488 L 49.821,52.485 L 49.819,52.482 L 49.816,52.479 L 49.813,52.476 L 49.810,52.473 L 49.806,52.470 L 49.803,52.469 L 49.799,52.466 L 49.794,52.464 L 49.789,52.462 L 49.786,52.459 L 49.781,52.458 L 49.776,52.456 L 49.771,52.455 L 49.766,52.453 L 49.761,52.452 L 49.755,52.451 L 49.750,52.449 L 49.744,52.449 L 49.740,52.449 L 49.734,52.448 L 49.727,52.448 L 49.723,52.448 L 49.723,52.448 L 49.717,52.448 L 49.711,52.448 L 49.706,52.449 L 49.701,52.449 L 49.696,52.449 L 49.690,52.451 L 49.685,52.452 L 49.679,52.453 L 49.674,52.455 L 49.669,52.456 L 49.665,52.458 L 49.659,52.459 L 49.656,52.462 L 49.651,52.464 L 49.647,52.466 L 49.643,52.469 L 49.640,52.470 L 49.636,52.473 L 49.633,52.476 L 49.630,52.479 L 49.626,52.482 L 49.624,52.485 L 49.621,52.488 L 49.619,52.491 L 49.618,52.494 L 49.616,52.497 L 49.615,52.500 L 49.615,52.504 L 49.613,52.507 L 49.612,52.510 L 49.612,52.514 L 49.612,52.514 L 49.612,52.517 L 49.613,52.521 L 49.615,52.524 L 49.615,52.527 L 49.616,52.531 L 49.618,52.533 L 49.619,52.537 L 49.621,52.540 L 49.624,52.543 L 49.626,52.545 L 49.630,52.549 L 49.633,52.551 L 49.636,52.555 L 49.640,52.557 L 49.643,52.559 L 49.647,52.562 L 49.651,52.564 L 49.656,52.566 L 49.659,52.568 L 49.665,52.570 L 49.669,52.572 L 49.674,52.573 L 49.679,52.574 L 49.685,52.576 L 49.690,52.577 L 49.696,52.578 L 49.701,52.579 L 49.706,52.579 L 49.711,52.579 L 49.717,52.579 L 49.723,52.579 L 49.723,52.579 L 49.727,52.579 L 49.734,52.579 L 49.740,52.579 L 49.744,52.579 L 49.750,52.578 L 49.755,52.577 L 49.761,52.576 L 49.766,52.574 L 49.771,52.573 L 49.776,52.572 L 49.781,52.570 L 49.786,52.568 L 49.789,52.566 L 49.794,52.564 L 49.799,52.562 L 49.803,52.559 L 49.806,52.557 L 49.810,52.555 L 49.813,52.551 L 49.816,52.549 L 49.819,52.545 L 49.821,52.543 L 49.823,52.540 L 49.826,52.537 L 49.827,52.533 L 49.829,52.531 L 49.830,52.527 L 49.832,52.524 L 49.832,52.521 L 49.833,52.517 L 49.833,52.514 z"/>
+<path stroke="#DBDBCE" fill="none" stroke-width="0.001"  d="M 49.818,52.507 L 49.818,52.504 L 49.818,52.500 L 49.818,52.498 L 49.816,52.495 L 49.815,52.491 L 49.815,52.489 L 49.812,52.486 L 49.810,52.483 L 49.808,52.481 L 49.806,52.478 L 49.803,52.476 L 49.800,52.472 L 49.797,52.470 L 49.793,52.469 L 49.791,52.466 L 49.786,52.464 L 49.783,52.463 L 49.779,52.460 L 49.775,52.459 L 49.770,52.457 L 49.766,52.455 L 49.761,52.454 L 49.757,52.453 L 49.752,52.452 L 49.747,52.451 L 49.741,52.449 L 49.737,52.449 L 49.731,52.448 L 49.726,52.448 L 49.721,52.448 L 49.716,52.448 L 49.716,52.448 L 49.710,52.448 L 49.706,52.448 L 49.700,52.448 L 49.696,52.449 L 49.690,52.449 L 49.686,52.451 L 49.680,52.452 L 49.675,52.453 L 49.672,52.454 L 49.666,52.455 L 49.662,52.457 L 49.656,52.459 L 49.653,52.460 L 49.649,52.463 L 49.645,52.464 L 49.641,52.466 L 49.638,52.469 L 49.635,52.470 L 49.632,52.472 L 49.629,52.476 L 49.626,52.478 L 49.624,52.481 L 49.621,52.483 L 49.620,52.486 L 49.618,52.489 L 49.617,52.491 L 49.616,52.495 L 49.615,52.498 L 49.614,52.500 L 49.613,52.504 L 49.613,52.507 L 49.613,52.507 L 49.613,52.510 L 49.614,52.513 L 49.615,52.516 L 49.616,52.518 L 49.617,52.521 L 49.618,52.525 L 49.620,52.527 L 49.621,52.530 L 49.624,52.533 L 49.626,52.535 L 49.629,52.538 L 49.632,52.540 L 49.635,52.543 L 49.638,52.545 L 49.641,52.548 L 49.645,52.549 L 49.649,52.551 L 49.653,52.554 L 49.656,52.555 L 49.662,52.557 L 49.666,52.559 L 49.672,52.559 L 49.675,52.561 L 49.680,52.562 L 49.686,52.562 L 49.690,52.564 L 49.696,52.565 L 49.700,52.565 L 49.706,52.565 L 49.710,52.565 L 49.716,52.565 L 49.716,52.565 L 49.721,52.565 L 49.726,52.565 L 49.731,52.565 L 49.737,52.565 L 49.741,52.564 L 49.747,52.562 L 49.752,52.562 L 49.757,52.561 L 49.761,52.559 L 49.766,52.559 L 49.770,52.557 L 49.775,52.555 L 49.779,52.554 L 49.783,52.551 L 49.786,52.549 L 49.791,52.548 L 49.793,52.545 L 49.797,52.543 L 49.800,52.540 L 49.803,52.538 L 49.806,52.535 L 49.808,52.533 L 49.810,52.530 L 49.812,52.527 L 49.815,52.525 L 49.815,52.521 L 49.816,52.518 L 49.818,52.516 L 49.818,52.513 L 49.818,52.510 L 49.818,52.507 "/>
+<path stroke="#626248" fill="none" stroke-width="0.001"  d="M 49.467,52.565 L 49.467,52.572 L 49.468,52.577 L 49.470,52.583 L 49.472,52.589 L 49.475,52.595 L 49.479,52.600 L 49.483,52.606 L 49.488,52.612 L 49.494,52.617 L 49.499,52.622 L 49.506,52.627 L 49.513,52.633 L 49.522,52.637 L 49.530,52.641 L 49.539,52.645 L 49.548,52.650 L 49.559,52.654 L 49.568,52.658 L 49.580,52.661 L 49.591,52.664 L 49.602,52.668 L 49.614,52.671 L 49.626,52.673 L 49.638,52.675 L 49.651,52.677 L 49.664,52.678 L 49.676,52.680 L 49.690,52.681 L 49.703,52.682 L 49.716,52.682 L 49.730,52.682 "/>
+<path stroke="#626248" fill="none" stroke-width="0.001"  d="M 49.700,52.682 L 49.714,52.682 L 49.726,52.682 L 49.740,52.681 L 49.752,52.679 L 49.765,52.678 L 49.778,52.677 L 49.789,52.675 L 49.802,52.672 L 49.813,52.669 L 49.825,52.667 L 49.837,52.664 L 49.847,52.661 L 49.857,52.657 L 49.867,52.652 L 49.877,52.648 L 49.885,52.644 L 49.894,52.639 L 49.902,52.634 L 49.909,52.629 L 49.916,52.623 L 49.922,52.619 L 49.928,52.613 L 49.933,52.607 L 49.936,52.601 L 49.941,52.596 L 49.944,52.589 L 49.946,52.583 L 49.948,52.577 L 49.948,52.572 L 49.950,52.565 "/>
+<path stroke="#626248" fill="none" stroke-width="0.001"  d="M 49.759,52.345 L 49.746,52.345 L 49.733,52.346 L 49.720,52.346 L 49.707,52.347 L 49.693,52.349 L 49.680,52.349 L 49.668,52.351 L 49.655,52.353 L 49.643,52.356 L 49.632,52.357 L 49.620,52.361 L 49.609,52.363 L 49.598,52.367 L 49.588,52.370 L 49.578,52.373 L 49.568,52.377 L 49.560,52.380 L 49.551,52.384 L 49.543,52.389 L 49.536,52.393 L 49.530,52.397 L 49.523,52.403 L 49.516,52.407 L 49.513,52.411 L 49.508,52.417 L 49.504,52.421 L 49.501,52.427 L 49.499,52.431 L 49.497,52.436 L 49.497,52.442 L 49.496,52.448 "/>
+<path stroke="#626248" fill="none" stroke-width="0.001"  d="M 49.979,52.448 L 49.978,52.442 L 49.978,52.436 L 49.976,52.431 L 49.974,52.426 L 49.970,52.421 L 49.967,52.415 L 49.962,52.411 L 49.957,52.406 L 49.952,52.401 L 49.945,52.396 L 49.939,52.391 L 49.931,52.387 L 49.923,52.383 L 49.915,52.379 L 49.906,52.375 L 49.897,52.371 L 49.887,52.368 L 49.877,52.365 L 49.865,52.362 L 49.854,52.360 L 49.843,52.356 L 49.832,52.354 L 49.820,52.352 L 49.806,52.350 L 49.795,52.349 L 49.782,52.347 L 49.769,52.346 L 49.755,52.346 L 49.743,52.345 L 49.730,52.345 "/>
+<path stroke="none" fill="#7A7A5A" stroke-width="0.001"  d="M 52.034,51.712 L 50.905,52.845 L 50.905,52.742 L 52.034,51.609 L 52.034,51.712 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 52.034,51.712 L 50.905,52.845 L 50.905,52.742 L 52.034,51.609 L 52.034,51.712 "/>
+<path stroke="none" fill="#7A7A5A" stroke-width="0.001"  d="M 51.653,51.523 L 51.653,51.551 L 51.873,51.551 L 51.873,51.523 L 51.653,51.523 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 51.653,51.523 L 51.653,51.551 L 51.873,51.551 L 51.873,51.523 L 51.653,51.523 "/>
+<path stroke="#000000" fill="none" stroke-width="0.001"  d="M 51.592,51.845 L 49.349,51.845 "/>
+<path stroke="#000000" fill="none" stroke-width="0.001"  d="M 51.447,51.993 L 49.203,51.993 "/>
+<path stroke="#000000" fill="none" stroke-width="0.001"  d="M 51.300,52.140 L 49.056,52.140 "/>
+<path stroke="none" fill="#C9C9B6" stroke-width="0.001"  d="M 49.422,49.700 L 52.107,49.700 L 52.034,49.772 L 49.349,49.772 L 49.422,49.700 z"/>
+<path stroke="#494936" fill="none" stroke-width="0.001"  d="M 49.422,49.700 L 52.107,49.700 L 52.034,49.772 L 49.349,49.772 L 49.422,49.700 "/>
+<!-- Standard - Line -->
+<line x1="35.123" y1="38.925" x2="59.565" y2="32.213" stroke="#000000" stroke-width="0.300" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.300"  points="59.927,32.114 59.511,32.487 59.565,32.213 59.378,32.005 "/>
+<!-- Standard - Line -->
+<line x1="69.823" y1="36.775" x2="75.600" y2="48.092" stroke="#000000" stroke-width="0.300" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.300"  points="75.770,48.426 75.320,48.095 75.600,48.092 75.766,47.867 "/>
+<!-- Standard - Text -->
+<text x="60.000" y="49.125"  fill="#000000" text-anchor="start" font-size="1.41" font-family="monospace" font-style="normal" font-weight="400">
+getBalance()</text>
+<!-- Standard - Text -->
+<text x="59.300" y="56.025"  fill="#000000" text-anchor="start" font-size="1.41" font-family="monospace" font-style="normal" font-weight="400">
+1342</text>
+<!-- Standard - Arc -->
+<path stroke="#000000" fill="none" stroke-width="0.100"  d ="M 51.073,53.375 A 43.336,43.336 0 0,1 74.540,49.860 "/>
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="74.912,49.909 74.382,50.087 74.541,49.857 74.452,49.592 "/>
+<!-- Standard - Arc -->
+<path stroke="#000000" fill="none" stroke-width="0.100"  d ="M 51.706,54.432 A 48.394,48.394 0 0,0 75.323,51.175 "/>
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="51.334,54.389 51.860,54.201 51.706,54.434 51.800,54.698 "/>
+<!-- Standard - Text -->
+<text x="36.350" y="32.650"  fill="#000000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Verify</text>
+<!-- Standard - Text -->
+<text x="36.260" y="40.160"  fill="#000000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Compile</text>
+<!-- Standard - Text -->
+<text x="73.110" y="42.010"  fill="#000000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Deploy</text>
+<!-- Flowchart - Ellipse -->
+<ellipse cx="49.199" cy="33.974" rx="5.501" ry="5.576" fill="#ACDCEC" stroke="#000000"  stroke-width="0.100" />
+<text x="49.199" y="34.402"  fill="#000000" text-anchor="middle" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Stainless</text>
+<!-- Standard - Text -->
+<text x="37.083" y="24.110"  fill="#2CF60C" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="700">
+OK</text>
+<!-- Standard - Text -->
+<text x="39.583" y="22.610"  fill="#FF0000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="700">
+KO</text>
+<!-- Geometric - Sharp Eight Point Star -->
+<polygon fill="#BAE086" stroke="#000000" stroke-width="0.100"  points="75.300,50.138 76.241,49.946 75.770,49.179 76.523,49.658 76.711,48.700 76.900,49.658 77.652,49.179 77.182,49.946 78.123,50.138 77.182,50.329 77.652,51.096 76.900,50.617 76.711,51.575 76.523,50.617 75.770,51.096 76.241,50.329 "/>
+<!-- Group -->
+<!-- Standard - Text -->
+<text x="62.700" y="39.350"  fill="#000000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Bytecode</text>
+<!-- Flowchart - Document -->
+<path stroke="#000000" fill="#BAE086" stroke-width="0.100"  d="M 60.651,26.081 L 71.661,26.081 L 71.661,36.601 C 69.459,34.848 68.358,34.848 66.156,36.601 C 63.954,38.354 62.853,38.354 60.651,36.601 L 60.651,26.081 z"/>
+<text x="60.751" y="29.141"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  ...</text>
+<text x="60.751" y="30.200"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  010010101110101010</text>
+<text x="60.751" y="31.258"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  100010101110010110</text>
+<text x="60.751" y="32.316"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  100110011010110011</text>
+<text x="60.751" y="33.375"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  011101101011010011</text>
+<text x="60.751" y="34.433"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  ...</text>
+<!-- Group -->
+<!-- Flowchart - Document -->
+<path stroke="#000000" fill="#BAE086" stroke-width="0.100"  d="M 23.294,29.844 L 34.814,29.844 L 34.814,42.904 C 32.510,40.727 31.358,40.727 29.054,42.904 C 26.750,45.081 25.598,45.081 23.294,42.904 L 23.294,29.844 z"/>
+<text x="23.394" y="31.846"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  ...</text>
+<text x="23.394" y="32.905"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  def getBalance() = {</text>
+<text x="23.394" y="33.963"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+      ...</text>
+<text x="23.394" y="35.021"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  }</text>
+<text x="23.394" y="37.138"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  def invariant() = {</text>
+<text x="23.394" y="38.196"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+      ...</text>
+<text x="23.394" y="39.255"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  }</text>
+<text x="23.394" y="40.313"  fill="#000000" text-anchor="start" font-size="1.06" font-family="monospace" font-style="normal" font-weight="400">
+  ...</text>
+<!-- Standard - Text -->
+<text x="23.700" y="46.300"  fill="#000000" text-anchor="start" font-size="1.76" font-family="sans" font-style="normal" font-weight="400">
+Smart Contract</text>
+</g>
+</svg>
