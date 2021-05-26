@@ -74,3 +74,9 @@ mat-icon.tutorial {
   font-size: 18px;
   width: 18px;
 }
+@media (prefers-color-scheme: dark) {
+  mat-sidenav-container.tutorial {
+    background-color: var(--dark-grey);
+    color: var(--light-grey);
+  }
+}
