@@ -2,4 +2,22 @@
 
 # Stainless-ByzCoin Demonstrator
 
-The client-server interaction is described in the [sequence diagram](seq-diagram.png).
+Steps to run locally:
+
+```
+make webapp-build
+```
+
+Then, in one terminal, run:
+
+```
+make webapp-serve
+```
+
+And in another terminal:
+
+```
+make backend-serve
+```
+
+Finally, point your browser to `http://localhost:4200`.
