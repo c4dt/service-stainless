@@ -33,7 +33,7 @@ import (
 const (
 	reportName = "report.json"
 	cacheDir   = "/tmp/stainless-cache-dir"
-	timeout    = 120 * time.Second
+	timeout    = 5 * time.Minute
 )
 
 // The following are declared as 'var' to allow overwriting them in tests.

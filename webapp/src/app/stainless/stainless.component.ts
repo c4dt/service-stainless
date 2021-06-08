@@ -371,6 +371,10 @@ export class StainlessComponent implements OnInit {
         () => this.config.stainlessRPC.verify(sourceFiles),
         "Performing verification"
       );
+      if (response === null) {
+        return;
+      }
+
       Log.print("Received verification results");
 
       const verif = this.convertReport(JSON.parse(response.Report));
@@ -406,6 +410,10 @@ export class StainlessComponent implements OnInit {
       () => this.config.stainlessRPC.genBytecode(sourceFiles),
       "Compiling..."
     );
+    if (response === null) {
+      return;
+    }
+
     Log.print("Received bytecode generation results");
 
     const contracts = Object.keys(response.BytecodeObjs).map((name) => {
