@@ -9,6 +9,8 @@ export interface IConnection {
 }
 
 export class WebSocketConnection implements IConnection {
+  static CODE_NORMAL_CLOSURE = 1000;
+
   private ws: WebSocket;
   private openned: Promise<void>;
   private received: Set<Promise<Uint8Array>>;
@@ -29,6 +31,16 @@ export class WebSocketConnection implements IConnection {
           resolve(new Uint8Array(msg.data));
         })
       );
+    };
+
+    this.ws.onclose = (evt: CloseEvent) => {
+      Log.lvl4(
+        `WebSocketConnection.ws.onclose: code: ${evt.code}, reason: "${evt.reason}", wasClean: ${evt.wasClean}`
+      );
+
+      if (evt.code !== WebSocketConnection.CODE_NORMAL_CLOSURE) {
+        this.received.add(Promise.reject(`${evt.reason} (${evt.code})`));
+      }
     };
 
     this.openned = new Promise((resolve, reject) => {
