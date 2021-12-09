@@ -25,4 +25,4 @@ jobs:
         run: |
           cd webapp
           npm ci
-          ng lint
+          npx ng lint
