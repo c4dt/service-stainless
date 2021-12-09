@@ -38,3 +38,14 @@ jobs:
           if test $( gofmt -d . | tee gofmt.results | wc -l ) -ne 0; then cat gofmt.results; exit 1; fi
           go get -u golang.org/x/lint/golint
           golint -set_exit_status ./...
+
+      - name: Setup protobuf C compiler
+        uses: arduino/setup-protoc@v1
+        with:
+          version: '3.19'
+
+      - name: Test
+        run: |
+          make backend-test
+          make backend-serve-test
+          make webapp-test
