@@ -1,5 +1,9 @@
 name: Build and push Docker image, deploy on target
 
+env:
+  DEPLOY_USER: stainless
+  DEPLOY_HOST: c4dtsrv1.epfl.ch
+
 on:
   push:
     branches:
@@ -62,14 +66,16 @@ jobs:
           --password ${{ secrets.DOCKER_PASSWORD }} &&
           docker push c4dt/service-stainless-backend:latest
 
+      - name: Setup ssh key
+        uses: kielabokkie/ssh-key-and-known-hosts-action@v1.2.0
+        if: github.event_name == 'push'
+        with:
+          ssh-private-key: "${{ secrets.SSH_DEPLOY_KEY }}"
+          ssh-host: "${{ env.DEPLOY_HOST }}"
+
       - name: Deploy
         if: github.event_name == 'push'
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H c4dtsrv1.epfl.ch > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          tar -C ./webapp --xz --create --file -  --exclude '*.toml' ./dist | ssh stainless@c4dtsrv1.epfl.ch '(rm -rf build; mkdir build; cat > build/dist.tar.xz)'
-          rsync -av --delete ./scripts stainless@c4dtsrv1.epfl.ch:.
-          ssh stainless@c4dtsrv1.epfl.ch bash --login scripts/deploy.sh
+          tar -C ./webapp --xz --create --file -  --exclude '*.toml' ./dist | ssh "${{ env.DEPLOY_USER }}"@"${{ env.DEPLOY_HOST }}" '(rm -rf build; mkdir build; cat > build/dist.tar.xz)'
+          rsync -av --delete ./scripts "${{ env.DEPLOY_USER }}"@"${{ env.DEPLOY_HOST }}":.
+          ssh "${{ env.DEPLOY_USER }}"@"${{ env.DEPLOY_HOST }}" bash --login scripts/deploy.sh
