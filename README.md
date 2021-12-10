@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/c4dt/service-stainless/actions/workflows/build.yml/badge.svg)
+![Build Status](https://github.com/c4dt/service-stainless/actions/workflows/build.yml/badge.svg)
 
 # Stainless-ByzCoin Demonstrator
 
