@@ -183,10 +183,8 @@ func parseReport(report string) (valid int, invalid int, err error) {
 			switch s {
 			case "Valid", "ValidFromCache":
 				valid++
-				break
 			case "Invalid":
 				invalid++
-				break
 			default:
 				err = fmt.Errorf("Unknown status: '%s'", s)
 				return
@@ -418,7 +416,7 @@ func Test_InputArgs(t *testing.T) {
 	testABI, err = abi.JSON(strings.NewReader(abiJSON))
 	require.NoError(t, err)
 
-	args, err = bevm.DecodeEvmArgs([]string{`100`}, testABI.Methods[methodName].Inputs)
+	_, err = bevm.DecodeEvmArgs([]string{`100`}, testABI.Methods[methodName].Inputs)
 	require.NotNil(t, err)
 	require.Contains(t, err.Error(), "unsupported type")
 	require.Contains(t, err.Error(), "uint42")

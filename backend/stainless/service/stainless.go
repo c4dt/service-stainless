@@ -120,7 +120,7 @@ func verify(sourceFiles map[string]string) (string, string, error) {
 	}
 	// If the report is empty, verification could not proceed normally
 	if string(report) == "{}" {
-		return "", "", fmt.Errorf("Error in Stainless execution -- "+
+		return "", "", fmt.Errorf("error in Stainless execution -- "+
 			"Console:\n%s", console)
 	}
 
@@ -204,7 +204,7 @@ func buildContractMap(dir string) (map[string]*proto.BytecodeObj, error) {
 		// Extract contract name, to be used as map key
 		parts := strings.Split(abi, "_sol_")
 		if len(parts) < 2 {
-			return nil, fmt.Errorf("Unexpected filename for ABI "+
+			return nil, fmt.Errorf("unexpected filename for ABI "+
 				"file: '%s'", abi)
 		}
 
@@ -226,7 +226,7 @@ func buildContractMap(dir string) (map[string]*proto.BytecodeObj, error) {
 
 		// Check for duplicates
 		if _, ok := foundContracts[name]; ok {
-			return nil, fmt.Errorf("Duplicate contract: '%s'", name)
+			return nil, fmt.Errorf("duplicate contract: '%s'", name)
 		}
 
 		foundContracts[name] = &proto.BytecodeObj{
