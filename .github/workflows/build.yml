@@ -69,7 +69,7 @@ jobs:
       - name: Prepare artifact
         if: github.event_name == 'push'
         run: |
-          tar -C ./webapp --xz --create --file dist.tar.gz  --exclude '*.toml' ./dist
+          tar -C ./webapp --xz --create --file dist.tar.xz  --exclude '*.toml' ./dist
 
       - name: Create release
         id: create_release
@@ -80,4 +80,4 @@ jobs:
           automatic_release_tag: "latest"
           title: "Development build"
           files: |
-            dist.tar.gz
+            dist.tar.xz
