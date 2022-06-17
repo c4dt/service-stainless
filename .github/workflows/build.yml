@@ -1,4 +1,4 @@
-name: Build and push Docker image, deploy on target
+name: Build and push Docker image, create release
 
 env:
   DEPLOY_USER: stainless
@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '10'
+          node-version: "10"
 
       - name: Lint TypeScript
         run: |
@@ -34,7 +34,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.17'
+          go-version: "1.17"
 
       - name: Lint Go
         run: |
@@ -46,7 +46,7 @@ jobs:
       - name: Setup protobuf C compiler
         uses: arduino/setup-protoc@v1
         with:
-          version: '3.19'
+          version: "3.19"
 
       - name: Test
         run: |
@@ -66,16 +66,18 @@ jobs:
           --password ${{ secrets.DOCKER_PASSWORD }} &&
           docker push c4dt/service-stainless-backend:latest
 
-      - name: Setup ssh key
-        uses: kielabokkie/ssh-key-and-known-hosts-action@v1.2.0
-        if: github.event_name == 'push'
-        with:
-          ssh-private-key: "${{ secrets.SSH_DEPLOY_KEY }}"
-          ssh-host: "${{ env.DEPLOY_HOST }}"
-
-      - name: Deploy
+      - name: Prepare artifact
         if: github.event_name == 'push'
         run: |
-          tar -C ./webapp --xz --create --file -  --exclude '*.toml' ./dist | ssh "${{ env.DEPLOY_USER }}"@"${{ env.DEPLOY_HOST }}" '(rm -rf build; mkdir build; cat > build/dist.tar.xz)'
-          rsync -av --delete ./scripts "${{ env.DEPLOY_USER }}"@"${{ env.DEPLOY_HOST }}":.
-          ssh "${{ env.DEPLOY_USER }}"@"${{ env.DEPLOY_HOST }}" bash --login scripts/deploy.sh
+          tar -C ./webapp --xz --create --file dist.tar.gz  --exclude '*.toml' ./dist
+
+      - name: Create release
+        id: create_release
+        if: github.event_name == 'push'
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: "latest"
+          title: "Development build"
+          files: |
+            dist.tar.gz
