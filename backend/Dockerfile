@@ -1,29 +1,31 @@
-FROM debian:stretch-slim
+FROM golang:1 as builder
 
-# See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863199
-RUN mkdir -p /usr/share/man/man1
+COPY build/*.go build/go.* /src/main/
+COPY *.go go.* /backend/
+COPY cothority/ /backend/cothority/
+COPY proto/ /backend/proto/
+COPY stainless/ /backend/stainless/
+
+RUN cd /src/main && go build -v -o /conode
+
+FROM debian:bookworm-slim as runner
+
 # libgomp is needed for z3
-RUN apt-get update; \
-    apt-get install --no-install-recommends --yes \
-    procps \
-    openjdk-8-jre-headless \
-    libgomp1 \
-    unzip \
-    ; apt-get clean
-# Backports needed for 'npm'...
-RUN echo 'deb http://deb.debian.org/debian stretch-backports main' >> /etc/apt/sources.list
-RUN apt-get update; \
-    apt-get install --target-release stretch-backports --no-install-recommends --yes \
-    npm \
-    ; apt-get clean
-RUN npm install --global solc@0.5.10
+RUN apt update \
+    && apt install --no-install-recommends --yes \
+	    procps \
+	    openjdk-17-jre-headless \
+	    libgomp1 \
+	    npm \
+	    unzip \
+    && apt clean
+RUN npm install --global solc@0.5
 
-COPY build/conode.Linux.x86_64 /usr/local/bin/conode
 COPY build/cvc4 /usr/local/bin/
 
 COPY build/stainless.zip /tmp/
 RUN unzip -d /usr/local/bin /tmp/stainless.zip && rm -f /tmp/stainless.zip
-# see https://github.com/epfl-lara/smart/issues/12
-RUN chmod o+r /usr/local/bin/lib/scalaz3-unix-64-2.12.jar
+
+COPY --from=builder /conode /usr/local/bin/conode
 
 ENTRYPOINT ["/usr/local/bin/conode"]
