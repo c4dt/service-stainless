@@ -74,3 +74,9 @@ seq-diagram.png: 	seq-diagram.txt
 ifneq ($S,)
 all: $Sall
 endif
+
+.PHONY: configs
+configs: webapp/src/assets/config.toml
+configs: webapp/src/assets/config_bevm.toml
+configs: webapp/src/assets/conodes.toml
+configs: webapp/src/assets/conodes_stainless.toml

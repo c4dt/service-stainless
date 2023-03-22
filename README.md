@@ -4,20 +4,24 @@
 
 Steps to run locally:
 
+You first need to generate the node's configs
 ```
-make webapp-build
-```
-
-Then, in one terminal, run:
-
-```
-make webapp-serve
+make configs
 ```
 
-And in another terminal:
-
+If you want our prebuilt images
 ```
-make backend-serve
+docker-compose pull
+```
+Else if you want to build the images yourself
+```
+make webapp-proto
+docker-compose build
 ```
 
-Finally, point your browser to `http://localhost:4200`.
+Launch it with
+```
+docker-compose up
+```
+
+And open a browser to http://localhost:80/stainless-demo/
