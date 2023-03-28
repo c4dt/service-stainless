@@ -10,9 +10,9 @@ import toml from "toml";
 import { StainlessRPC } from "src/lib/stainless";
 
 const ROSTER_FILE = "conodes.toml";
-const STAINLESS_ROSTER_FILE = "conodes_stainless.toml";
-const BYZCOIN_CONFIG_FILE = "config.toml";
-const BEVM_CONFIG_FILE = "config_bevm.toml";
+const STAINLESS_ROSTER_FILE = "stainless.toml";
+const BYZCOIN_CONFIG_FILE = "byzcoin.toml";
+const BEVM_CONFIG_FILE = "bevm.toml";
 
 export class Config {
   static async init(): Promise<Config> {
@@ -62,7 +62,7 @@ export class Config {
   }
 
   private static async getAsset(name: string): Promise<string> {
-    const resp = await fetch(`assets/${name}`);
+    const resp = await fetch(`assets/configs/${name}`);
     if (!resp.ok) {
       return Promise.reject(new Error(`Load ${name}: ${resp.status}`));
     }
