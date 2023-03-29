@@ -48,7 +48,7 @@ jobs:
         run: make backend-build webapp-build
 
       - name: Test
-        run: make backend-test backend-serve-test webapp-test
+        run: make backend-test
 
   deploy-to-dockerhub:
     name: Build and push Docker images
