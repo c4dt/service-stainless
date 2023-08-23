@@ -5,7 +5,7 @@ on:
 jobs:
   # This is copied from https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
   build-and-push-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write
@@ -20,8 +20,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Build requirements
+        run: |
+          sudo apt install -y protobuf-compiler
+          make configs webapp-proto
+
       - name: Build and push Docker image for nodes
-        id: build-and-push
+#        id: build-and-push-backend
         uses: docker/build-push-action@v4
         with:
           context: backend
@@ -29,7 +38,7 @@ jobs:
           tags: ghcr.io/c4dt/service-stainless-backend:latest
 
       - name: Build and push Docker image
-        id: build-and-push
+#        id: build-and-push-webapp
         uses: docker/build-push-action@v4
         with:
           context: webapp
