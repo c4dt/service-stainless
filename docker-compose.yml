@@ -46,7 +46,7 @@ services:
       - CONODE_SERVICE_PATH=/config
       - DEBUG_COLOR=true
   demo:
-    image: c4dt/service-stainless-demo:latest
+    image: c4dt/service-stainless-webapp:latest
     build:
       context: webapp
     network_mode: host
