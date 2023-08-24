@@ -2,7 +2,7 @@ version: "3"
 
 services:
   conode-1:
-    image: c4dt/service-stainless-backend:latest
+    image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
     volumes:
@@ -12,8 +12,9 @@ services:
     environment:
       - CONODE_SERVICE_PATH=/config
       - DEBUG_COLOR=true
+
   conode-2:
-    image: c4dt/service-stainless-backend:latest
+    image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
     network_mode: host
@@ -23,8 +24,9 @@ services:
     environment:
       - CONODE_SERVICE_PATH=/config
       - DEBUG_COLOR=true
+
   conode-3:
-    image: c4dt/service-stainless-backend:latest
+    image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
     network_mode: host
@@ -34,8 +36,9 @@ services:
     environment:
       - CONODE_SERVICE_PATH=/config
       - DEBUG_COLOR=true
+
   conode-4:
-    image: c4dt/service-stainless-backend:latest
+    image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
     network_mode: host
@@ -45,10 +48,13 @@ services:
     environment:
       - CONODE_SERVICE_PATH=/config
       - DEBUG_COLOR=true
+
   demo:
-    image: c4dt/service-stainless-webapp:latest
+    image: ghcr.io/c4dt/service-stainless-webapp:latest
     build:
       context: webapp
     network_mode: host
-    volumes:
-      - ./webapp/src/assets:/webapp/assets
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - ./webapp/src/assets:/webapp/assets

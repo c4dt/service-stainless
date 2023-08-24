@@ -8,9 +8,9 @@ RUN npm ci
 COPY . .
 RUN npx ng build --prod
 
-FROM joseluisq/static-web-server:2 AS runner
+FROM python:3
 
 COPY --from=builder /webapp/dist /webapp
+COPY src/assets /webapp/assets
 
-WORKDIR /webapp
-ENV SERVER_ROOT=/webapp
+CMD python3 -m http.server 8080 --directory /webapp
