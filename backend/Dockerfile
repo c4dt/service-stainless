@@ -27,5 +27,9 @@ COPY build/stainless.zip /tmp/
 RUN unzip -d /usr/local/bin /tmp/stainless.zip && rm -f /tmp/stainless.zip
 
 COPY --from=builder /conode /usr/local/bin/conode
+COPY build/conode-1 /configs/conode-1
+COPY build/conode-2 /configs/conode-2
+COPY build/conode-3 /configs/conode-3
+COPY build/conode-4 /configs/conode-4
 
 ENTRYPOINT ["/usr/local/bin/conode"]

@@ -5,12 +5,12 @@ services:
     image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
-    volumes:
-      - ./backend/build/conode-1:/config
+#    volumes:
+#      - ./backend/build/conode-1:/config
     network_mode: host
-    command: "-d 2 -c /config/private.toml server"
+    command: "-d 2 -c /configs/conode-1/private.toml server"
     environment:
-      - CONODE_SERVICE_PATH=/config
+      - CONODE_SERVICE_PATH=/configs/conode-1
       - DEBUG_COLOR=true
 
   conode-2:
@@ -18,11 +18,11 @@ services:
     build:
       context: backend
     network_mode: host
-    volumes:
-      - ./backend/build/conode-2:/config
-    command: "-d 2 -c /config/private.toml server"
+#    volumes:
+#      - ./backend/build/conode-2:/config
+    command: "-d 2 -c /configs/conode-2/private.toml server"
     environment:
-      - CONODE_SERVICE_PATH=/config
+      - CONODE_SERVICE_PATH=/configs/conode-2
       - DEBUG_COLOR=true
 
   conode-3:
@@ -30,11 +30,11 @@ services:
     build:
       context: backend
     network_mode: host
-    volumes:
-      - ./backend/build/conode-3:/config
-    command: "-d 2 -c /config/private.toml server"
+#    volumes:
+#      - ./backend/build/conode-3:/config
+    command: "-d 2 -c /configs/conode-3/private.toml server"
     environment:
-      - CONODE_SERVICE_PATH=/config
+      - CONODE_SERVICE_PATH=/configs/conode-3
       - DEBUG_COLOR=true
 
   conode-4:
@@ -42,19 +42,19 @@ services:
     build:
       context: backend
     network_mode: host
-    volumes:
-      - ./backend/build/conode-4:/config
-    command: "-d 2 -c /config/private.toml server"
+#    volumes:
+#      - ./backend/build/conode-4:/config
+    command: "-d 2 -c /configs/conode-4/private.toml server"
     environment:
-      - CONODE_SERVICE_PATH=/config
+      - CONODE_SERVICE_PATH=/configs/conode-4
       - DEBUG_COLOR=true
 
   demo:
     image: ghcr.io/c4dt/service-stainless-webapp:latest
     build:
       context: webapp
-    network_mode: host
-#    ports:
-#      - "8080:8080"
+#    network_mode: host
+    ports:
+      - "8080:8080"
 #    volumes:
 #      - ./webapp/src/assets:/webapp/assets
