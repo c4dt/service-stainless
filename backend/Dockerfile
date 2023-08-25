@@ -17,6 +17,7 @@ RUN apt update \
 	    openjdk-17-jre-headless \
 	    libgomp1 \
 	    npm \
+        iputils-ping host \
 	    unzip \
     && apt clean
 RUN npm install --global solc@0.5

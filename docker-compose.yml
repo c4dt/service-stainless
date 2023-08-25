@@ -5,9 +5,11 @@ services:
     image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
-#    volumes:
-#      - ./backend/build/conode-1:/config
-    network_mode: host
+    volumes:
+      - ./backend/build/conode-1:/configs/conode-1
+#    network_mode: host
+    ports:
+      - "7772-7773:7772-7773"
     command: "-d 2 -c /configs/conode-1/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-1
@@ -17,9 +19,11 @@ services:
     image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
-    network_mode: host
-#    volumes:
-#      - ./backend/build/conode-2:/config
+#    network_mode: host
+    ports:
+      - "7774-7775:7774-7775"
+    volumes:
+      - ./backend/build/conode-2:/configs/conode-2
     command: "-d 2 -c /configs/conode-2/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-2
@@ -29,9 +33,11 @@ services:
     image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
-    network_mode: host
-#    volumes:
-#      - ./backend/build/conode-3:/config
+#    network_mode: host
+    ports:
+      - "7776-7777:7776-7777"
+    volumes:
+      - ./backend/build/conode-3:/configs/conode-3
     command: "-d 2 -c /configs/conode-3/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-3
@@ -41,9 +47,11 @@ services:
     image: ghcr.io/c4dt/service-stainless-backend:latest
     build:
       context: backend
-    network_mode: host
-#    volumes:
-#      - ./backend/build/conode-4:/config
+#    network_mode: host
+    ports:
+      - "7778-7779:7778-7779"
+    volumes:
+      - ./backend/build/conode-4:/configs/conode-4
     command: "-d 2 -c /configs/conode-4/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-4
@@ -56,5 +64,5 @@ services:
 #    network_mode: host
     ports:
       - "8080:8080"
-#    volumes:
-#      - ./webapp/src/assets:/webapp/assets
+    volumes:
+      - ./webapp/src/assets:/webapp/assets
