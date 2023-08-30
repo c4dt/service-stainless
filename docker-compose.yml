@@ -3,66 +3,69 @@ version: "3"
 services:
   conode-1:
     image: ghcr.io/c4dt/service-stainless-backend:latest
-    build:
-      context: backend
     volumes:
-      - ./backend/build/conode-1:/configs/conode-1
-#    network_mode: host
+      - ./backend/configs/conode-1:/configs/conode-1
     ports:
       - "7772-7773:7772-7773"
     command: "-d 2 -c /configs/conode-1/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-1
       - DEBUG_COLOR=true
+    networks:
+      nodes:
+        ipv4_address: 10.7.7.2
 
   conode-2:
     image: ghcr.io/c4dt/service-stainless-backend:latest
-    build:
-      context: backend
-#    network_mode: host
     ports:
       - "7774-7775:7774-7775"
     volumes:
-      - ./backend/build/conode-2:/configs/conode-2
+      - ./backend/configs/conode-2:/configs/conode-2
     command: "-d 2 -c /configs/conode-2/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-2
       - DEBUG_COLOR=true
+    networks:
+      nodes:
+        ipv4_address: 10.7.7.3
 
   conode-3:
     image: ghcr.io/c4dt/service-stainless-backend:latest
-    build:
-      context: backend
-#    network_mode: host
     ports:
       - "7776-7777:7776-7777"
     volumes:
-      - ./backend/build/conode-3:/configs/conode-3
+      - ./backend/configs/conode-3:/configs/conode-3
     command: "-d 2 -c /configs/conode-3/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-3
       - DEBUG_COLOR=true
+    networks:
+      nodes:
+        ipv4_address: 10.7.7.4
 
   conode-4:
     image: ghcr.io/c4dt/service-stainless-backend:latest
-    build:
-      context: backend
-#    network_mode: host
     ports:
       - "7778-7779:7778-7779"
     volumes:
-      - ./backend/build/conode-4:/configs/conode-4
+      - ./backend/configs/conode-4:/configs/conode-4
     command: "-d 2 -c /configs/conode-4/private.toml server"
     environment:
       - CONODE_SERVICE_PATH=/configs/conode-4
       - DEBUG_COLOR=true
+    networks:
+      nodes:
+        ipv4_address: 10.7.7.5
 
   demo:
     image: ghcr.io/c4dt/service-stainless-webapp:latest
-    build:
-      context: webapp
-#    network_mode: host
     ports:
       - "8080:8080"
     volumes:
       - ./webapp/src/assets:/webapp/assets
+
+networks:
+  nodes:
+    ipam:
+      config:
+        - subnet: 10.7.7.0/24
