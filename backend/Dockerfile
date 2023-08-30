@@ -1,10 +1,10 @@
 FROM golang:1 as builder
 
 COPY build/*.go build/go.* /src/main/
-COPY *.go go.* /backend/
-COPY cothority/ /backend/cothority/
-COPY proto/ /backend/proto/
-COPY stainless/ /backend/stainless/
+COPY *.go go.* /src/
+COPY cothority/ /src/cothority/
+COPY proto/ /src/proto/
+COPY stainless/ /src/stainless/
 
 RUN cd /src/main && go build -v -o /conode
 
@@ -17,7 +17,6 @@ RUN apt update \
 	    openjdk-17-jre-headless \
 	    libgomp1 \
 	    npm \
-        iputils-ping host \
 	    unzip \
     && apt clean
 RUN npm install --global solc@0.5
@@ -28,9 +27,9 @@ COPY build/stainless.zip /tmp/
 RUN unzip -d /usr/local/bin /tmp/stainless.zip && rm -f /tmp/stainless.zip
 
 COPY --from=builder /conode /usr/local/bin/conode
-COPY build/conode-1 /configs/conode-1
-COPY build/conode-2 /configs/conode-2
-COPY build/conode-3 /configs/conode-3
-COPY build/conode-4 /configs/conode-4
+COPY configs/conode-1 /configs/conode-1
+COPY configs/conode-2 /configs/conode-2
+COPY configs/conode-3 /configs/conode-3
+COPY configs/conode-4 /configs/conode-4
 
 ENTRYPOINT ["/usr/local/bin/conode"]
