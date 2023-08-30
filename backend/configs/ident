@@ -1,0 +1,14 @@
+ByzCoinID: 2107e7f5f36848cfccc5b53de67d5bf27121584bcd27276c8e0e60bf20a759b5
+
+Admin DARC: 90e89235ce2972d0d43df8d4ce1221d715379578caf74dacb720e2ffc637c6e7
+
+local roster: tls://10.7.7.2:7772, tls://10.7.7.3:7774, tls://10.7.7.4:7776, tls://10.7.7.5:7778
+Last block:
+	Index: 0
+	BlockMaxHeight: 32
+	BackLinks: 1
+	Roster: tls://10.7.7.2:7772, tls://10.7.7.3:7774, tls://10.7.7.4:7776, tls://10.7.7.5:7778
+
+
+Private: 1c5fcb5ee5fdfa06d1f21cbe4a6c76606e0af7a41348b8f303d598a2ae561c0e
+Public: 0e72223ab8eedb4947b18120b6be22dae067cf0337ed248ecc0c0fb7cf208167
