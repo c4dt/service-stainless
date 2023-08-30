@@ -1,14 +1,14 @@
-ByzCoinID: d3ba36c5708d77ee4b072f429414f18fc3d7a89f59953f731f8e6683b06f83c5
+ByzCoinID: 46714f83bfaad042ee99586748846653de2952e59daf7d95459bac161c632e55
 
-Admin DARC: cb58c67c0fb44c5006233a00531b4dcbc2fb2c0b706a992f2bea19c6e470a510
+Admin DARC: a5d0593bc9e5163c9d78fd45b40f40770388d6d0958ef721d1bd099530b2608f
 
-local roster: tls://10.7.7.2:7772 (url: http://localhost:7773), tls://10.7.7.3:7774 (url: http://localhost:7775), tls://10.7.7.4:7776 (url: http://localhost:7777), tls://10.7.7.5:7778 (url: http://localhost:7779)
+local roster: tls://localhost:7772 (url: http://localhost:7773), tls://localhost:7774 (url: http://localhost:7775), tls://localhost:7776 (url: http://localhost:7777), tls://localhost:7778 (url: http://localhost:7779)
 Last block:
 	Index: 0
 	BlockMaxHeight: 32
 	BackLinks: 1
-	Roster: tls://10.7.7.2:7772 (url: http://localhost:7773), tls://10.7.7.3:7774 (url: http://localhost:7775), tls://10.7.7.4:7776 (url: http://localhost:7777), tls://10.7.7.5:7778 (url: http://localhost:7779)
+	Roster: tls://localhost:7772 (url: http://localhost:7773), tls://localhost:7774 (url: http://localhost:7775), tls://localhost:7776 (url: http://localhost:7777), tls://localhost:7778 (url: http://localhost:7779)
 
 
-Private: 32e84603502ab309b171f5f2ce1b1008ca3c388cb8fadf0ace6640a3aca68d02
-Public: eec1b7458140a14d4da953142375e924659bc92700a60c6051f0f4f4c380b542
+Private: bc7d7ea763a5d3e03b227371915c33443b2a9ee710c149564925a0699ad3570e
+Public: 72d2d63e15ac284989657cc7a908213a907a0c2d7697c3ed291dbff8b8243fd6
