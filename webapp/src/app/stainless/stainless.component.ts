@@ -369,7 +369,7 @@ export class StainlessComponent implements OnInit {
       // Call Stainless service to perform verification
       const response = await this.performLongAction<proto.VerificationResponse>(
         () => this.config.stainlessRPC.verify(sourceFiles),
-        "Performing verification"
+        "Performing verification\n2-3 minutes"
       );
       if (response === null) {
         return;
@@ -408,7 +408,7 @@ export class StainlessComponent implements OnInit {
     // Call Stainless service to generate bytecode and ABI
     const response = await this.performLongAction<proto.BytecodeGenResponse>(
       () => this.config.stainlessRPC.genBytecode(sourceFiles),
-      "Compiling..."
+      "Compiling...\n1 minute"
     );
     if (response === null) {
       return;
