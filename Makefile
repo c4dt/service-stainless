@@ -38,12 +38,19 @@ $Dbackend/configs/ident_bevm: $Dbackend/build/bcadmin $Dbackend/configs/conodes.
 		bevm_admin_key=$$( $< --config $Dbackend/configs/bevm_admin key ) ; \
 		bevm_user_key=$$( $< --config $Dbackend/configs/bevm_user key ) ; \
 		bevm_user_private_key=$$( $< --config $Dbackend/configs/bevm_user key --print $Dbackend/configs/bevm_user/key-* | grep Private | cut -d \  -f 2 ) ; \
+		sleep 1 ; \
 		bevm_darc=$$( $< --config $Dbackend/configs darc add --bc $Dbackend/configs/bc-* --unrestricted --identity $$bevm_admin_key --desc "BEvm Darc" | awk -F: '/BaseID:/ {print $$3}' ) ; \
+		sleep 1 ; \
 		$< --config $Dbackend/configs/bevm_admin link $(word 2,$^) $$( grep ByzCoinID $Dbackend/configs/ident | cut -d \  -f 2 ) --darc $$bevm_darc --identity $$bevm_admin_key ; \
+		sleep 1 ; \
 		$< --config $Dbackend/configs/bevm_admin darc rule --bc $Dbackend/configs/bevm_admin/bc-* --rule "spawn:bevm" --identity $$bevm_admin_key ; \
+		sleep 1 ; \
 		$< --config $Dbackend/configs/bevm_admin darc rule --bc $Dbackend/configs/bevm_admin/bc-* --rule "invoke:bevm.credit" --identity $$bevm_user_key ; \
+		sleep 1 ; \
 		$< --config $Dbackend/configs/bevm_admin darc rule --bc $Dbackend/configs/bevm_admin/bc-* --rule "invoke:bevm.transaction" --identity $$bevm_user_key ; \
+		sleep 1 ; \
 		bevm_instance_id=$$($(word 3,$^) --config $Dbackend/configs/bevm_admin spawn --bc $Dbackend/configs/bevm_admin/bc-* | awk '{print $$NF}' ) ; \
+		sleep 1 ; \
 		( echo "bevm_admin_key:        $${bevm_admin_key#ed25519:}" ; \
 		  echo "bevm_user_private_key: $$bevm_user_private_key" ; \
 		  echo "bevm_darc:             $$bevm_darc" ; \
