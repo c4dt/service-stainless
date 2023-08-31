@@ -1,12 +1,18 @@
-FROM golang:1 as builder
+FROM golang:1.21 as builder
+
+RUN apt update \
+    && apt install --no-install-recommends --yes unzip
 
 COPY build/*.go build/go.* /src/main/
-COPY *.go go.* /backend/
-COPY cothority/ /backend/cothority/
-COPY proto/ /backend/proto/
-COPY stainless/ /backend/stainless/
+COPY *.go go.* /src/
+COPY cothority /src/cothority/
+COPY proto /src/proto/
+COPY stainless /src/stainless/
 
 RUN cd /src/main && go build -v -o /conode
+
+COPY build/stainless.zip /tmp/
+RUN unzip -d /stainless /tmp/stainless.zip
 
 FROM debian:bookworm-slim as runner
 
@@ -16,16 +22,12 @@ RUN apt update \
 	    procps \
 	    openjdk-17-jre-headless \
 	    libgomp1 \
-	    npm \
-	    unzip \
+        npm \
     && apt clean
 RUN npm install --global solc@0.5
 
 COPY build/cvc4 /usr/local/bin/
 
-COPY build/stainless.zip /tmp/
-RUN unzip -d /usr/local/bin /tmp/stainless.zip && rm -f /tmp/stainless.zip
+COPY --from=builder /conode /stainless /usr/local/bin/
 
-COPY --from=builder /conode /usr/local/bin/conode
-
-ENTRYPOINT ["/usr/local/bin/conode"]
+CMD /usr/local/bin/conode -d 2 -c /config/private.toml server
