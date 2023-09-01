@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     name: Lint, build and test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -49,40 +49,3 @@ jobs:
 
       - name: Test
         run: make backend-test
-
-  deploy-to-dockerhub:
-    name: Build and push Docker images
-    needs: build
-    if: github.event_name == 'push'
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: docker/setup-buildx-action@v2
-      - uses: actions/setup-go@v2
-        with:
-          go-version: "1.17"
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "10"
-      - uses: arduino/setup-protoc@v1
-        with:
-          version: "3.19"
-
-      - uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - uses: actions/checkout@v3
-
-      - run: make configs webapp-proto
-
-      - uses: docker/build-push-action@v4
-        with:
-          context: backend
-          push: true
-          tags: c4dt/service-stainless-backend:latest
-      - uses: docker/build-push-action@v4
-        with:
-          context: webapp
-          push: true
-          tags: c4dt/service-stainless-backend:latest

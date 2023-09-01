@@ -1,0 +1,44 @@
+name: Build docker
+on:
+  push:
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Build requirements
+        run: |
+          sudo apt install -y protobuf-compiler
+          make configs webapp-build
+
+      - name: Build and push Docker image for nodes
+        uses: docker/build-push-action@v4
+        with:
+          context: backend
+          file: backend/Dockerfile.persistent
+          push: true
+          tags: ghcr.io/c4dt/service-stainless-persistent:latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: webapp
+          push: true
+          tags: ghcr.io/c4dt/service-stainless-webapp:latest

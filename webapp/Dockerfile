@@ -1,16 +1,15 @@
-FROM node:16-alpine AS builder
+FROM node:14-alpine AS builder
 
 WORKDIR /webapp
 
-COPY package*.json .
+COPY package*.json ./
 RUN npm ci
 
 COPY . .
 RUN npx ng build --prod
 
-FROM joseluisq/static-web-server:2 AS runner
+FROM python:3
 
 COPY --from=builder /webapp/dist /webapp
 
-WORKDIR /webapp
-ENV SERVER_ROOT=/webapp
+CMD python3 -m http.server 8080 --directory /webapp

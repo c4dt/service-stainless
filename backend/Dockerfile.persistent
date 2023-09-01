@@ -1,0 +1,6 @@
+FROM ghcr.io/c4dt/service-stainless-backend
+
+COPY configs /configs/
+ENV CONODE_SERVICE_PATH=/config
+
+CMD ( mkdir -p /config; test -f /config/private.toml || cp -a /configs/conode-$NODE_NBR/* /config ); /usr/local/bin/conode -d 2 -c /config/private.toml server
